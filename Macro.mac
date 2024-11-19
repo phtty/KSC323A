@@ -1,0 +1,321 @@
+;***********************************************************************
+JMP_IDX MACRO	MEM
+	if	MEM<$100
+	JMP	($80+MEM)
+	else
+	JMP	(MEM)
+	endif
+	ENDM
+
+LDLN	MACRO	mem
+	if	mem<$100
+	LDA	$780+mem
+	else
+	LDA	$700+mem
+	endif
+	ENDM
+
+LDHN	MACRO	mem
+	if	mem<$100
+	LDA	$F80+mem
+	else
+	LDA	$F00+mem
+	endif
+	ENDM
+
+STLN	MACRO	mem
+	if	mem<$100
+	STA	$780+mem
+	else
+	STA	$700+mem
+	endif
+	ENDM
+
+STHN	MACRO	mem
+	if	mem<$100
+	STA	$F80+mem
+	else
+	STA	$F00+mem
+	endif
+	ENDM
+	
+LXLN	MACRO	mem
+	if	mem<$100
+	LDX	$780+mem
+	else
+	LDX	$700+mem
+	endif
+	ENDM
+
+LXHN	MACRO	mem
+	if	mem<$100
+	LDX	$F80+mem
+	else
+	LDX	$F00+mem
+	endif
+	ENDM
+
+SXLN	MACRO	mem
+	if	mem<$100
+	STX	$780+mem
+	else
+	STX	$700+mem
+	endif
+	ENDM
+
+SXHN	MACRO	mem
+	if	mem<$100
+	STX	$F80+mem
+	else
+	STX	$F00+mem
+	endif
+	ENDM
+
+LDLN_X	MACRO	mem
+	if	mem<$100
+	LDA	$780+mem,X
+	else
+	LDA	$700+mem,X
+	endif
+	ENDM
+
+STLN_X	MACRO	mem
+	if	mem<$100
+	STA	$780+mem,X
+	else
+	STA	$700+mem,X
+	endif
+	ENDM
+
+LDHN_X	MACRO	mem
+	if	mem<$100
+	LDA	$F80+mem,X
+	else
+	LDA	$F00+mem,X
+	endif
+	ENDM
+
+STHN_X	MACRO	mem
+	if	mem<$100
+	STA	$F80+mem,X
+	else
+	STA	$F00+mem,X
+	endif
+	ENDM
+
+INCHN_X	MACRO	mem
+	if	mem<$100
+	INC	$F80+mem,X
+	else
+	INC	$F00+mem,X
+	endif
+	ENDM
+
+DECHN_X	MACRO	mem
+	if	mem<$100
+	DEC	$F80+mem,X
+	else
+	DEC	$F00+mem,X
+	endif
+	ENDM
+
+ADCLN	MACRO	mem
+	if	mem<$100
+	ADC	$780+mem
+	else
+	ADC	$700+mem
+	endif
+	ENDM
+
+ADCHN	MACRO	mem
+	if	mem<$100
+	ADC	$F80+mem
+	else
+	ADC	$F00+mem
+	endif
+	ENDM
+
+CMPLN	MACRO	mem
+	if	mem<$100
+	CMP	$780+mem
+	else
+	CMP	$700+mem
+	endif
+	ENDM
+
+CMPHN	MACRO	mem
+	if	mem<$100
+	CMP	$F80+mem
+	else
+	CMP	$F00+mem
+	endif
+	ENDM
+	
+INCLN	MACRO	mem
+	if	mem<$100
+	INC	$780+mem
+	else
+	INC	$700+mem
+	endif
+	ENDM
+
+INCHN	MACRO	mem
+	if	mem<$100
+	INC	$F80+mem
+	else
+	INC	$F00+mem
+	endif
+	ENDM
+
+DECLN	MACRO	mem
+	if	mem<$100
+	DEC	$780+mem
+	else
+	DEC	$700+mem
+	endif
+	ENDM
+
+DECHN	MACRO	mem
+	if	mem<$100
+	DEC	$F80+mem
+	else
+	DEC	$F00+mem
+	endif
+	ENDM
+
+LDA_X	MACRO	mem
+	if	mem<$100
+	LDA	$80+mem,X
+	else
+	LDA	mem,X
+	endif
+	ENDM
+
+STA_X	MACRO	mem
+	if	mem<$100
+	STA	$80+mem,X
+	else
+	STA	mem,X
+	endif
+	ENDM
+
+STZ_X	MACRO	mem
+	if	mem<$100
+	STZ	$80+mem,X
+	else
+	STZ	mem,X
+	endif
+	ENDM
+
+INC_X	MACRO	mem
+	if	mem<$100
+	INC	$80+mem,X
+	else
+	INC	mem,X
+	endif
+	ENDM
+
+ADC_X	MACRO	mem
+	if	mem<$100
+	ADC	$80+mem,X
+	else
+	ADC	mem,X
+	endif
+	ENDM
+
+SBC_X	MACRO	mem
+	if	mem<$100
+	SBC	$80+mem,X
+	else
+	SBC	mem,X
+	endif
+	ENDM
+
+CMP_X	MACRO	mem
+	if	mem<$100
+	CMP	$80+mem,X
+	else
+	CMP	mem,X
+	endif
+	ENDM
+
+ASLLN	MACRO	mem
+	if	mem<$100
+	ASL	$780+mem
+	else
+	ASL	$700+mem
+	endif
+	ENDM
+
+LSRLN	MACRO	mem
+	if	mem<$100
+	LSR	$780+mem
+	else
+	LSR	$700+mem
+	endif
+	ENDM
+	
+ROLLN	MACRO	mem
+	if	mem<$100
+	ROL	$780+mem
+	else
+	ROL	$700+mem
+	endif
+	ENDM
+
+RORLN	MACRO	mem
+	if	mem<$100
+	ROR	$780+mem
+	else
+	ROR	$700+mem
+	endif
+	ENDM
+
+ASLHN	MACRO	mem
+	if	mem<$100
+	ASL	$F80+mem
+	else
+	ASL	$F00+mem
+	endif
+	ENDM
+	
+LSRHN	MACRO	mem
+	if	mem<$100
+	LSR	$F80+mem
+	else
+	LSR	$F00+mem
+	endif
+	ENDM
+
+ROLHN	MACRO	mem
+	if	mem<$100
+	ROL	$F80+mem
+	else
+	ROL	$F00+mem
+	endif
+	ENDM
+
+RORHN	MACRO	mem
+	if	mem<$100
+	ROR	$F80+mem
+	else
+	ROR	$F00+mem
+	endif
+	ENDM
+
+
+BR0	MACRO	PARA,VAR,LABLE
+	BBR@<VAR.mod.8> PARA,LABLE
+	ENDM
+
+BR1	MACRO	PARA,VAR,LABLE
+	BBS@<VAR.mod.8>	PARA,LABLE
+	ENDM
+
+xSETB	MACRO	flag,bit
+	SMB@<bit>  flag
+	ENDM
+
+xCLRB	MACRO	flag,bit
+	RMB@<bit>  flag
+	ENDM
