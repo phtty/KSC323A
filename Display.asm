@@ -209,30 +209,15 @@ F_SymbolRegulate:
 	rts
 
 RTMode_Symbol:
-	ldx		#lcd_Y
-	jsr		F_ClrSymbol
-	ldx		#lcd_DM
-	jsr		F_ClrSymbol
+
 	rts
 
 4DMode_Symbol:
-	ldx		#lcd_D
-	jsr		F_DisSymbol
-	ldx		#lcd_COL
-	jsr		F_ClrSymbol
-	ldx		#lcd_DM
-	jsr		F_ClrSymbol
-	ldx		#lcd_Y
-	jsr		F_ClrSymbol
-	ldx		#lcd_PM
-	jsr		F_ClrSymbol
+
 	rts
 
 TMMode_Symbol:
-	ldx		#lcd_COL
-	jsr		F_ClrSymbol
-	ldx		#lcd_PM
-	jsr		F_ClrSymbol
+
 	rts
 
 TSMode_Symbol:
@@ -240,25 +225,15 @@ TSMode_Symbol:
 	rts
 
 YSMode_Symbol:
-	ldx		#lcd_Y
-	jsr		F_DisSymbol
-	ldx		#lcd_COL
-	jsr		F_ClrSymbol
-	ldx		#lcd_PM
-	jsr		F_ClrSymbol
+
 	rts
 
 MSMode_Symbol:
-	ldx		#lcd_DM
-	jsr		F_DisSymbol
-	ldx		#lcd_Y
-	jsr		F_ClrSymbol
-L_No_4D_Day_MS:
+
 	rts
 
 DSMode_Symbol:
-	ldx		#lcd_DM
-	jsr		F_DisSymbol
+
 	rts
 
 

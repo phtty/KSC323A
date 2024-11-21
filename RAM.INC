@@ -2,8 +2,8 @@
 ;***************************************
 ; RAM Address
 ;***************************************
-RamStarAddr		EQU		1800H			;RAM的开始地址
-LCD_RamAddr		EQU		RamStarAddr		;LCD RAM的地址
+RamStarAddr		EQU		1800H								;RAM的开始地址
+LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr		;LCD RAM的地址
 Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr ;事件相关数据的地址
 
 
@@ -17,10 +17,10 @@ Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr ;事件相关数据�
 Page0RamStarAddr		EQU		$
 LCDRAM					DS		6*6
 
-R_Int_Backup			DS		1
+LED_Addr				EQU		$
+LED_Ram					DS		4*3
 
-Frame_Counter			DS		1
-Anim_Phase				DS		1
+R_Int_Backup			DS		1
 
 Counter_1Hz				DS		1
 Counter_16Hz			DS		1
@@ -70,24 +70,8 @@ Random_Flag				DS		1
 ;bit2 = 1 停止随机数采样
 ;bit3 = 1 4D日
 
-Frame_Serial			DS		1
-
-Frame_Counter_D0		DS		1
-Frame_Counter_D1		DS		1
-Frame_Counter_D2		DS		1
-Frame_Counter_D3		DS		1
-
 Beep_Serial				DS		1
 ;响铃序列
-
-Table_Digit_LByte		DS		1
-Table_Digit_HByte		DS		1
-
-Target_Digit_LByte		DS		1
-Target_Digit_HByte		DS		1
-
-Mask_LByte				DS		1
-Mask_HByte				DS		1
 
 PA_IO_Backup			DS		1
 PC_IO_Backup			DS		1
@@ -100,11 +84,6 @@ R_Date_Day				DS		1	;日期，从1开始
 R_Date_Month			DS		1	;月份，从1开始
 R_Date_Year				DS		1	;年份，由于只计2000-2099，所以由0-99代替
 R_Date_Week				DS		1	;星期数，从1开始
-
-R_Seed0					DS		1
-R_Seed1					DS		1
-R_Seed2					DS		1
-R_Seed3					DS		1
 
 CC0						DS		1
 

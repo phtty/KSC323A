@@ -1,12 +1,5 @@
 F_Init_SystemRam:							; 系统初始化
 	lda		#0
-	sta		Frame_Counter
-	sta		Frame_Serial
-	sta		Frame_Counter_D0
-	sta		Frame_Counter_D1
-	sta		Frame_Counter_D2
-	sta		Frame_Counter_D3
-	sta		Anim_Phase
 	sta		Counter_1Hz
 	sta		Counter_16Hz
 	sta		Counter_Lcd
@@ -65,32 +58,35 @@ F_LCD_Init:
 
 
 F_Port_Init:
-	lda		#$ac
+	lda		#$1c								; PA5不需要唤醒
 	sta		PA_WAKE
-	lda		#$8c
+	lda		#$3c
 	sta		PA_DIR
-	lda		#$ac
+	lda		#$3c
 	sta		PA
-	
 	smb4	IER									; 打开PA口外部中断
 
-	lda		PC_DIR								; PC0、1配置为输出
-	and		#$fc
-	sta		PC_DIR
-	smb0	PC									; PC0配置输出高
-	rmb1	PC									; PC1配置输出低
+	lda		#$0
+	sta		PC_DIR								; PC配置为输出
+	lda		#$0
+	sta		PC
 
-	rmb2	PB
-	smb2	PB_TYPE								; PB2口作背光输出
-	lda		#C_PB3S								; PB3作PN声音输出
+	lda		#$0
+	sta		PD_DIR								; PD配置为输出
+	lda		#$0
+	sta		PD
+
+	lda		#C_PB2S								; PB2作PP声音输出
 	sta		PADF0
 
 	rts
 
 
 F_Timer_Init:
-	TMR0_CLK_FSUB								; TIM0时钟源Fsub(32768Hz)
-	TMR1_CLK_512Hz								; TIM1时钟源Fsub/64(512Hz)
+	lda		#00000100B							; TIM0时钟源Fsub(32768Hz)
+	sta		TMCLK
+    rmb0	PADF1								; TIM1时钟源Fsub/64(512Hz)
+
 	; TIM2时钟源DIV,Fsub 64分频512Hz，关闭定时器同步
 	lda		DIVC
 	ora		#C_DIVC_Fsub_64+C_Asynchronous
