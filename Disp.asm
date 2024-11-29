@@ -109,10 +109,10 @@ L_Sending_Loop:
 	ror		P_Temp
 	bcc		L_Send_0
 	smb5	PD							; 如果是1，则输出高
-	bra		L_Juge_32Times
+	bra		L_CLK_Change
 L_Send_0:
 	rmb5	PD							; 0则输出低
-L_CLK_:
+L_CLK_Change:
 	rmb6	PD							; CLK产生一次上升沿使得5020开始位移
 	nop									; 延时三个指令周期确保IO口翻转完成
 	nop

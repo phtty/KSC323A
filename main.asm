@@ -1,7 +1,7 @@
 	.CHIP	W65C02S									; cpu的选型
 	.MACLIST	ON
 
-CODE_BEG	EQU		F000H							; 起始地址
+CODE_BEG	EQU		E000H							; 起始地址
 
 PROG	SECTION	OFFSET	CODE_BEG					; 定义代码段的偏移量从CODE_BEG开始，用于组织程序代码。
 
@@ -46,15 +46,20 @@ L_Clear_Ram_Loop:
 	sta		SYSCLK
 
 	jsr		F_Timer_Init
+	jsr		F_RFC_Init
 
 	cli												; 开总中断
+
+	lda		#10
+	sec
+	sbc		#10
 
 	
 
 ; 状态机
 MainLoop:
 	;jsr		F_Time_Run							; 走时全局生效
-	;jsr		L_4D_Day_Display					; 判断是否为4D日
+	jsr			F_RFC_MeasureManage
 	;jsr		F_Display_Week						; 星期显示只有4D模式不生效
 	;jsr		F_Backlight							; 背光全局生效
 	;jsr		F_SymbolRegulate
@@ -106,7 +111,7 @@ Status_Day_Set:
 
 
 F_ReturnToRunTime_Juge:
-	bbr4	Key_Flag,L_Return_Juge_Exit
+	bbr2	Key_Flag,L_Return_Juge_Exit
 	bbr7	Timer_Flag,L_Return_Juge_Exit
 
 	rmb7	Timer_Flag
@@ -118,7 +123,7 @@ F_ReturnToRunTime_Juge:
 L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
-	rmb4	Key_Flag
+	rmb2	Key_Flag
 	lda		#00000001B							; 30S未响应则回到走时模式
 	sta		Sys_Status_Flag
 	;jsr		F_SymbolRegulate					; 显示对应模式的常亮符号
@@ -146,6 +151,13 @@ V_IRQ:
 
 L_DivIrq:
 	rmb0	IFR									; 清中断标志位
+	inc		Counter_102Hz
+	lda		Counter_102Hz
+	cmp		#5
+	bne		L_EndIrq
+	lda		#0
+	sta		Counter_102Hz
+	smb0	RFC_Flag							; 102Hz标志，用于计数Frcx
 	bra		L_EndIrq
 
 L_Timer0Irq:									; 用于蜂鸣器
@@ -188,7 +200,7 @@ L_PaIrq:
 	smb0	Key_Flag
 	smb1	Key_Flag							; 首次触发
 	rmb3	Timer_Flag							; 如果有新的下降沿到来，清快加标志位
-	rmb4	Timer_Flag							; 8Hz计时
+	rmb4	Timer_Flag							; 16Hz计时
 
 	smb1	TMRC								; 打开快加定时
 
@@ -196,14 +208,6 @@ L_PaIrq:
 
 L_LcdIrq:
 	rmb6	IFR									; 清中断标志位
-	inc		CC0
-	inc		Counter_Lcd
-	lda		Counter_Lcd
-	cmp		#1
-	bne		L_EndIrq
-	lda		#0
-	sta		Counter_Lcd
-	smb1	Random_Flag							; 帧更新标志位
 
 L_EndIrq:
 	pla
@@ -217,6 +221,10 @@ L_EndIrq:
 .include	Disp.asm
 ;.include	Display.asm
 .include	Ledtab.asm
+.include	RFC.asm
+.include	RFCTable.asm
+.include	TemperHandle.asm
+.include	HumidHandle.asm
 ;.include	TestMode.asm
 
 
