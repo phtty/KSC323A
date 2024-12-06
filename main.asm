@@ -50,73 +50,61 @@ L_Clear_Ram_Loop:
 
 	cli												; 开总中断
 
-	lda		#10
-	sec
-	sbc		#10
-
-	
-
+	jsr		F_Test_Mode
+	lda		#2
+	sta		Backlight_Level
+	smb0	PC
 ; 状态机
-MainLoop:
-	;jsr		F_Time_Run							; 走时全局生效
-	jsr			F_RFC_MeasureManage
-	;jsr		F_Display_Week						; 星期显示只有4D模式不生效
-	;jsr		F_Backlight							; 背光全局生效
+MainLoop:											; 全局生效部分
+	jsr			F_DisPlay_Frame
+	;jsr			F_PowerManage
+	;jsr		F_Time_Run							; 走时
+	;jsr			F_RFC_MeasureManage
+	;jsr		F_Display_Week						; 星期
 	;jsr		F_SymbolRegulate
 
 Status_Juge:
-	bbs0	Sys_Status_Flag,Status_Runtime
-	bbs1	Sys_Status_Flag,Status_4D_Mode
-	bbs2	Sys_Status_Flag,Status_TimeMode_Set
-	bbs3	Sys_Status_Flag,Status_Hour_Set
-	bbs4	Sys_Status_Flag,Status_Min_Set
-	bbs5	Sys_Status_Flag,Status_Year_Set
-	bbs6	Sys_Status_Flag,Status_Month_Set
-	bbs7	Sys_Status_Flag,Status_Day_Set
-	bra		MainLoop
-Status_Runtime:
+	bbs0	Sys_Status_Flag,Status_DisTime
+	bbs1	Sys_Status_Flag,Status_DisDate
+	bbs2	Sys_Status_Flag,Status_DisRotate
+	bbs3	Sys_Status_Flag,Status_DisAlarm
+	bbs4	Sys_Status_Flag,Status_SetClock
+	bbs5	Sys_Status_Flag,Status_SetAlarm
 
-	sta		HALT
 	bra		MainLoop
-Status_4D_Mode:
+Status_DisTime:
 
-	sta		HALT
+	;sta		HALT
 	bra		MainLoop
-Status_TimeMode_Set:
+Status_DisDate:
 
 	sta		HALT
 	bra		MainLoop
-Status_Hour_Set:
+Status_DisRotate:
 
 	sta		HALT
 	bra		MainLoop
-Status_Min_Set:
+Status_DisAlarm:
 
 	sta		HALT
 	bra		MainLoop
-Status_Year_Set:
+Status_SetClock:
 
 	sta		HALT
 	bra		MainLoop
-Status_Month_Set:
+Status_SetAlarm:
 
 	sta		HALT
-	jmp		MainLoop
-Status_Day_Set:
-
-	sta		HALT
-	jmp		MainLoop
+	bra		MainLoop
 
 
 
 
-F_ReturnToRunTime_Juge:
+F_ReturnToDisTime_Juge:
 	bbr2	Key_Flag,L_Return_Juge_Exit
-	bbr7	Timer_Flag,L_Return_Juge_Exit
 
-	rmb7	Timer_Flag
 	lda		Return_Counter
-	cmp		#31
+	cmp		#15
 	bcs		L_Return_Stop
 	inc		Return_Counter
 	bra		L_Return_Juge_Exit
@@ -124,7 +112,7 @@ L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
 	rmb2	Key_Flag
-	lda		#00000001B							; 30S未响应则回到走时模式
+	lda		#00000001B								; 15S未响应则回到走时模式
 	sta		Sys_Status_Flag
 	;jsr		F_SymbolRegulate					; 显示对应模式的常亮符号
 L_Return_Juge_Exit:
@@ -190,7 +178,7 @@ L_1Hz_Out:
 	lda		#$0
 	sta		Counter_1Hz
 	lda		Timer_Flag
-	ora		#10100110B							; 1S、增S、背光、4D的1S标志位
+	ora		#00100110B							; 1S、增S、熄屏的1S标志位
 	sta		Timer_Flag
 	bra		L_EndIrq
 
@@ -216,23 +204,25 @@ L_EndIrq:
 
 ;.include	ScanKey.asm
 ;.include	Time.asm
-;.include	Calendar.asm
+.include	Calendar.asm
 .include	Init.asm
 .include	Disp.asm
-;.include	Display.asm
+.include	Display.asm
+.include	Alarm.asm
 .include	Ledtab.asm
 .include	RFC.asm
 .include	RFCTable.asm
 .include	TemperHandle.asm
 .include	HumidHandle.asm
-;.include	TestMode.asm
+.include	PowerManage.asm
+.include	TestMode.asm
 
 
 .BLKB	0FFFFH-$,0FFH							; 从当前地址到FFFF全部填充0xFF
 
 .ORG	0FFF8H
-	DB		C_RST_SEL+C_VOLT_V30+C_OMS0+C_PAIM
-	DB		C_PB32IS+C_PROTB
+	DB		C_PY_SEL+C_OMS_BR
+	DB		C_PROTB
 	DW		0FFFFH
 
 .ORG	0FFFCH

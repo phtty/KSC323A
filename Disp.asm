@@ -1,15 +1,16 @@
 ;===========================================================
-; LCD_RamAddr		.equ	0200H
+; LED_RamAddr		.equ	0200H
 ;===========================================================
 F_FillScreen:
 	lda		#$ff
-	bne		L_FillLed
+	bra		L_FillLed
 F_ClearScreen:
 	lda		#0
 L_FillLed:
 	sta		$1824
 	sta		$1825
 	sta		$1826
+	sta		$1827
 	sta		$1828
 	sta		$1829
 	sta		$182a
@@ -18,7 +19,6 @@ L_FillLed:
 	sta		$182d
 	sta		$182e
 	sta		$182f
-	sta		$1830
 
 	rts
 
@@ -32,8 +32,6 @@ L_FillLed:
 L_Dis_7Bit_DigitDot:
 	stx		P_Temp+1					; 偏移量暂存进P_Temp+2, 腾出X来做变址寻址
 
-	clc
-	rol									; 乘以2得到正确的偏移量
 	tax
 	lda		Table_Digit_7bit,x			; 将显示的数字通过查表找到对应的段码存进A
 	sta		P_Temp						; 暂存段码值到P_Temp
@@ -65,48 +63,105 @@ L_Inc_Dis_Index_Prog_7bit:
 	rts
 
 
-F_DisPlay_Frame:
-	jsr		F_COM0_SEL
-	rmb7	PD							; LE拉低锁存5020当前数据
-	lda		#0
-	jsr		L_Send_Buffer
-	rmb7	PD							; LE拉低锁存5020当前数据
-	lda		#1
-	jsr		L_Send_Buffer
-	rmb7	PD							; LE拉低锁存5020当前数据
-	lda		#2
-	jsr		L_Send_Buffer
 
-	rmb7	PD							; LE拉低锁存5020当前数据
+; 用于显示星期的七段数显
+L_Dis_7Bit_WeekDot:
+	stx		P_Temp+1					; 偏移量暂存进P_Temp+1, 腾出X来做变址寻址
+
+	ldx		R_Date_Week					; 取得当前星期数
+	lda		Table_Week_7bit,x			; 将显示的数字通过查表找到对应的段码存进A
+	sta		P_Temp						; 暂存段码值到P_Temp
+
+	lda		#7
+	sta		P_Temp+2					; 设置显示段数为7
+L_Judge_Dis_7Bit_WeekDot:				; 显示循环的开始
+	ldx		P_Temp+1					; 取回偏移量作为索引
+	lda		Led_bit,x					; 查表定位目标段的bit位
+	sta		P_Temp+3	
+	lda		Led_byte,x					; 查表定位目标段的显存地址
+	tax
+	ror		P_Temp						; 循环右移取得目标段是亮或者灭
+	bcc		L_CLR_7bit_Week				; 当前段的值若是0则进清点子程序
+	lda		LED_RamAddr,x				; 将目标段的显存的特定bit位置1来打亮
+	ora		P_Temp+3
+	sta		LED_RamAddr,x
+	bra		L_Inc_Dis_Index_Week_7bit	; 跳转到显示索引增加的子程序
+L_CLR_7bit_Week:
+	lda		LED_RamAddr,x				; 加载LCD RAM的地址
+	ora		P_Temp+3					; 先将指定bit用或操作置1
+	eor		P_Temp+3					; 然后异或操作翻转置0
+	sta		LED_RamAddr,x				; 将结果写回LCD RAM，清除对应位置
+L_Inc_Dis_Index_Week_7bit:
+	inc		P_Temp+1					; 递增偏移量，处理下一个段
+	dec		P_Temp+2					; 递减剩余要显示的段数
+	bne		L_Judge_Dis_7Bit_WeekDot	; 剩余段数为0则返回
 	rts
 
 
+
+
+;===========================================================
+;@brief		显示1或者不显示
+;@para:		A = 0~1
+;			X = offset	
+;@impact:	X，A
+;===========================================================
+L_Dis_2Bit_DigitDot:
+	bne		One_Digit
+	ldx		#led_d4						; 零则不显示
+	jsr		F_ClrSymbol
+	ldx		#led_d4+1
+	jsr		F_ClrSymbol
+	rts
+One_Digit:
+	ldx		#led_d4						; 一则显示bc两段
+	jsr		F_DisSymbol
+	ldx		#led_d4+1
+	jsr		F_DisSymbol
+	rts
+
+F_DisPlay_Frame:
+	lda		#0
+	jsr		L_Send_Buffer_COM
+	
+	lda		#1
+	jsr		L_Send_Buffer_COM
+	
+	lda		#2
+	jsr		L_Send_Buffer_COM
+	rts
+
+
+
+; 发送当前COM的缓存内容
 ; a==当前COM数
-L_Send_Buffer:
+L_Send_Buffer_COM:
+	rmb7	PD							; 发送数据时需要LE拉低锁存5020当前数据
+	pha
+
 	clc									; 乘以4作偏移
 	rol
 	rol
 	tax
 	lda		LED_RamAddr,x				; 32个Seg的状态依次送进P_Temp
 	sta		P_Temp
-	dex
+	inx
 	lda		LED_RamAddr,x
 	sta		P_Temp+1
-	dex
+	inx
 	lda		LED_RamAddr,x
 	sta		P_Temp+2
-	dex
+	inx
 	lda		LED_RamAddr,x
 	sta		P_Temp+3
-	dex
 
 	lda		#32
 	sta		P_Temp+4
-L_Sending_Loop:
-	ror		P_Temp+3					; 循环右移后，检测C位
-	ror		P_Temp+2
-	ror		P_Temp+1
-	ror		P_Temp
+L_Sending_Loop:							; 由于5020是MSB，发送必须高位先发
+	rol		P_Temp						; 循环左移后，检测C位
+	rol		P_Temp+1
+	rol		P_Temp+2
+	rol		P_Temp+3
 	bcc		L_Send_0
 	smb5	PD							; 如果是1，则输出高
 	bra		L_CLK_Change
@@ -121,7 +176,29 @@ L_CLK_Change:
 	dec		P_Temp+4
 	bne		L_Sending_Loop
 
-	smb7	PD							; 32bit发送完成，开始显示
+	smb1	PC							; 5020数据更改前需要先关闭所有COM避免亮上一个COM的灯
+	smb2	PC
+	smb3	PC
+
+	smb7	PD							; COM选择完毕，取消锁存开始显示
+	nop									; 延时三个指令周期确保IO口翻转完成
+	nop
+	nop
+	rmb7	PD							; 锁存数据避免意外改变
+
+	pla
+	bne		No_COM0_SEL					; 32bit发送完成，根据COM数选择对应COM引脚
+	jsr		F_COM0_SEL
+	bra		DisCOM_Start
+No_COM0_SEL:
+	cmp		#01
+	bne		No_COM1_SEL
+	jsr		F_COM1_SEL
+	bra		DisCOM_Start
+No_COM1_SEL:
+	jsr		F_COM2_SEL
+DisCOM_Start:
+
 	rts
 
 
@@ -154,21 +231,21 @@ F_DisSymbol_Com:
 
 
 F_COM0_SEL:
-	smb1	PC
-	rmb2	PC
-	rmb3	PC
+	rmb1	PC
+	smb2	PC
+	smb3	PC
 	rts
 
 F_COM1_SEL:
-	rmb1	PC
-	smb2	PC
-	rmb3	PC
+	smb1	PC
+	rmb2	PC
+	smb3	PC
 	rts
 
 F_COM2_SEL:
-	rmb1	PC
-	rmb2	PC
-	smb3	PC
+	smb1	PC
+	smb2	PC
+	rmb3	PC
 	rts
 
 
@@ -185,6 +262,8 @@ Table_Digit_7bit:
 	.byte	$7f	; 8
 	.byte	$6f	; 9
 	.byte	$00	; undisplay
+	.byte	$39 ; C
+	.byte	$71	; F
 
 Table_Week_7bit:
 	.byte	$01		; SUN

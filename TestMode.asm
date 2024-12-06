@@ -1,19 +1,21 @@
 F_Test_Mode:
-	jsr		F_FillScreen
-	lda		#00
-	sta		P_Temp
+	jsr		F_ClearScreen
 
-L_Test_Loop:
-	bbr0	Timer_Flag,L_No_Test_2Hz
-	rmb0	Timer_Flag
-	inc		P_Temp
-L_No_Test_2Hz:
-	lda		P_Temp
-	cmp		#4
-	bcs		L_Test_Over
-	bra		L_Test_Loop
-L_Test_Over:
-	jsr		F_Display_Time
-	jsr		F_DisDate_Week
+	ldx		#led_d0
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d1
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d2
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d3
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+
 
 	rts

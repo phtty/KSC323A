@@ -6,10 +6,12 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Key_Flag
 	sta		Timer_Flag
 	sta		Clock_Flag
-	;sta		Calendar_Flag
+	sta		Calendar_Flag
+	sta		Backlight_Flag
 	sta		QuickAdd_Counter					; 快加标志的计数
 	sta		Backlight_Counter
 	sta		Return_Counter
+	sta		AlarmLoud_Counter
 
 	lda		#01
 	sta		Sys_Status_Flag
@@ -60,9 +62,9 @@ F_LCD_Init:
 F_Port_Init:
 	lda		#$3c								; PA5不需要唤醒
 	sta		PA_WAKE
-	lda		#$1c
+	lda		#$3c
 	sta		PA_DIR
-	lda		#$1c
+	lda		#$3c
 	sta		PA
 	smb4	IER									; 打开PA口外部中断
 
@@ -70,6 +72,10 @@ F_Port_Init:
 	sta		PC_DIR								; PC配置为输出
 	lda		#$0
 	sta		PC
+
+	lda		PB
+	and		#$bf
+	sta		PB
 
 	lda		#$07
 	sta		PD_DIR								; PD0-3配置为三态输入，其余为输出

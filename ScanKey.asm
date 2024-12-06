@@ -31,7 +31,6 @@ L_Key16Hz:
 	beq		L_16Hz_Count
 	jsr		F_SpecialKey_Handle					; 长按终止时，进行一次特殊按键的处理
 	bra		L_KeyExit
-	rts
 L_16Hz_Count:
 	inc		QuickAdd_Counter
 	lda		QuickAdd_Counter
@@ -42,23 +41,23 @@ L_QuikAdd:
 	smb3	Timer_Flag
 
 L_KeyHandle:
-	jsr		F_KeyMatrix_PC4Scan_Ready
-	lda		PA									; 判断Alarm键和Backlight键
+	jsr		F_KeyMatrix_PC4Scan_Ready			; 判断Alarm键和Backlight键
+	lda		PA
 	and		#$0c
 	cmp		#$04
 	bne		No_KeyATrigger						; 由于跳转指令寻址能力的问题，这里采用jmp进行跳转
-	smb0	SpecialKey_Flag						; A键待处理
+	jsr		L_KeyATrigger
 No_KeyATrigger:
 	cmp		#$08
 	bne		No_KeyBTrigger
-	smb1	SpecialKey_Flag						; B键待处理
+	jsr		L_KeyBTrigger
 No_KeyBTrigger:
-	jsr		F_KeyMatrix_PC5Scan_Ready
-	lda		PA									; 判断Mode键、Up键、Down键
+	jsr		F_KeyMatrix_PC5Scan_Ready			; 判断Mode键、Up键、Down键
+	lda		PA
 	and		#$1c
 	cmp		#$04
 	bne		No_KeyMTrigger
-	smb2	SpecialKey_Flag						; M键待处理
+	jsr		L_KeyMTrigger
 No_KeyMTrigger:
 	cmp		#$08
 	bne		No_KeyUTrigger
@@ -71,6 +70,7 @@ No_KeyUTrigger:
 L_KeyExit:
 	rmb1	TMRC								; 关闭快加16Hz计时的定时器
 	rmb0	Key_Flag							; 清相关标志位
+	rmb1	Key_Flag
 	rmb3	Timer_Flag
 	lda		#0									; 清理相关变量
 	sta		QuickAdd_Counter
@@ -83,60 +83,128 @@ F_SpecialKey_Handle:							; 特殊按键的处理
 	bne		SpecialKey_Handle
 	rts
 SpecialKey_Handle:
-	bbs0	SpecialKey_Flag, L_KeyA_Handle
-	bbs1	SpecialKey_Flag, L_KeyB_Handle
-	bbs2	SpecialKey_Flag, L_KeyM_Handle
-L_KeyA_Handle:
-	jmp		L_KeyATrigger
-L_KeyB_Handle:
-	jmp		L_KeyBTrigger
-L_KeyM_Handle:
-	jmp		L_KeyMTrigger
+	bbs3	Timer_Flag,LongPress_Handle			; 通过有无快加判断是短按还是长按
+
+	bbs0	SpecialKey_Flag, L_KeyA_ShortHandle	; 短按的特殊功能处理
+	bbs1	SpecialKey_Flag, L_KeyB_ShortHandle
+	bbs2	SpecialKey_Flag, L_KeyM_ShortHandle
+L_KeyA_ShortHandle:
+	; 这里是进闹钟显示模式的业务逻辑函数
+L_KeyB_ShortHandle:
+	; 这里是三档亮度切换的业务逻辑函数
+L_KeyM_ShortHandle:
+	; 这里是切换三种时钟显示模式的业务逻辑函数
 	rts
 
-; 根据状态进入不同的模式的按键处理
+LongPress_Handle:
+	bbs0	SpecialKey_Flag, L_KeyA_LongHandle	; 长按的特殊功能处理
+	bbs1	SpecialKey_Flag, L_KeyB_LongHandle
+	bbs2	SpecialKey_Flag, L_KeyM_LongHandle
+L_KeyA_LongHandle:
+	; 这里是进闹钟设置模式的业务逻辑函数
+L_KeyB_LongHandle:
+	; 这里是切换摄氏-华氏度的业务逻辑函数
+L_KeyM_LongHandle:
+	; 这里是进时间设置模式的业务逻辑函数
+	rts
+
+; 按键触发函数，处理每个按键触发后的响应条件
 L_KeyATrigger:
-	jsr		F_KeyMatrix_Reset
-	
+	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+
 	lda		Sys_Status_Flag
-	cmp		#00000001B
-	bne		No_StatusTD_KeyA
-
-No_StatusTD_KeyA:								; 非时间显示模式
-	cmp		#00000010B
-	bne		No_StatusDD_KeyA
-
-No_StatusDD_KeyA:								; 非日期显示模式
-	cmp		#00000100B
-	bne		No_StatusRD_KeyA
-	
-No_StatusRD_KeyA:								; 非轮流显示模式
-	cmp		#00000010B
-	bne		No_StatusAD_KeyA
-	
-No_StatusAD_KeyA:								; 非闹钟显示模式
+	cmp		#00010000B
+	bne		StatusCS_No_KeyA
+	rmb1	Key_Flag							; 复位首次触发
+	jsr		L_KeyExit							; 时钟设置模式A键无效
+StatusCS_No_KeyA:
+	cmp		#00100000B
+	bne		StatusAS_No_KeyA
+	bbr1	Key_Flag,StatusCS_KeyA_NoFirst		; 每次按键只进1次
+	rmb1	Key_Flag							; 复位首次触发
+StatusCS_KeyA_NoFirst:
+	; 这里是闹钟设置模式A键的业务逻辑函数
+StatusAS_No_KeyA:
+	smb0	SpecialKey_Flag						; 显示模式下，A键为特殊功能按键
 	rts
+
 
 L_KeyBTrigger:
-	jsr		F_KeyMatrix_Reset
+	jsr		L_Universal_TriggerHandle			; 通用按键处理
 	
+	bbr2	Clock_Flag,StatusLM_No_KeyB
+	; 这里是响闹时贪睡的业务逻辑函数
+StatusLM_No_KeyB:
+	smb1	SpecialKey_Flag
 	rts
+
 
 L_KeyMTrigger:
-	jsr		F_KeyMatrix_Reset
-	
+	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+
+	lda		Sys_Status_Flag
+	cmp		#00010000B
+	bne		StatusCS_No_KeyM
+	bbr1	Key_Flag,StatusCS_KeyM_NoFirst		; 每次按键只进1次
+	rmb1	Key_Flag							; 复位首次触发
+StatusCS_KeyM_NoFirst:
+	; 这里是时钟设置模式M键的业务逻辑函数
+StatusCS_No_KeyM:
+	cmp		#00100000B
+	bne		StatusAS_No_KeyM
+	rmb1	Key_Flag							; 复位首次触发
+	jsr		L_KeyExit							; 闹钟设置模式M键无效
+StatusAS_No_KeyM:
+	smb2	SpecialKey_Flag						; 显示模式下，M键为特殊功能按键
 	rts
+
 
 L_KeyUTrigger:
-	jsr		F_KeyMatrix_Reset
+	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
 	
 	rts
 
+
 L_KeyDTrigger:
-	jsr		F_KeyMatrix_Reset
+	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
 
 	rts
 
+
+; 按键触发通用功能，包括按键矩阵GPIO状态重置，按键音，唤醒屏幕
+; 同时会给出是否存在唤醒事件
+; 由于打断贪睡和响闹的功能B键没有，故不在本函数内处理
+L_Universal_TriggerHandle:
+	jsr		F_KeyMatrix_Reset					; 按键矩阵的GPIO状态重置
+
+	bbs4	PD,No_Screen_WakeUp					; 唤醒事件是否产生
+	smb3	Key_Flag
+	bra		KeyBeep_Start
+No_Screen_WakeUp:
+	rmb3	Key_Flag
+KeyBeep_Start:
+
+	bbs3	Key_Flag,No_KeyBeep					; 唤醒事件会阻止按键音出现
+	lda		#10B								; 设置按键提示音的响铃序列
+	sta		Beep_Serial
+	smb0	TMRC								; 开TIM0蜂鸣器时钟
+	rmb4	Clock_Flag							; 序列响铃模式
+	smb4	Key_Flag							; 置位按键提示音
+	smb1	RFC_Flag							; 禁用RFC采样
+No_KeyBeep:
+
+	bbs3	Key_Flag,No_WakeUp_Screen
+	smb4	PD
+	jsr		F_DisPlay_Frame						; 按键会唤醒屏幕显示
+No_WakeUp_Screen:
+	lda		#0
+	sta		Backlight_Counter					; 清空亮屏幕计数
+
+	rts
 
 
 

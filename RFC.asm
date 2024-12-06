@@ -19,7 +19,8 @@ F_RFC_MeasureStart:
 	rts
 
 F_RFC_MeasureManage:
-	bbs0	Beep_Flag,L_RFC_Exit
+	bbs3	Clock_Flag,L_RFC_Exit				; 存在响闹和按键音的时候，TIM0、1被占用，不进行测量
+	bbs4	Key_Flag,L_RFC_Exit
 	bbs0	RFC_Flag,L_RFC_Juge
 L_RFC_Exit:
 	rts
@@ -89,8 +90,8 @@ F_RFC_MeasureStop:
 
 
 L_RFC_Handler:
-	; jsr		L_Temper_Handle
-	; jsr		L_Humid_Handle
+	jsr		L_Temper_Handle
+	jsr		L_Humid_Handle
 
 	rts
 

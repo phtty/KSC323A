@@ -64,219 +64,220 @@ s0		EQU		0
 Led_byte:							;段码<==>SEG/COM表
 led_table1:
 led_d0	equ	$-led_table1
-	db_c_s	c0,s0	; 0a
-	db_c_s	c0,s1	; 0b
-	db_c_s	c0,s2	; 0c
-	db_c_s	c0,s3	; 0d
-	db_c_s	c0,s4	; 0e
-	db_c_s	c0,s5	; 0f
-	db_c_s	c0,s6	; 0g
+	db_c_s	c0,s3	; 0a
+	db_c_s	c1,s3	; 0b
+	db_c_s	c2,s3	; 0c
+	db_c_s	c1,s2	; 0d
+	db_c_s	c2,s1	; 0e
+	db_c_s	c1,s1	; 0f
+	db_c_s	c0,s2	; 0g
 
 led_d1	equ	$-led_table1
-	db_c_s	c0,s7	; 1a
-	db_c_s	c0,s8	; 1b
-	db_c_s	c0,s9	; 1c
-	db_c_s	c0,s10	; 1d
-	db_c_s	c0,s11	; 1e
-	db_c_s	c0,s12	; 1f
-	db_c_s	c0,s13	; 1g
+	db_c_s	c0,s6	; 1a
+	db_c_s	c1,s6	; 1b
+	db_c_s	c2,s6	; 1c
+	db_c_s	c1,s5	; 1d
+	db_c_s	c1,s4	; 1e
+	db_c_s	c0,s4	; 1f
+	db_c_s	c0,s5	; 1g
 
 led_d2	equ	$-led_table1
-	db_c_s	c0,s14	; 2a
-	db_c_s	c0,s15	; 2b
-	db_c_s	c0,s16	; 2c
-	db_c_s	c0,s17	; 2d
-	db_c_s	c0,s18	; 2e
-	db_c_s	c0,s19	; 2f
-	db_c_s	c0,s20	; 2g
+	db_c_s	c0,s8	; 2a
+	db_c_s	c0,s10	; 2b
+	db_c_s	c1,s10	; 2c
+	db_c_s	c1,s9	; 2d
+	db_c_s	c2,s8	; 2e
+	db_c_s	c1,s8	; 2f
+	db_c_s	c0,s9	; 2g
 
 led_d3	equ	$-led_table1
-	db_c_s	c0,s21	; 3a
-	db_c_s	c0,s22	; 3b
-	db_c_s	c0,s23	; 3c
-	db_c_s	c0,s24	; 3d
-	db_c_s	c0,s25	; 3e
-	db_c_s	c0,s26	; 3f
-	db_c_s	c0,s27	; 3g
+	db_c_s	c1,s13	; 3a
+	db_c_s	c2,s13	; 3b
+	db_c_s	c1,s12	; 3c
+	db_c_s	c2,s11	; 3d
+	db_c_s	c1,s11	; 3e
+	db_c_s	c0,s11	; 3f
+	db_c_s	c0,s12	; 3g
 
 led_d4	equ	$-led_table1
-	db_c_s	c1,s1	; 4b
-	db_c_s	c1,s2	; 4c
-	db_c_s	c1,s6	; 4g
+	db_c_s	c0,s14	; 4b
+	db_c_s	c2,s14	; 4c
+led_minus	equ	$-led_table1
+	db_c_s	c1,s14	; 4g
 
 led_d5	equ	$-led_table1
-	db_c_s	c1,s7	; 5a
-	db_c_s	c1,s8	; 5b
-	db_c_s	c1,s9	; 5c
-	db_c_s	c1,s10	; 5d
-	db_c_s	c1,s11	; 5e
-	db_c_s	c1,s12	; 5f
-	db_c_s	c1,s13	; 5g
+	db_c_s	c0,s15	; 5a
+	db_c_s	c0,s17	; 5b
+	db_c_s	c1,s16	; 5c
+	db_c_s	c2,s16	; 5d
+	db_c_s	c2,s15	; 5e
+	db_c_s	c1,s15	; 5f
+	db_c_s	c0,s16	; 5g
 
 led_d6	equ	$-led_table1
-	db_c_s	c1,s14	; 6a
-	db_c_s	c1,s15	; 6b
-	db_c_s	c1,s16	; 6c
-	db_c_s	c1,s17	; 6d
-	db_c_s	c1,s18	; 6e
-	db_c_s	c1,s19	; 6f
-	db_c_s	c1,s20	; 6g
+	db_c_s	c1,s19	; 6a
+	db_c_s	c2,s19	; 6b
+	db_c_s	c2,s18	; 6c
+	db_c_s	c2,s17	; 6d
+	db_c_s	c1,s17	; 6e
+	db_c_s	c0,s18	; 6f
+	db_c_s	c1,s18	; 6g
 
 led_d7	equ	$-led_table1
-	db_c_s	c1,s21	; 7a
+	db_c_s	c0,s21	; 7a
 	db_c_s	c1,s22	; 7b
-	db_c_s	c1,s23	; 7c
-	db_c_s	c1,s24	; 7d
-	db_c_s	c1,s25	; 7e
-	db_c_s	c1,s26	; 7f
-	db_c_s	c1,s27	; 7g
+	db_c_s	c2,s22	; 7c
+	db_c_s	c2,s21	; 7d
+	db_c_s	c2,s20	; 7e
+	db_c_s	c1,s20	; 7f
+	db_c_s	c1,s21	; 7g
 
 led_d8	equ	$-led_table1
-	db_c_s	c2,s0	; 8a
-	db_c_s	c2,s1	; 8b
-	db_c_s	c2,s2	; 8c
-	db_c_s	c2,s3	; 8d
-	db_c_s	c2,s4	; 8e
-	db_c_s	c2,s5	; 8f
-	db_c_s	c2,s6	; 8g
+	db_c_s	c0,s24	; 8a
+	db_c_s	c1,s25	; 8b
+	db_c_s	c2,s25	; 8c
+	db_c_s	c2,s24	; 8d
+	db_c_s	c2,s29	; 8e
+	db_c_s	c1,s29	; 8f
+	db_c_s	c1,s24	; 8g
 
 led_d9	equ	$-led_table1
-	db_c_s	c2,s7	; 9a
-	db_c_s	c2,s8	; 9b
-	db_c_s	c2,s9	; 9c
-	db_c_s	c2,s10	; 9d
-	db_c_s	c2,s11	; 9e
-	db_c_s	c2,s12	; 9f
-	db_c_s	c2,s13	; 9g
+	db_c_s	c0,s27	; 9a
+	db_c_s	c1,s28	; 9b
+	db_c_s	c2,s28	; 9c
+	db_c_s	c2,s27	; 9d
+	db_c_s	c2,s26	; 9e
+	db_c_s	c1,s26	; 9f
+	db_c_s	c1,s27	; 9g
 
 led_dot:
 led_week	equ	$-led_table1
 led_SUN		equ	$-led_table1
-	db_c_s	c2,s14	; SUN
+	db_c_s	c2,s2	; SUN
 led_MON		equ	$-led_table1
-	db_c_s	c2,s15	; MON
+	db_c_s	c2,s4	; MON
 led_TUE		equ	$-led_table1
-	db_c_s	c2,s16	; TUE
+	db_c_s	c2,s5	; TUE
 led_WED		equ	$-led_table1
-	db_c_s	c2,s17	; WED
+	db_c_s	c2,s7	; WED
 led_THU		equ	$-led_table1
-	db_c_s	c2,s18	; THU
+	db_c_s	c2,s9	; THU
 led_FRI		equ	$-led_table1
-	db_c_s	c2,s19	; FRI
+	db_c_s	c2,s10	; FRI
 led_SAT		equ	$-led_table1
-	db_c_s	c2,s20	; SAT
+	db_c_s	c2,s12	; SAT
 led_PM		equ	$-led_table1
-	db_c_s	c0,s28	; PM
+	db_c_s	c0,s1	; PM
 led_AL1		equ	$-led_table1
-	db_c_s	c0,s29	; AL1
+	db_c_s	c0,s0	; AL1
 led_AL2		equ	$-led_table1
-	db_c_s	c0,s30	; AL2
+	db_c_s	c1,s0	; AL2
 led_AL3		equ	$-led_table1
-	db_c_s	c0,s31	; AL3
+	db_c_s	c2,s0	; AL3
 led_COL1	equ	$-led_table1
-	db_c_s	c1,s28	; COL1
+	db_c_s	c0,s7	; COL1
 led_COL2	equ	$-led_table1
-	db_c_s	c1,s29	; COL2
+	db_c_s	c1,s7	; COL2
 led_TMP		equ	$-led_table1
-	db_c_s	c1,s30	; TEMP
+	db_c_s	c0,s20	; TEMP
 led_Per1	equ	$-led_table1
-	db_c_s	c2,s28	; Percent1
+	db_c_s	c1,s23	; Percent1
 led_Per2	equ	$-led_table1
-	db_c_s	c2,s29	; Percent2
+	db_c_s	c2,s23	; Percent2
 
 ;==========================================================
 ;==========================================================
 
 Led_bit:
-	db_c_y	c0,s0	; 0a
-	db_c_y	c0,s1	; 0b
-	db_c_y	c0,s2	; 0c
-	db_c_y	c0,s3	; 0d
-	db_c_y	c0,s4	; 0e
-	db_c_y	c0,s5	; 0f
-	db_c_y	c0,s6	; 0g
+	db_c_y	c0,s3	; 0a
+	db_c_y	c1,s3	; 0b
+	db_c_y	c2,s3	; 0c
+	db_c_y	c1,s2	; 0d
+	db_c_y	c2,s1	; 0e
+	db_c_y	c1,s1	; 0f
+	db_c_y	c0,s2	; 0g
 
-	db_c_y	c0,s7	; 1a
-	db_c_y	c0,s8	; 1b
-	db_c_y	c0,s9	; 1c
-	db_c_y	c0,s10	; 1d
-	db_c_y	c0,s11	; 1e
-	db_c_y	c0,s12	; 1f
-	db_c_y	c0,s13	; 1g
+	db_c_y	c0,s6	; 1a
+	db_c_y	c1,s6	; 1b
+	db_c_y	c2,s6	; 1c
+	db_c_y	c1,s5	; 1d
+	db_c_y	c1,s4	; 1e
+	db_c_y	c0,s4	; 1f
+	db_c_y	c0,s5	; 1g
 
-	db_c_y	c0,s14	; 2a
-	db_c_y	c0,s15	; 2b
-	db_c_y	c0,s16	; 2c
-	db_c_y	c0,s17	; 2d
-	db_c_y	c0,s18	; 2e
-	db_c_y	c0,s19	; 2f
-	db_c_y	c0,s20	; 2g
+	db_c_y	c0,s8	; 2a
+	db_c_y	c0,s10	; 2b
+	db_c_y	c1,s10	; 2c
+	db_c_y	c1,s9	; 2d
+	db_c_y	c2,s8	; 2e
+	db_c_y	c1,s8	; 2f
+	db_c_y	c0,s9	; 2g
 
-	db_c_y	c0,s21	; 3a
-	db_c_y	c0,s22	; 3b
-	db_c_y	c0,s23	; 3c
-	db_c_y	c0,s24	; 3d
-	db_c_y	c0,s25	; 3e
-	db_c_y	c0,s26	; 3f
-	db_c_y	c0,s27	; 3g
+	db_c_y	c1,s13	; 3a
+	db_c_y	c2,s13	; 3b
+	db_c_y	c1,s12	; 3c
+	db_c_y	c2,s11	; 3d
+	db_c_y	c1,s11	; 3e
+	db_c_y	c0,s11	; 3f
+	db_c_y	c0,s12	; 3g
 
-	db_c_y	c1,s1	; 4b
-	db_c_y	c1,s2	; 4c
-	db_c_y	c1,s6	; 4g
+	db_c_y	c0,s14	; 4b
+	db_c_y	c2,s14	; 4c
+	db_c_y	c1,s14	; 4g
 
-	db_c_y	c1,s7	; 5a
-	db_c_y	c1,s8	; 5b
-	db_c_y	c1,s9	; 5c
-	db_c_y	c1,s10	; 5d
-	db_c_y	c1,s11	; 5e
-	db_c_y	c1,s12	; 5f
-	db_c_y	c1,s13	; 5g
+	db_c_y	c0,s15	; 5a
+	db_c_y	c0,s17	; 5b
+	db_c_y	c1,s16	; 5c
+	db_c_y	c2,s16	; 5d
+	db_c_y	c2,s15	; 5e
+	db_c_y	c1,s15	; 5f
+	db_c_y	c0,s16	; 5g
 
-	db_c_y	c1,s14	; 6a
-	db_c_y	c1,s15	; 6b
-	db_c_y	c1,s16	; 6c
-	db_c_y	c1,s17	; 6d
-	db_c_y	c1,s18	; 6e
-	db_c_y	c1,s19	; 6f
-	db_c_y	c1,s20	; 6g
+	db_c_y	c1,s19	; 6a
+	db_c_y	c2,s19	; 6b
+	db_c_y	c2,s18	; 6c
+	db_c_y	c2,s17	; 6d
+	db_c_y	c1,s17	; 6e
+	db_c_y	c0,s18	; 6f
+	db_c_y	c1,s18	; 6g
 
-	db_c_y	c1,s21	; 7a
+	db_c_y	c0,s21	; 7a
 	db_c_y	c1,s22	; 7b
-	db_c_y	c1,s23	; 7c
-	db_c_y	c1,s24	; 7d
-	db_c_y	c1,s25	; 7e
-	db_c_y	c1,s26	; 7f
-	db_c_y	c1,s27	; 7g
+	db_c_y	c2,s22	; 7c
+	db_c_y	c2,s21	; 7d
+	db_c_y	c2,s20	; 7e
+	db_c_y	c1,s20	; 7f
+	db_c_y	c1,s21	; 7g
 
-	db_c_y	c2,s0	; 8a
-	db_c_y	c2,s1	; 8b
-	db_c_y	c2,s2	; 8c
-	db_c_y	c2,s3	; 8d
-	db_c_y	c2,s4	; 8e
-	db_c_y	c2,s5	; 8f
-	db_c_y	c2,s6	; 8g
+	db_c_y	c0,s24	; 8a
+	db_c_y	c1,s25	; 8b
+	db_c_y	c2,s25	; 8c
+	db_c_y	c2,s24	; 8d
+	db_c_y	c2,s29	; 8e
+	db_c_y	c1,s29	; 8f
+	db_c_y	c1,s24	; 8g
 
-	db_c_y	c2,s7	; 9a
-	db_c_y	c2,s8	; 9b
-	db_c_y	c2,s9	; 9c
-	db_c_y	c2,s10	; 9d
-	db_c_y	c2,s11	; 9e
-	db_c_y	c2,s12	; 9f
-	db_c_y	c2,s13	; 9g
+	db_c_y	c0,s27	; 9a
+	db_c_y	c1,s28	; 9b
+	db_c_y	c2,s28	; 9c
+	db_c_y	c2,s27	; 9d
+	db_c_y	c2,s26	; 9e
+	db_c_y	c1,s26	; 9f
+	db_c_y	c1,s27	; 9g
 
-	db_c_y	c2,s14	; SUN
-	db_c_y	c2,s15	; MON
-	db_c_y	c2,s16	; TUE
-	db_c_y	c2,s17	; WED
-	db_c_y	c2,s18	; THU
-	db_c_y	c2,s19	; FRI
-	db_c_y	c2,s20	; SAT
-	db_c_y	c0,s28	; PM
-	db_c_y	c0,s29	; AL1
-	db_c_y	c0,s30	; AL2
-	db_c_y	c0,s31	; AL3
-	db_c_y	c1,s28	; COL1
-	db_c_y	c1,s29	; COL2
-	db_c_y	c1,s30	; TEMP
-	db_c_y	c2,s28	; Percent1
-	db_c_y	c2,s29	; Percent2
+	db_c_y	c2,s2	; SUN
+	db_c_y	c2,s4	; MON
+	db_c_y	c2,s5	; TUE
+	db_c_y	c2,s7	; WED
+	db_c_y	c2,s9	; THU
+	db_c_y	c2,s10	; FRI
+	db_c_y	c2,s12	; SAT
+	db_c_y	c0,s1	; PM
+	db_c_y	c0,s0	; AL1
+	db_c_y	c1,s0	; AL2
+	db_c_y	c2,s0	; AL3
+	db_c_y	c0,s7	; COL1
+	db_c_y	c1,s7	; COL2
+	db_c_y	c0,s20	; TEMP
+	db_c_y	c1,s23	; Percent1
+	db_c_y	c2,s23	; Percent2
