@@ -23,6 +23,7 @@ LED_Ram					DS		4*3
 R_Int_Backup			DS		1
 
 Counter_1Hz				DS		1
+Counter_4Hz				DS		1
 Counter_16Hz			DS		1
 Counter_102Hz			DS		1
 
@@ -35,6 +36,7 @@ QuickAdd_Counter		DS		1
 Backlight_Counter		DS		1
 Return_Counter			DS		1
 AlarmLoud_Counter		DS		1
+COM_Counter				DS		1
 
 Calendar_Flag			DS		1
 ;bit0 = 1 闰年
@@ -76,6 +78,7 @@ Key_Flag				DS		1
 ;bit2 = 1 非显示状态标志，通常用于计时返回时间显示模式
 ;bit3 = 1 屏幕唤醒事件标志位
 ;bit4 = 1 按键提示音标志位
+;bit5 = 1 长按扫键4Hz标志
 
 SpecialKey_Flag			DS		1
 ;bit0 = 1 Alarm键待处理				|特殊按键

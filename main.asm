@@ -53,10 +53,16 @@ L_Clear_Ram_Loop:
 	jsr		F_Test_Mode
 	lda		#2
 	sta		Backlight_Level
-	smb0	PC
+	smb0	PC										; 亮度设置为高亮
+
+	lda		#00000001B
+	sta		Sys_Status_Flag
+
 ; 状态机
-MainLoop:											; 全局生效部分
-	jsr			F_DisPlay_Frame
+MainLoop:
+	sta		HALT
+Global_Run:											; 全局生效的功能处理
+	jsr			F_KeyHandler
 	;jsr			F_PowerManage
 	;jsr		F_Time_Run							; 走时
 	;jsr			F_RFC_MeasureManage
@@ -74,27 +80,21 @@ Status_Juge:
 	bra		MainLoop
 Status_DisTime:
 
-	;sta		HALT
 	bra		MainLoop
 Status_DisDate:
 
-	sta		HALT
 	bra		MainLoop
 Status_DisRotate:
 
-	sta		HALT
 	bra		MainLoop
 Status_DisAlarm:
 
-	sta		HALT
 	bra		MainLoop
 Status_SetClock:
 
-	sta		HALT
 	bra		MainLoop
 Status_SetAlarm:
 
-	sta		HALT
 	bra		MainLoop
 
 
@@ -112,7 +112,7 @@ L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
 	rmb2	Key_Flag
-	lda		#00000001B								; 15S未响应则回到走时模式
+	lda		#00000001B								; 15S未响应则回到时显模式
 	sta		Sys_Status_Flag
 	;jsr		F_SymbolRegulate					; 显示对应模式的常亮符号
 L_Return_Juge_Exit:
@@ -163,7 +163,16 @@ L_16Hz_Out:
 
 L_Timer1Irq:									; 用于快加计时
 	rmb2	IFR									; 清中断标志位
-	smb4	Timer_Flag							; 16Hz标志
+	smb4	Timer_Flag							; 扫键16Hz标志
+	lda		Counter_4Hz							; 4Hz计数
+	cmp		#03
+	bcs		L_4Hz_Out
+	inc		Counter_4Hz
+	bra		L_EndIrq
+L_4Hz_Out:
+	lda		#$0
+	sta		Counter_4Hz
+	smb5	Key_Flag							; 快加4Hz标志
 	bra		L_EndIrq
 
 L_Timer2Irq:
@@ -197,12 +206,21 @@ L_PaIrq:
 L_LcdIrq:
 	rmb6	IFR									; 清中断标志位
 
+	lda		COM_Counter
+	cmp		#3
+	bcc		COM_Display
+	lda		#0
+	sta		COM_Counter
+COM_Display:
+	jsr		L_Send_Buffer_COM
+	inc		COM_Counter
+
 L_EndIrq:
 	pla
 	rti
 
 
-;.include	ScanKey.asm
+.include	ScanKey.asm
 ;.include	Time.asm
 .include	Calendar.asm
 .include	Init.asm

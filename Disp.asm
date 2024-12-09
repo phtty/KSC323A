@@ -120,24 +120,12 @@ One_Digit:
 	jsr		F_DisSymbol
 	rts
 
-F_DisPlay_Frame:
-	lda		#0
-	jsr		L_Send_Buffer_COM
-	
-	lda		#1
-	jsr		L_Send_Buffer_COM
-	
-	lda		#2
-	jsr		L_Send_Buffer_COM
-	rts
-
 
 
 ; 发送当前COM的缓存内容
-; a==当前COM数
 L_Send_Buffer_COM:
 	rmb7	PD							; 发送数据时需要LE拉低锁存5020当前数据
-	pha
+	lda		COM_Counter
 
 	clc									; 乘以4作偏移
 	rol
@@ -169,35 +157,27 @@ L_Send_0:
 	rmb5	PD							; 0则输出低
 L_CLK_Change:
 	rmb6	PD							; CLK产生一次上升沿使得5020开始位移
-	nop									; 延时三个指令周期确保IO口翻转完成
+	nop									; 延时6个指令周期确保IO口翻转完成
 	nop
 	nop
 	smb6	PD
 	dec		P_Temp+4
 	bne		L_Sending_Loop
+ 
+	lda		PC							; 5020数据更改前需要先关闭所有COM避免亮上一个COM的灯
+	ora		#$0e
+	sta		PC
 
-	smb1	PC							; 5020数据更改前需要先关闭所有COM避免亮上一个COM的灯
-	smb2	PC
-	smb3	PC
-
-	smb7	PD							; COM选择完毕，取消锁存开始显示
-	nop									; 延时三个指令周期确保IO口翻转完成
+	smb7	PD							; 5020取消锁存，接收新数据
+	nop									; 延时6个指令周期确保IO口翻转完成
 	nop
 	nop
 	rmb7	PD							; 锁存数据避免意外改变
 
-	pla
-	bne		No_COM0_SEL					; 32bit发送完成，根据COM数选择对应COM引脚
-	jsr		F_COM0_SEL
-	bra		DisCOM_Start
-No_COM0_SEL:
-	cmp		#01
-	bne		No_COM1_SEL
-	jsr		F_COM1_SEL
-	bra		DisCOM_Start
-No_COM1_SEL:
-	jsr		F_COM2_SEL
-DisCOM_Start:
+	ldx		COM_Counter					; 32bit发送完成，根据COM数选择对应COM引脚
+	lda		Table_COMx_SEL,x			; 查表得出当前COM的IO状态
+	and		PC
+	sta		PC							; COM选择
 
 	rts
 
@@ -229,26 +209,6 @@ F_DisSymbol_Com:
 	rts
 
 
-
-F_COM0_SEL:
-	rmb1	PC
-	smb2	PC
-	smb3	PC
-	rts
-
-F_COM1_SEL:
-	smb1	PC
-	rmb2	PC
-	smb3	PC
-	rts
-
-F_COM2_SEL:
-	smb1	PC
-	smb2	PC
-	rmb3	PC
-	rts
-
-
 ;============================================================
 Table_Digit_7bit:
 	.byte	$3f	; 0
@@ -274,3 +234,8 @@ Table_Week_7bit:
 	.byte	$20		; FRI
 	.byte	$40		; SAT
 	.byte	$00		; undisplay
+
+Table_COMx_SEL:
+	.byte	$fd		; COM0_SEL
+	.byte	$fb		; COM1_SEL
+	.byte	$f7		; COM2_SEL

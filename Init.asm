@@ -1,6 +1,7 @@
 F_Init_SystemRam:							; 系统初始化
 	lda		#0
 	sta		Counter_1Hz
+	sta		Counter_4Hz
 	sta		Counter_16Hz
 	sta		Counter_102Hz
 	sta		Key_Flag
@@ -12,6 +13,7 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Backlight_Counter
 	sta		Return_Counter
 	sta		AlarmLoud_Counter
+	sta		COM_Counter
 
 	lda		#01
 	sta		Sys_Status_Flag
@@ -104,15 +106,20 @@ F_Timer_Init:
 	lda		#$0
 	sta		TMR2
 
-	lda		#$bf								; 8Hz一次中断
+	lda		#$df								; 8Hz一次中断
 	sta		TMR1
 
 	lda		IER									; 开定时器中断
-	ora		#C_TMR0I+C_TMR1I+C_TMR2I
+	ora		#C_TMR0I+C_TMR1I+C_TMR2I+C_LCDI
 	sta		IER
 
 	lda		#C_TMR2ON
 	sta		TMRC								; 初始化只开TIM2用于走时
+
+	lda		#C_COM_2_42_38+C_LCDIS_Rate
+	sta		LCD_COM								; 开LCD中断用于定时显示LED
+	lda		#$03
+	sta		FRAME
 
 	rts
 

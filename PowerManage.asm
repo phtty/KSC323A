@@ -5,7 +5,6 @@ F_PowerManage:
 	sta		PD
 	smb0	Backlight_Flag						; 标志位设置为常亮模式
 	bbs2	Backlight_Flag,No_FrameUpdate
-	jsr		F_DisPlay_Frame						; 由于关闭了5020，亮屏后需要显示一次帧
 No_FrameUpdate:
 	smb2	Backlight_Flag						; 更新PY口上一次的状态
 	rts
