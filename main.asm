@@ -57,6 +57,8 @@ L_Clear_Ram_Loop:
 
 	lda		#00000001B
 	sta		Sys_Status_Flag
+	lda		#0
+	sta		Sys_Status_Ordinal
 
 ; 状态机
 MainLoop:
@@ -70,18 +72,14 @@ Global_Run:											; 全局生效的功能处理
 	;jsr		F_SymbolRegulate
 
 Status_Juge:
-	bbs0	Sys_Status_Flag,Status_DisTime
-	bbs1	Sys_Status_Flag,Status_DisDate
-	bbs2	Sys_Status_Flag,Status_DisRotate
-	bbs3	Sys_Status_Flag,Status_DisAlarm
-	bbs4	Sys_Status_Flag,Status_SetClock
-	bbs5	Sys_Status_Flag,Status_SetAlarm
+	bbs0	Sys_Status_Flag,Status_DisClock
+	bbs1	Sys_Status_Flag,Status_DisRotate
+	bbs2	Sys_Status_Flag,Status_DisAlarm
+	bbs3	Sys_Status_Flag,Status_SetClock
+	bbs4	Sys_Status_Flag,Status_SetAlarm
 
 	bra		MainLoop
-Status_DisTime:
-
-	bra		MainLoop
-Status_DisDate:
+Status_DisClock:
 
 	bra		MainLoop
 Status_DisRotate:
@@ -114,6 +112,8 @@ L_Return_Stop:
 	rmb2	Key_Flag
 	lda		#00000001B								; 15S未响应则回到时显模式
 	sta		Sys_Status_Flag
+	lda		#0
+	sta		Sys_Status_Ordinal
 	;jsr		F_SymbolRegulate					; 显示对应模式的常亮符号
 L_Return_Juge_Exit:
 	rts

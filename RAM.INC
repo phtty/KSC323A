@@ -62,12 +62,11 @@ Timer_Flag				DS		1
 ;bit7 = 1 Timer2 响铃1S计时
 
 Sys_Status_Flag			DS		1
-;bit0 = 1 时间显示
-;bit1 = 1 日期显示
-;bit2 = 1 轮流显示
-;bit3 = 1 闹钟显示
-;bit4 = 1 设置时钟
-;bit5 = 1 设置闹钟
+;bit0 = 1 时钟显示
+;bit1 = 1 轮流显示
+;bit2 = 1 闹钟显示
+;bit3 = 1 设置时钟
+;bit4 = 1 设置闹钟
 
 Sys_Status_Ordinal		DS		1
 ; 子模式的序号
@@ -80,7 +79,7 @@ Key_Flag				DS		1
 ;bit4 = 1 按键提示音标志位
 ;bit5 = 1 长按扫键4Hz标志
 
-SpecialKey_Flag			DS		1
+SpecialKey_Flag			DS		1	; 长短按功能不同的按键
 ;bit0 = 1 Alarm键待处理				|特殊按键
 ;bit1 = 1 SNZ/Backlight键待处理		|特殊按键
 ;bit2 = 1 Mode键待处理				|特殊按键
@@ -96,11 +95,15 @@ Backlight_Flag			DS		1
 ;bit0 = 1 DC5V接入,常亮模式
 ;bit2	  PY口上次的状态
 
-Backlight_Level			DS		1
-;亮度等级
+Backlight_Level			DS		1	; 亮度等级
 ;0 熄屏
 ;1 低亮
 ;2 高亮
+
+Alarm_Switch			DS		1	; 各个闹钟开关
+;bit0 = 1 闹钟1开启
+;bit1 = 1 闹钟2开启
+;bit2 = 1 闹钟3开启
 
 RFC_ChannelCount		DS		1
 

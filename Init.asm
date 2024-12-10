@@ -14,6 +14,7 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Return_Counter
 	sta		AlarmLoud_Counter
 	sta		COM_Counter
+	sta		Alarm_Switch
 
 	lda		#01
 	sta		Sys_Status_Flag

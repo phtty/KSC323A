@@ -1,4 +1,4 @@
-F_Backlight:
+F_BacklightLevel_Manage:
 	bbr0	Backlight_Flag,L_Backlight_Exit
 	lda		Backlight_Level
 	cmp		#1
