@@ -42,6 +42,8 @@ L_Clear_Ram_Loop:
 
 	jsr		F_Port_Init								; 初始化用到的IO口
 
+	jsr		F_Beep_Init
+
 	lda		#$07									; 系统时钟和中断使能
 	sta		SYSCLK
 
@@ -50,6 +52,7 @@ L_Clear_Ram_Loop:
 
 	cli												; 开总中断
 
+; Test Code
 	jsr		F_Test_Mode
 	lda		#2
 	sta		Backlight_Level
@@ -60,16 +63,21 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
+	lda		#8
+	sta		Beep_Serial
+	rmb4	Clock_Flag
+	smb0	TMRC
+
+
 ; 状态机
 MainLoop:
-	sta		HALT
+	sta		HALT									; 休眠
 Global_Run:											; 全局生效的功能处理
-	jsr			F_KeyHandler
+	jsr		F_KeyHandler
 	;jsr			F_PowerManage
-	;jsr		F_Time_Run							; 走时
+	jsr		F_Time_Run								; 走时
+	jsr		F_Louding
 	;jsr			F_RFC_MeasureManage
-	;jsr		F_Display_Week						; 星期
-	;jsr		F_SymbolRegulate
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -80,10 +88,10 @@ Status_Juge:
 
 	bra		MainLoop
 Status_DisClock:
-
+	jsr		F_Clock_Display
 	bra		MainLoop
 Status_DisRotate:
-
+	jsr		F_Rotate_Display
 	bra		MainLoop
 Status_DisAlarm:
 
@@ -150,14 +158,12 @@ L_DivIrq:
 
 L_Timer0Irq:									; 用于蜂鸣器
 	rmb1	IFR									; 清中断标志位
-	lda		Counter_16Hz						; 16Hz计数
-	cmp		#07
-	bcs		L_16Hz_Out
+
 	inc		Counter_16Hz
+	lda		Counter_16Hz						; 16Hz计数
+	beq		L_16Hz_Out
 	bra		L_EndIrq
 L_16Hz_Out:
-	lda		#$0
-	sta		Counter_16Hz
 	smb6	Timer_Flag							; 16Hz标志
 	bra		L_EndIrq
 
@@ -221,8 +227,9 @@ L_EndIrq:
 
 
 .include	ScanKey.asm
-;.include	Time.asm
+.include	Time.asm
 .include	Calendar.asm
+.include	Beep.asm
 .include	Init.asm
 .include	Disp.asm
 .include	Display.asm

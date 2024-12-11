@@ -135,7 +135,7 @@ L_KeyBTrigger:
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	bbr2	Clock_Flag,StatusLM_No_KeyB
-	jsr		Alarm_Snooze						; 响闹时贪睡
+	jsr		Alarm_Snooze						; 响闹时贪睡处理
 	jmp		L_KeyExit
 StatusLM_No_KeyB:
 	bbs3	Timer_Flag,L_DisMode_KeyB_LongTri
@@ -252,7 +252,8 @@ No_WakeUp_Screen:
 
 
 
-; 状态转换函数,切换到闹钟显示状态
+
+; 切换到闹钟显示状态
 SwitchState_AlarmDis:
 	lda		Sys_Status_Flag
 	cmp		#00000100B
@@ -277,7 +278,7 @@ L_Ordinal_Exit_AD:
 
 
 
-; 切换背光亮度
+; 切换灯光亮度
 ; 0熄屏，1低亮，2高亮
 LightLevel_Change:
 	inc		Backlight_Level
@@ -304,6 +305,7 @@ SwitchState_ClockDis:
 
 
 
+; 进入闹钟设置模式
 SwitchState_AlarmSet:
 	lda		Sys_Status_Flag
 	cmp		#00010000B
@@ -328,6 +330,7 @@ L_Ordinal_Exit_AS:
 
 
 
+; 进入贪睡模式
 Alarm_Snooze:
 	smb6	Clock_Flag							; 贪睡按键触发						
 	smb3	Clock_Flag							; 进入贪睡模式
@@ -355,6 +358,7 @@ L_Snooze_Exit:
 
 
 
+; 切换温度单位
 TemperMode_Change:
 	lda		RFC_Flag							; 取反标志位，切换华氏度和摄氏度
 	eor		#00010000B
@@ -366,6 +370,7 @@ TemperMode_Change:
 
 
 
+; 切换到时间设置模式
 SwitchState_ClockSet:
 	lda		Sys_Status_Flag
 	cmp		#00001000B
@@ -471,6 +476,7 @@ No_AS_Alarm3_HourAdd:
 
 
 
+; 切换轮流显示-固定显示
 SwitchState_DisMode:
 	lda		Sys_Status_Flag
 	and		#00000010B
@@ -485,6 +491,8 @@ L_ChangeToRotateDis:
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
+	sta		CC0									; 先清空计数和标志位
+	rmb1	Timer_Flag							; 再进入此模式
 	rts
 
 
@@ -588,6 +596,9 @@ TimeHour_SubOverflow:
 
 ; 分增加
 L_TimeMin_Add:
+	lda		#0
+	sta		R_Time_Sec							; 调整分钟会清空秒
+
 	lda		R_Time_Min
 	cmp		#60
 	bcs		TimeMin_AddOverflow
@@ -600,6 +611,9 @@ TimeMin_AddOverflow:
 
 ; 分减少
 L_TimeMin_Sub:
+	lda		#0
+	sta		R_Time_Sec							; 调整分钟会清空秒
+
 	lda		R_Time_Min
 	cmp		#0
 	beq		TimeMin_SubOverflow

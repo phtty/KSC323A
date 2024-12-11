@@ -1,5 +1,6 @@
 F_Init_SystemRam:							; 系统初始化
 	lda		#0
+	sta		CC0
 	sta		Counter_1Hz
 	sta		Counter_4Hz
 	sta		Counter_16Hz
@@ -62,6 +63,24 @@ F_LCD_Init:
 	rts
 
 
+F_Beep_Init:
+	lda		#C_T000_Fsub
+	sta		PADF1
+	rmb0	TMCLK								; TIM0选择时钟源为Fsub
+	rmb1	TMCLK
+
+	lda		#256-8								; 配置TIM0频率为2048Hz
+	sta		TMR0
+
+	rmb3	PB_TYPE								; PB3选择NMOS输出0避免漏电
+
+	rmb1	PADF0								; PB3 PWM输出控制，初始化不输出
+	rmb3	PADF0								; 配置PB3的PWM输出模式，频率为TIM0/2
+	smb4	PADF0
+
+	rts
+
+
 F_Port_Init:
 	lda		#$3c								; PA5不需要唤醒
 	sta		PA_WAKE
@@ -77,7 +96,7 @@ F_Port_Init:
 	sta		PC
 
 	lda		PB
-	and		#$bf
+	and		#$b7
 	sta		PB
 
 	lda		#$07
@@ -102,12 +121,12 @@ F_Timer_Init:
 	lda		#C_Asynchronous+C_DIVC_Fsub_64
 	sta		DIVC								; 关闭定时器同步，DIV时钟源为Fsub/64(512Hz)
 
-	lda		#$0									; 重装载计数设置为0
+	lda		#256-8								; 配置TIM0频率为2048Hz
 	sta		TMR0
 	lda		#$0
 	sta		TMR2
 
-	lda		#$df								; 8Hz一次中断
+	lda		#$e0								; 16Hz一次中断
 	sta		TMR1
 
 	lda		IER									; 开定时器中断

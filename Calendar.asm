@@ -89,14 +89,18 @@ L_Get_Weak_YearFirstDay:
 	rts
 
 
-L_MOD_A_7:
-	cmp		#7
-	bcc		L_MOD_A_7Over
-	sec
-	sbc		#7
-	bra		L_MOD_A_7
-L_MOD_A_7Over:
+
+; 日期显示
+F_Date_Display:
+	ldx		#led_COL1							; 日期不显示秒点
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
+
+	jsr		F_Display_Date						; 显示月日
+
 	rts
+
 
 
 F_DisYear_Set:
@@ -150,6 +154,17 @@ L_Day_Clear:
 	rmb1	Timer_Flag							; 清1S标志
 	jsr		F_UnDisplay_Day
 	rts
+
+
+L_MOD_A_7:
+	cmp		#7
+	bcc		L_MOD_A_7Over
+	sec
+	sbc		#7
+	bra		L_MOD_A_7
+L_MOD_A_7Over:
+	rts
+
 
 
 ; 平年的每月份天数表

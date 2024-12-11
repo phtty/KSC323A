@@ -44,7 +44,7 @@ Calendar_Flag			DS		1
 
 Clock_Flag				DS		1
 ;bit0 = 1 12h模式
-;bit1 = 1 闹钟开启模式
+;bit1 = 1 闹钟触发
 ;bit2 = 1 响闹模式
 ;bit3 = 1 贪睡模式
 ;bit4 = 1 持续响铃模式; 0 序列响铃模式
@@ -128,8 +128,8 @@ Time_Str_Addr	EQU		$
 R_Time_Sec				DS		1	;时间秒
 R_Time_Min				DS		1	;时间分
 R_Time_Hour				DS		1	;时间小时
-R_Alarm_Min				DS		1	;闹钟分
-R_Alarm_Hour			DS		1	;闹钟小时
+R_Alarm_Min				DS		1	;触发闹钟分
+R_Alarm_Hour			DS		1	;触发闹钟小时
 R_Date_Day				DS		1	;日期，从1开始
 R_Date_Month			DS		1	;月份，从1开始
 R_Date_Year				DS		1	;年份，由于只计2000-2099，所以由0-99代替

@@ -36,11 +36,11 @@ F_Alarm_Handler:
 	jsr		L_Alarm_Process
 	rts
 L_No_Alarm_Process:
-	rmb0	TMRC
-	rmb7	TMRC
-	rmb1	PADF0								; 设置PP为CMOS输出
-	smb3	PB_TYPE
-	rmb3	PB
+	rmb1	PADF0								; PB3 PWM输出控制
+	rmb4	PADF0								; PB3配置为IO口
+	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
+	smb3	PB
+
 	rmb6	Timer_Flag
 	rmb7	Timer_Flag
 	lda		#0
@@ -48,27 +48,28 @@ L_No_Alarm_Process:
 	rts
 
 L_IS_AlarmTrigger:
-	bbr1	Clock_Flag,L_CloseLoud				; 没有开启闹钟拨键不会进响闹模式
+	lda		Alarm_Switch
+	bne		Alarm_Juge_Start					; 没有任何闹钟开启则不会继续
+	rmb1	Clock_Flag
+	rts
+Alarm_Juge_Start:
 	bbs3	Clock_Flag,L_Snooze
-	lda		R_Time_Hour							; 没有贪睡的情况下
-	cmp		R_Alarm_Hour						; 闹钟设定值和当前时间不匹配不会进响闹模式
-	bne		L_CloseLoud
-	lda		R_Time_Min
-	cmp		R_Alarm_Min
-	bne		L_CloseLoud
-	bbs2	Clock_Flag,L_Alarm_NoStop
-	lda		R_Time_Sec
+
+	jsr		Is_Alarm_Trigger					; 判断三组闹钟触发(只判断时、分)
+	bbr1	Clock_Flag,L_CloseLoud				; 有闹钟触发标志位才会继续判断，否则直接关响闹并结束
+	bbs2	Clock_Flag,L_Alarm_NoStop			; 如此时仍在响闹，则直接进入响闹持续部分
+	lda		R_Time_Sec							
 	cmp		#00
-	bne		L_CloseLoud
+	bne		L_CloseLoud							; 若秒不符合，则不会开启响闹
 L_Start_Loud_Juge:
-	lda		R_Alarm_Hour						; 在贪睡启动前，必定先触发设定闹钟
-	sta		R_Snooze_Hour						; 此时同步设定闹钟时间至贪睡闹钟
-	lda		R_Alarm_Min							; 之后贪睡触发时只需要在自己的基础上加5min
+	lda		R_Alarm_Hour						; 触发闹钟时，同步触发的那组闹钟至贪睡闹钟
+	sta		R_Snooze_Hour						; 之后贪睡触发时只需要在贪睡闹钟的基础上加5min
+	lda		R_Alarm_Min
 	sta		R_Snooze_Min
 	bra		L_AlarmTrigger
 L_Snooze:
-	lda		R_Time_Hour							; 有贪睡的情况下
-	cmp		R_Snooze_Hour						; 贪睡闹钟设定值和当前时间不匹配不会进响闹模式
+	lda		R_Time_Hour							; 有贪睡的情况下,用贪睡闹钟和当前时钟匹配
+	cmp		R_Snooze_Hour						; 贪睡闹钟和当前时间不匹配不会进响闹模式
 	bne		L_Snooze_CloseLoud
 	lda		R_Time_Min
 	cmp		R_Snooze_Min
@@ -97,13 +98,16 @@ L_NoSnooze_CloseLoud:							; 结束贪睡模式并关闭响闹
 	rmb3	Clock_Flag
 	rmb6	Clock_Flag
 L_CloseLoud:
+	rmb1	Clock_Flag							; 关闭闹钟触发标志
 	rmb2	Clock_Flag							; 关闭响闹模式
 	rmb1	RFC_Flag							; 取消禁用RFC采样
 	rmb5	Clock_Flag
-	rmb7	TMRC
-	rmb1	PADF0
-	smb3	PB_TYPE
-	rmb3	PB
+
+	rmb1	PADF0								; PB3 PWM输出控制
+	rmb4	PADF0								; PB3配置为IO口
+	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
+	smb3	PB
+
 	rmb6	Timer_Flag
 	rmb7	Timer_Flag
 	rmb0	TMRC
@@ -120,19 +124,81 @@ L_BeepStart:
 	sta		Beep_Serial
 	rmb4	Clock_Flag							; 0-30S为序列响铃
 	lda		AlarmLoud_Counter
-	cmp		#10
+	cmp		#11
 	bcc		L_Alarm_Exit
 	lda		#4									; 10-20S响闹的序列为4，2声
 	sta		Beep_Serial
 	lda		AlarmLoud_Counter
-	cmp		#20
+	cmp		#21
 	bcc		L_Alarm_Exit
 	lda		#8									; 20-30S响闹的序列为8，4声
 	sta		Beep_Serial
 	lda		AlarmLoud_Counter
-	cmp		#30
+	cmp		#31
 	bcc		L_Alarm_Exit
 	smb4	Clock_Flag							; 30S以上使用持续响铃
 
 L_Alarm_Exit:
+	rts
+
+
+; 任意一组闹钟设定值的时、分符合当前时间，就设置闹钟触发标志位,并同步至触发闹钟
+Is_Alarm_Trigger:
+	rmb1	Clock_Flag							; 清空闹钟触发
+
+	lda		R_Time_Hour
+	cmp		R_Alarm1_Hour
+	beq		L_Alarm1_HourMatch
+L_Alarm1_NoMatch:
+	lda		R_Time_Hour
+	cmp		R_Alarm2_Hour
+	beq		L_Alarm2_HourMatch
+L_Alarm2_NoMatch:
+	lda		R_Time_Hour
+	cmp		R_Alarm3_Hour
+	beq		L_Alarm3_HourMatch
+	rmb1	Clock_Flag							; 闹钟3也不匹配，设定闹钟未触发
+	rts
+
+L_Alarm1_HourMatch:
+	lda		R_Time_Min
+	cmp		R_Alarm1_Min
+	beq		L_Alarm1_MinMatch
+	bra		L_Alarm1_NoMatch					; 闹钟1不匹配，判断闹钟2
+
+L_Alarm2_HourMatch:
+	lda		R_Time_Min
+	cmp		R_Alarm2_Min
+	beq		L_Alarm2_MinMatch
+	bra		L_Alarm2_NoMatch					; 闹钟2不匹配，判断闹钟2
+
+L_Alarm3_HourMatch:
+	lda		R_Time_Min
+	cmp		R_Alarm3_Min
+	beq		L_Alarm3_MinMatch
+	rmb1	Clock_Flag							; 闹钟3也不匹配，设定闹钟未触发
+	rts
+
+L_Alarm1_MinMatch:
+	smb1	Clock_Flag							; 同时满足小时和分钟的匹配，才有闹钟触发
+	lda		R_Alarm1_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
+	sta		R_Alarm_Hour
+	lda		R_Alarm1_Min
+	sta		R_Alarm_Min
+	rts
+
+L_Alarm2_MinMatch:
+	smb1	Clock_Flag							; 同时满足小时和分钟的匹配，才有闹钟触发
+	lda		R_Alarm2_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
+	sta		R_Alarm_Hour
+	lda		R_Alarm2_Min
+	sta		R_Alarm_Min
+	rts
+
+L_Alarm3_MinMatch:
+	smb1	Clock_Flag							; 同时满足小时和分钟的匹配，才有闹钟触发
+	lda		R_Alarm3_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
+	sta		R_Alarm_Hour
+	lda		R_Alarm3_Min
+	sta		R_Alarm_Min
 	rts

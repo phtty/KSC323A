@@ -5,19 +5,19 @@ L_Beeping:
 	rmb6	Timer_Flag
 	bbs4	Clock_Flag,L_ConstBeep_Mode
 	lda		Beep_Serial							; 序列响铃模式
-	cmp		#0
 	beq		L_NoBeep_Serial_Mode
 	dec		Beep_Serial
 	bbr0	Beep_Serial,L_NoBeep_Serial_Mode
-	smb1	PADF0								; 设置PB3为PWM模式
-	smb3	PB_TYPE
-	smb7	TMRC
+	smb4	PADF0								; PB3配置为IO口
+	smb3	PB_TYPE								; PB3 设置CMOS输出
+	smb1	PADF0								; PB3 PWM输出控制
 	rts
 L_NoBeep_Serial_Mode:
-	rmb7	TMRC
-	rmb1	PADF0								; PB3设置为CMOS输出低
-	smb3	PB_TYPE
-	rmb3	PB
+	rmb1	PADF0								; PB3 PWM输出控制
+	rmb4	PADF0								; PB3配置为IO口
+	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
+	smb3	PB
+
 	bbr4	Key_Flag,No_KeyBeep_Over			; 如果是按键音则需要在响铃结束后关闭蜂鸣定时器
 	rmb4	Key_Flag
 	rmb1	RFC_Flag							; 按键音的响铃完毕重新取消禁用RFC采样
@@ -30,16 +30,17 @@ L_ConstBeep_Mode:
 	eor		#01B								; Beep_Serial翻转第一位
 	sta		Beep_Serial
 
-	lda		Beep_Serial
 	bbr0	Beep_Serial,L_NoBeep_Const_Mode
-	smb1	PADF0
-	smb3	PB_TYPE
-	smb7	TMRC
+
+
+	smb4	PADF0								; PB3配置为IO口
+	smb3	PB_TYPE								; PB3 设置CMOS输出
+	smb1	PADF0								; PB3 PWM输出控制
 	rts
 L_NoBeep_Const_Mode:
-	rmb7	TMRC
-	rmb1	PADF0								; PB3设置为CMOS输出低
-	smb3	PB_TYPE
-	rmb3	PB
+	rmb1	PADF0								; PB3 PWM输出控制
+	rmb4	PADF0								; PB3配置为IO口
+	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
+	smb3	PB
 	rmb4	Key_Flag
 	rts
