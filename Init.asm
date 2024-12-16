@@ -16,6 +16,7 @@ F_Init_SystemRam:							; 系统初始化
 	sta		AlarmLoud_Counter
 	sta		COM_Counter
 	sta		Alarm_Switch
+	sta		Sys_Status_Ordinal
 
 	lda		#01
 	sta		Sys_Status_Flag
@@ -26,6 +27,21 @@ F_Init_SystemRam:							; 系统初始化
 	sta		R_Time_Min
 	lda		#00
 	sta		R_Time_Sec
+
+	lda		#00
+	sta		R_Alarm1_Hour
+	lda		#00
+	sta		R_Alarm1_Min
+
+	lda		#11
+	sta		R_Alarm2_Hour
+	lda		#11
+	sta		R_Alarm2_Min
+
+	lda		#22
+	sta		R_Alarm3_Hour
+	lda		#22
+	sta		R_Alarm3_Min
 
 	lda		#01
 	sta		R_Date_Day

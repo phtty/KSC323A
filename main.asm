@@ -31,6 +31,8 @@ L_Clear_Ram_Loop:
 	dex
 	bne		L_Clear_Ram_Loop
 
+	jsr		F_ClearScreen							; 清屏
+
 	lda		#$0
 	sta		DIVC									; 分频控制器，定时器与DIV异步
 	sta		IER										; 除能中断
@@ -63,21 +65,19 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#8
-	sta		Beep_Serial
-	rmb4	Clock_Flag
-	smb0	TMRC
-
 
 ; 状态机
 MainLoop:
 	sta		HALT									; 休眠
+	nop
 Global_Run:											; 全局生效的功能处理
 	jsr		F_KeyHandler
-	;jsr			F_PowerManage
+	jsr		F_PowerManage
 	jsr		F_Time_Run								; 走时
 	jsr		F_Louding
-	;jsr			F_RFC_MeasureManage
+	jsr		F_AlarmSW_Display
+	jsr		F_Display_Week
+	;jsr		F_RFC_MeasureManage
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -94,13 +94,13 @@ Status_DisRotate:
 	jsr		F_Rotate_Display
 	bra		MainLoop
 Status_DisAlarm:
-
+	jsr		F_Alarm_Display
 	bra		MainLoop
 Status_SetClock:
-
+	jsr		F_Clock_Set
 	bra		MainLoop
 Status_SetAlarm:
-
+	jsr		F_Alarm_Set
 	bra		MainLoop
 
 
@@ -132,6 +132,9 @@ L_Return_Juge_Exit:
 ; 中断服务函数
 V_IRQ:
 	pha
+	txa
+	pha
+	php
 	lda		IER
 	and		IFR
 	sta		R_Int_Backup
@@ -195,6 +198,7 @@ L_1Hz_Out:
 	lda		Timer_Flag
 	ora		#00100110B							; 1S、增S、熄屏的1S标志位
 	sta		Timer_Flag
+	smb1	Backlight_Flag						; 亮屏1S计时
 	bra		L_EndIrq
 
 L_PaIrq:
@@ -222,6 +226,9 @@ COM_Display:
 	inc		COM_Counter
 
 L_EndIrq:
+	plp
+	pla
+	tax
 	pla
 	rti
 

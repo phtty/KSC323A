@@ -1,32 +1,220 @@
-F_DisAlarm_Set:
-	bbs0	Timer_Flag,L_Blink_Alarm			; 没有半S标志时不闪烁
-	rts
-L_Blink_Alarm:
-	rmb0	Timer_Flag							; 清半S标志
-	bbr1	Calendar_Flag,L_No_Date_Add_AS		; 如有增日期，则调用显示日期函数
-	rmb1	Calendar_Flag
-	jsr		F_Display_Date
-L_No_Date_Add_AS:
-	bbs1	Timer_Flag,L_Alarm_Clear
-	jsr		F_Display_Alarm						; 半S亮
+F_Alarm_Display:
 	ldx		#led_COL1
 	jsr		F_DisSymbol
 	ldx		#led_COL2
 	jsr		F_DisSymbol
+
+	jsr		F_Display_Alarm
+
+	lda		Sys_Status_Ordinal
+	bne		No_Alarm1_Display
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	bra		Alarm_Display_Exit
+No_Alarm1_Display:
+	cmp		#1
+	bne		No_Alarm2_Display
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	bra		Alarm_Display_Exit
+No_Alarm2_Display:
+	cmp		#2
+	bne		Alarm_Display_Exit
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_DisSymbol
+Alarm_Display_Exit:
 	rts
-L_Alarm_Clear:
-	rmb1	Timer_Flag
-	lda		PA
-	and		#$C0
-	bne		L_Blink_Alarm						; 有按键时不闪烁
-	jsr		F_UnDisplay_Hour					; 1S灭
-	jsr		F_UnDisplay_Min						; 1S灭
+
+
+
+F_Alarm_Set:
+	lda		Sys_Status_Ordinal
+	bne		No_AL1Switch_Set
+	jmp		F_Alarm_SwitchStatue
+No_AL1Switch_Set:
+	cmp		#1
+	bne		No_AL1_HourSet
+	jmp		F_AlarmHour_Set
+No_AL1_HourSet:
+	cmp		#2
+	bne		No_AL1_MinSet
+	jmp		F_AlarmMin_Set
+No_AL1_MinSet:
+	cmp		#3
+	bne		No_AL2Switch_Set
+	jmp		F_Alarm_SwitchStatue
+No_AL2Switch_Set:
+	cmp		#4
+	bne		No_AL2_HourSet
+	jmp		F_AlarmHour_Set
+No_AL2_HourSet:
+	cmp		#5
+	bne		No_AL2_MinSet
+	jmp		F_AlarmMin_Set
+No_AL2_MinSet:
+	cmp		#6
+	bne		No_AL3Switch_Set
+	jmp		F_Alarm_SwitchStatue
+No_AL3Switch_Set:
+	cmp		#7
+	bne		No_AL3_HourSet
+	jmp		F_AlarmHour_Set
+No_AL3_HourSet:
+	jmp		F_AlarmMin_Set
+	rts
+
+
+
+
+F_Alarm_SwitchStatue:
+	lda		Sys_Status_Ordinal
+	bne		No_AL1Switch
+	lda		Alarm_Switch
+	and		#001B
+	jsr		ALSwitch_DisOnOff
+No_AL1Switch:
+	cmp		#3
+	bne		No_AL2Switch
+	lda		Alarm_Switch
+	and		#010B
+	jsr		ALSwitch_DisOnOff
+No_AL2Switch:
+	cmp		#6
+	bne		No_AL3Switch
+	lda		Alarm_Switch
+	and		#100B
+	jsr		ALSwitch_DisOnOff
+No_AL3Switch:
+	rts
+
+ALSwitch_DisOnOff:
 	ldx		#led_COL1
 	jsr		F_ClrSymbol
 	ldx		#led_COL2
 	jsr		F_ClrSymbol
-	jsr		F_Display_Time
+
+	beq		ALSwitch_DisOff
+	lda		#10
+	ldx		#led_d0
+	jsr		L_Dis_7Bit_DigitDot					; 显示ON
+
+	lda		#10
+	ldx		#led_d1
+	jsr		L_Dis_7Bit_DigitDot
+
+	lda		#0
+	ldx		#led_d2
+	jsr		L_Dis_7Bit_DigitDot
+
+	lda		#13
+	ldx		#led_d3
+	jsr		L_Dis_7Bit_DigitDot
 	rts
+ALSwitch_DisOff:
+	lda		#10
+	ldx		#led_d0
+	jsr		L_Dis_7Bit_DigitDot					; 显示OFF
+
+	lda		#0
+	ldx		#led_d1
+	jsr		L_Dis_7Bit_DigitDot
+
+	lda		#12
+	ldx		#led_d2
+	jsr		L_Dis_7Bit_DigitDot
+
+	lda		#12
+	ldx		#led_d3
+	jsr		L_Dis_7Bit_DigitDot
+	
+	rts
+
+
+
+
+F_AlarmHour_Set:
+	bbs0	Timer_Flag,L_AlarmHour_Set
+	rts
+L_AlarmHour_Set:
+	rmb0	Timer_Flag
+
+	ldx		#led_COL1
+	jsr		F_DisSymbol
+	ldx		#led_COL2
+	jsr		F_DisSymbol
+
+	lda		Sys_Status_Ordinal					; 保存子模式序号
+	pha
+	clc
+	ror											; 将设置模式的序号除以2
+	beq		Alarm_Serial_HourOut				; 再减1即可得到显示模式的序号
+	sec											; 如果除以2之后为0则不用减
+	sbc		#1
+Alarm_Serial_HourOut:
+	sta		Sys_Status_Ordinal					; 为了调用显示闹钟函数，子模式序号改为闹钟显示模式
+
+	bbs0	Key_Flag,L_AlarmHour_Display		; 有按键时直接常亮
+	bbs1	Timer_Flag,L_AlarmHour_Clear
+L_AlarmHour_Display:
+	jsr		L_DisAlarm_Hour
+	jsr		L_DisAlarm_Min
+	bra		AlarmHour_Set_Exit
+L_AlarmHour_Clear:
+	rmb1	Timer_Flag							; 清1S标志
+	jsr		F_UnDisplay_Hour
+AlarmHour_Set_Exit:
+	pla
+	sta		Sys_Status_Ordinal					; 将子模式序号恢复为闹钟设置模式版本
+	rts
+
+
+
+
+F_AlarmMin_Set:
+	bbs0	Timer_Flag,L_AlarmMin_Set
+	rts
+L_AlarmMin_Set:
+	rmb0	Timer_Flag
+
+	ldx		#led_COL1
+	jsr		F_DisSymbol
+	ldx		#led_COL2
+	jsr		F_DisSymbol
+
+	lda		Sys_Status_Ordinal					; 保存子模式序号
+	pha
+	clc
+	ror											; 将设置模式的序号除以4
+	clc
+	ror
+	sta		Sys_Status_Ordinal					; 为了调用显示闹钟函数，子模式序号改为闹钟显示模式
+
+	bbs0	Key_Flag,L_AlarmMin_Display			; 有按键时直接常亮
+	bbs1	Timer_Flag,L_AlarmMin_Clear
+L_AlarmMin_Display:
+	jsr		L_DisAlarm_Hour
+	jsr		L_DisAlarm_Min
+	bra		AlarmMin_Set_Exit
+L_AlarmMin_Clear:
+	rmb1	Timer_Flag							; 清1S标志
+	jsr		F_UnDisplay_Min
+AlarmMin_Set_Exit:
+	pla
+	sta		Sys_Status_Ordinal					; 将子模式序号恢复为闹钟设置模式版本
+	rts
+
 
 
 

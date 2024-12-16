@@ -54,26 +54,26 @@ L_Start_DisTime_Hour:
 	and		#$f0
 	jsr		L_LSR_4Bit
 	bne		L_Hour_Tens_NoZero					; 小时模式的十位0不显示
-	lda		#$0b
+	lda		#$0a
 L_Hour_Tens_NoZero:
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
 	rts 
 
 F_UnDisplay_Hour:
-	lda		#11
+	lda		#10
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
-	lda		#11
+	lda		#10
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 	rts
 
 F_UnDisplay_Min:
-	lda		#11
+	lda		#10
 	ldx		#led_d2
 	jsr		L_Dis_7Bit_DigitDot
-	lda		#11
+	lda		#10
 	ldx		#led_d3
 	jsr		L_Dis_7Bit_DigitDot
 	rts
@@ -119,8 +119,6 @@ AlarmMin_Display_Start:
 	rts	
 
 L_DisAlarm_Hour:								; 显示闹钟小时
-	bbr0	Clock_Flag,L_24hMode_Alarm
-
 	lda		Sys_Status_Ordinal					; 判断要显示三组闹钟的哪一个
 	cmp		#0
 	bne		No_Alarm1Hour_Display
@@ -137,8 +135,10 @@ No_Alarm2Hour_Display:
 	lda		R_Alarm3_Hour
 	sta		R_Alarm_Hour
 AlarmHour_Display_Start:
-	lda		R_Alarm_Hour						; 兼容用的代码
+	bbr0	Clock_Flag,L_24hMode_Alarm
 
+	lda		R_Alarm_Hour
+	jsr		L_A_DecToHex
 	cmp		#12
 	bcs		L_Alarm12h_PM
 	ldx		#led_PM								; 12h模式AM需要灭PM点
@@ -173,7 +173,7 @@ L_Start_DisAlarm_Hour:
 	and		#$f0
 	jsr		L_LSR_4Bit
 	bne		L_AlarmHour_Tens_NoZero				; 小时模式的十位0不显示
-	lda		#$0b
+	lda		#$0a
 L_AlarmHour_Tens_NoZero:
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
@@ -280,6 +280,8 @@ F_UnDisplay_Day:								; 闪烁时取消显示用的函数
 
 F_Display_Week:
 	jsr		L_GetWeek
+
+	sta		R_Date_Week
 	ldx		#led_week
 	jsr		L_Dis_7Bit_WeekDot
 	rts
@@ -349,9 +351,141 @@ F_Display_Humid:
 
 
 F_SymbolRegulate:
-	
-	
+	lda		Sys_Status_Flag
+	bne		?No_ClockDis_Mode
+	lda		Sys_Status_Ordinal					; 时钟模式日期显示需要灭PM点
+	beq		?No_ClockDis_Mode
+	ldx		#led_PM
+	jsr		F_ClrSymbol
+	ldx		#led_COL1
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
 	rts
+
+?No_ClockDis_Mode:
+	cmp		#2
+	bne		?No_AlarmDis_Mode
+	lda		Sys_Status_Ordinal					; 闹钟模式需要显示对应闹组的点
+	beq		?No_Alarm_1ON
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	rts
+?No_Alarm_1ON:
+	cmp		#1
+	bne		?No_Alarm_2ON
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	rts
+?No_Alarm_2ON:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_DisSymbol
+	rts
+
+?No_AlarmDis_Mode:
+	cmp		#3
+	bne		?No_ClockSet_Mode
+	lda		Sys_Status_Ordinal					; 时钟设置模式日期设置需要灭PM点
+	cmp		#3
+	bcc		?No_ClockSet_Mode
+	ldx		#led_PM
+	jsr		F_ClrSymbol
+	ldx		#led_COL1
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	rts
+
+?No_ClockSet_Mode:
+	lda		Sys_Status_Ordinal					; 闹钟设置模式，需要亮对应闹组的点
+	cmp		#3
+	bcs		?No_Alarm1Set
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	rts
+?No_Alarm1Set:
+	cmp		#6
+	bcs		?No_Alarm2Set
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	rts
+?No_Alarm2Set:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	ldx		#led_AL3
+	jsr		F_DisSymbol
+	rts
+
+
+
+
+F_AlarmSW_Display:
+	lda		Sys_Status_Flag
+	cmp		#2
+	bne		?No_AlarmSW_AlarmDis
+	rts
+?No_AlarmSW_AlarmDis:
+	cmp		#4
+	bne		Alarm1_Switch
+	rts											; 在闹钟显示和设置模式下，不控制闹钟组的点显示
+
+Alarm1_Switch:
+	lda		Alarm_Switch
+	and		#001B
+	beq		Alarm1_Switch_Off
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	bra		Alarm2_Switch
+Alarm1_Switch_Off:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+
+Alarm2_Switch:
+	lda		Alarm_Switch
+	and		#010B
+	beq		Alarm2_Switch_Off
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	bra		Alarm3_Switch
+Alarm2_Switch_Off:
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+
+Alarm3_Switch:
+	lda		Alarm_Switch
+	and		#100B
+	beq		Alarm3_Switch_Off
+	ldx		#led_AL3
+	jsr		F_DisSymbol
+	rts
+Alarm3_Switch_Off:
+	ldx		#led_AL3
+	jsr		F_ClrSymbol
+	rts
+
+
 
 
 F_C2F:

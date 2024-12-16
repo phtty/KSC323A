@@ -32,7 +32,6 @@ L_ConstBeep_Mode:
 
 	bbr0	Beep_Serial,L_NoBeep_Const_Mode
 
-
 	smb4	PADF0								; PB3配置为IO口
 	smb3	PB_TYPE								; PB3 设置CMOS输出
 	smb1	PADF0								; PB3 PWM输出控制

@@ -65,18 +65,19 @@ L_Dot_Clear:
 
 ; 轮流显示
 F_Rotate_Display:
-	bbr1	Timer_Flag,Rotate_Start
+	bbs0	Timer_Flag,Rotate_Start
 	rts
 Rotate_Start:
 	inc		CC0
 	lda		CC0
 	cmp		#11
-	bcc		L_Rotate_DateMode
+	bcs		L_Rotate_DateMode
 	jsr		F_Time_Display
 	rts
 L_Rotate_DateMode:
 	cmp		#16
-	bcc		L_Rotate_TimeMode
+	bcs		L_Rotate_TimeMode
+	rmb0	Timer_Flag
 	jsr		F_Date_Display
 	rts
 L_Rotate_TimeMode:
@@ -85,52 +86,32 @@ L_Rotate_TimeMode:
 	rts
 
 
-F_DisTimeMode_Set:
-	bbs0	Timer_Flag,L_TimeMode_BlinkStart
-	rts
-L_TimeMode_BlinkStart:
-	rmb0	Timer_Flag
-	bbs1	Timer_Flag,L_TimeMode_BlinkClear
-	bbs0	Clock_Flag,L_TimeMode12h			; 判断12h还是24h模式
-	lda		#2
-	ldx		#led_d0
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#4
-	ldx		#led_d1
-	jsr		L_Dis_7Bit_DigitDot
-	bra		L_DisTimeMode_Hr
-L_TimeMode12h:
-	lda		#1
-	ldx		#led_d0
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#2
-	ldx		#led_d1
-	jsr		L_Dis_7Bit_DigitDot
-L_DisTimeMode_Hr:
-	lda		#$0c
-	ldx		#led_d2
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#$0d
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts											; 半S触发时没1S标志不走时，直接返回
-L_TimeMode_BlinkClear:
-	rmb1	Timer_Flag							; 清1S标志
-	lda		#11
-	ldx		#led_d0
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#11
-	ldx		#led_d1
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#11
-	ldx		#led_d2
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#11
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
+
+
+F_Clock_Set:
+	lda		Sys_Status_Ordinal
+	bne		No_TMSwitch_Display
+	jmp		F_Display_Time						; 12/24h模式切换
+No_TMSwitch_Display:
+	cmp		#1
+	bne		No_HourSet_Display
+	jmp		F_DisHour_Set
+No_HourSet_Display:
+	cmp		#2
+	bne		No_MinSet_Display
+	jmp		F_DisMin_Set
+No_MinSet_Display:
+	cmp		#3
+	bne		No_YearSet_Display
+	jmp		F_DisYear_Set
+No_YearSet_Display:
+	cmp		#4
+	bne		No_MonthSet_Display
+	jmp		F_DisMonth_Set
+No_MonthSet_Display:
+	jmp		F_DisDay_Set
 
 	rts
-
 
 
 
@@ -141,22 +122,20 @@ F_DisHour_Set:
 	rts
 L_Blink_Hour:
 	rmb0	Timer_Flag							; 清半S标志
-	bbr1	Calendar_Flag,L_No_Date_Add_HS
-	rmb1	Calendar_Flag
-	jsr		F_Display_Week
-L_No_Date_Add_HS:
+
+	ldx		#led_COL1
+	jsr		F_DisSymbol
+	ldx		#led_COL2
+	jsr		F_DisSymbol
+
 	bbs1	Timer_Flag,L_Hour_Clear
 L_KeyTrigger_NoBlink_Hour:
 	jsr		L_DisTime_Hour						; 半S亮
 	jsr		L_DisTime_Min
-	ldx		#led_COL1
-	jsr		F_DisSymbol
 	rts
 L_Hour_Clear:
 	rmb1	Timer_Flag
 	jsr		F_UnDisplay_Hour					; 1S灭
-	ldx		#led_COL1
-	jsr		F_ClrSymbol
 	rts
 
 
@@ -166,20 +145,18 @@ F_DisMin_Set:
 	rts
 L_Blink_Min:
 	rmb0	Timer_Flag							; 清半S标志
-	bbr1	Calendar_Flag,L_No_Date_Add_MS
-	rmb1	Calendar_Flag
-	jsr		F_Display_Week
-L_No_Date_Add_MS:
+
+	ldx		#led_COL1
+	jsr		F_DisSymbol
+	ldx		#led_COL2
+	jsr		F_DisSymbol
+
 	bbs1	Timer_Flag,L_Min_Clear
 L_KeyTrigger_NoBlink_Min:
 	jsr		L_DisTime_Min						; 半S亮
 	jsr		L_DisTime_Hour
-	ldx		#led_COL1
-	jsr		F_DisSymbol
 	rts
 L_Min_Clear:
 	rmb1	Timer_Flag
 	jsr		F_UnDisplay_Min						; 1S灭
-	ldx		#led_COL1
-	jsr		F_ClrSymbol
 	rts

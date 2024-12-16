@@ -132,24 +132,24 @@ L_Send_Buffer_COM:
 	rol
 	tax
 	lda		LED_RamAddr,x				; 32个Seg的状态依次送进P_Temp
-	sta		P_Temp
+	sta		LED_Temp
 	inx
 	lda		LED_RamAddr,x
-	sta		P_Temp+1
+	sta		LED_Temp+1
 	inx
 	lda		LED_RamAddr,x
-	sta		P_Temp+2
+	sta		LED_Temp+2
 	inx
 	lda		LED_RamAddr,x
-	sta		P_Temp+3
+	sta		LED_Temp+3
 
 	lda		#32
-	sta		P_Temp+4
+	sta		LED_Temp+4
 L_Sending_Loop:							; 由于5020是MSB，发送必须高位先发
-	rol		P_Temp						; 循环左移后，检测C位
-	rol		P_Temp+1
-	rol		P_Temp+2
-	rol		P_Temp+3
+	rol		LED_Temp					; 循环左移后，检测C位
+	rol		LED_Temp+1
+	rol		LED_Temp+2
+	rol		LED_Temp+3
 	bcc		L_Send_0
 	smb5	PD							; 如果是1，则输出高
 	bra		L_CLK_Change
@@ -161,7 +161,7 @@ L_CLK_Change:
 	nop
 	nop
 	smb6	PD
-	dec		P_Temp+4
+	dec		LED_Temp+4
 	bne		L_Sending_Loop
  
 	lda		PC							; 5020数据更改前需要先关闭所有COM避免亮上一个COM的灯
@@ -224,6 +224,7 @@ Table_Digit_7bit:
 	.byte	$00	; undisplay
 	.byte	$39 ; C
 	.byte	$71	; F
+	.byte	$37	; N
 
 Table_Week_7bit:
 	.byte	$01		; SUN
