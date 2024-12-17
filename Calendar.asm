@@ -92,9 +92,11 @@ L_Get_Weak_YearFirstDay:
 
 ; 日期显示
 F_Date_Display:
-	ldx		#led_COL1							; 日期不显示秒点
+	ldx		#led_COL1							; 日期不显示COL和PM
 	jsr		F_ClrSymbol
 	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	ldx		#led_PM
 	jsr		F_ClrSymbol
 
 	jsr		F_Display_Date						; 显示月日
@@ -104,7 +106,6 @@ F_Date_Display:
 
 
 F_DisYear_Set:
-	lda		Key_Flag
 	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Year	; 有按键时不闪烁
 	bbs0	Timer_Flag,L_Blink_Year				; 没有半S标志不闪烁
 	rts
@@ -121,7 +122,6 @@ L_Year_Clear:
 
 
 F_DisMonth_Set:
-	lda		Key_Flag
 	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Month	; 有按键时不闪烁
 	bbs0	Timer_Flag,L_Blink_Month			; 没有半S标志不闪烁
 	rts
@@ -139,7 +139,6 @@ L_Month_Clear:
 
 
 F_DisDay_Set:
-	lda		Key_Flag
 	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Day	; 有按键时不闪烁
 	bbs0	Timer_Flag,L_Blink_Day				; 没有半S标志不闪烁
 	rts

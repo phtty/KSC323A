@@ -227,6 +227,7 @@ L_Universal_TriggerHandle:
 	jsr		F_KeyMatrix_Reset					; 按键矩阵的GPIO状态重置
 
 	bbs4	PD,WakeUp_Event
+	bbs3	Timer_Flag,?Handle_Exit
 	lda		#10B								; 设置按键提示音的响铃序列
 	sta		Beep_Serial
 	smb0	TMRC								; 开TIM0蜂鸣器时钟
@@ -235,12 +236,19 @@ L_Universal_TriggerHandle:
 	smb1	RFC_Flag							; 禁用RFC采样
 	lda		#0
 	sta		Backlight_Counter
+?Handle_Exit:
 	rts
 WakeUp_Event:
+	lda		Backlight_Level
+	bne		No_Extinguish
+	lda		#2
+	sta		Backlight_Level						; 若是手动熄屏状态被唤醒，则直接变为高亮显示
+	smb0	PC
+No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
-	lda		#0
-	sta		Backlight_Counter
+	lda		#2
+	sta		Backlight_Counter					; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
@@ -360,16 +368,19 @@ L_Ordinal_Exit_AS:
 ; 切换灯光亮度
 ; 0熄屏，1低亮，2高亮
 LightLevel_Change:
-	inc		Backlight_Level
-	cmp		#3
-	bcs		Backlight_Add
-	lda		#0
-	sta		Backlight_Add
-	bra		LightLevel_Change_Exit
-Backlight_Add:
-	inc		Backlight_Level
-LightLevel_Change_Exit:
+	dec		Backlight_Level						; 递减亮度等级
+
+	lda		Backlight_Level						; 熄屏后亮度在唤醒里切换
+	bne		No_Level0
+	smb4	PD									; 熄屏
+	smb0	PC
 	rts
+No_Level0:
+	rmb4	PD									; 低亮
+	rmb0	PC
+	rts
+
+
 
 
 
@@ -425,6 +436,7 @@ TemperMode_Change:
 
 
 
+; 时设模式增数
 AddNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch
@@ -450,11 +462,11 @@ No_CS_YearAdd:
 	jmp		L_DateMonth_Add
 No_CS_MonthAdd:
 	jmp		L_DateDay_Add
-	rts
 
 
 
 
+; 闹设模式增数
 AddNum_AS:
 	lda		Sys_Status_Ordinal
 	bne		No_AS_Alarm1_Switch
@@ -490,12 +502,10 @@ No_AS_Alarm3_Switch:
 No_AS_Alarm3_HourAdd:
 	jmp		L_Alarm3Min_Add
 
-	rts
 
 
 
-
-; 闹设模式减数
+; 时设模式减数
 SubNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch2
@@ -521,7 +531,6 @@ No_CS_YearSub:
 	jmp		L_DateMonth_Sub
 No_CS_MonthSub:
 	jmp		L_DateDay_Sub
-	rts
 
 
 
@@ -548,21 +557,20 @@ No_AS_Alarm2_Switch2:
 	bne		No_AS_Alarm2_HourSub
 	jmp		L_Alarm2Hour_Sub
 No_AS_Alarm2_HourSub:
-	cmp		#6
+	cmp		#5
 	bne		No_AS_Alarm2_MinSub
 	jmp		L_Alarm2Min_Sub
 No_AS_Alarm2_MinSub:
-	cmp		#7
+	cmp		#6
 	bne		No_AS_Alarm3_Switch2
 	jmp		L_Alarm3_Switch
 No_AS_Alarm3_Switch2:
-	cmp		#8
+	cmp		#7
 	bne		No_AS_Alarm3_HourSub
 	jmp		L_Alarm3Hour_Sub
 No_AS_Alarm3_HourSub:
 	jmp		L_Alarm3Min_Sub
 
-	rts
 
 
 
@@ -697,7 +705,6 @@ L_Alarm1_Switch:
 	sta		Alarm_Switch
 	rts
 
-
 ; 闹钟1小时增加
 L_Alarm1Hour_Add:
 	lda		R_Alarm1_Hour
@@ -718,7 +725,6 @@ L_Alarm1Hour_Sub:
 	dec		R_Alarm1_Hour
 Alarm1Hour_SubOverflow:
 	rts
-
 
 ; 闹钟1分增加
 L_Alarm1Min_Add:
@@ -750,7 +756,6 @@ L_Alarm2_Switch:
 	eor		#010B
 	sta		Alarm_Switch
 	rts
-
 
 ; 闹钟2小时增加
 L_Alarm2Hour_Add:
@@ -801,10 +806,9 @@ Alarm2Min_SubOverflow:
 ; 闹钟3开关
 L_Alarm3_Switch:
 	lda		Alarm_Switch
-	eor		#010B
+	eor		#100B
 	sta		Alarm_Switch
 	rts
-
 
 ; 闹钟3小时增加
 L_Alarm3Hour_Add:
@@ -826,7 +830,6 @@ L_Alarm3Hour_Sub:
 	dec		R_Alarm3_Hour
 Alarm3Hour_SubOverflow:
 	rts
-
 
 ; 闹钟3分增加
 L_Alarm3Min_Add:
@@ -852,6 +855,7 @@ Alarm3Min_SubOverflow:
 
 
 
+; 天数是否溢出的判断
 L_DayOverflow_Juge:
 	bbs0	Calendar_Flag,L_LeapYear_Handle		; 平年闰年的表分开查
 	ldx		R_Date_Month						; 查平年每月份天数表

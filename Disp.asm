@@ -224,7 +224,10 @@ Table_Digit_7bit:
 	.byte	$00	; undisplay
 	.byte	$39 ; C
 	.byte	$71	; F
+	.byte	$5c	; o
 	.byte	$37	; N
+	.byte	$77	; A
+	.byte	$40	; -
 
 Table_Week_7bit:
 	.byte	$01		; SUN

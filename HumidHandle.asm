@@ -344,16 +344,15 @@ L_RR_Div_2:
 	rts
 
 
-; P_Temp存商，A为余数
+; X存商，A为余数
 L_A_Mod_5:
-	lda		#0
-	sta		P_Temp
+	ldx		#0
 L_A_Mod_5_Start:
 	cmp		#5
 	bcc		L_A_Mod_5_Over
 	sec
 	sbc		#5
-	inc		P_Temp
+	inx
 	bra		L_A_Mod_5_Start
 L_A_Mod_5_Over:
 	rts

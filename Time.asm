@@ -103,12 +103,32 @@ No_HourSet_Display:
 No_MinSet_Display:
 	cmp		#3
 	bne		No_YearSet_Display
+	ldx		#led_COL1							; 日期不显示COL和PM
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	ldx		#led_PM
+	jsr		F_ClrSymbol
 	jmp		F_DisYear_Set
 No_YearSet_Display:
 	cmp		#4
 	bne		No_MonthSet_Display
+	ldx		#led_COL1							; 日期不显示COL和PM
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	ldx		#led_PM
+	jsr		F_ClrSymbol
+
 	jmp		F_DisMonth_Set
 No_MonthSet_Display:
+	ldx		#led_COL1							; 日期不显示COL和PM
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	ldx		#led_PM
+	jsr		F_ClrSymbol
+
 	jmp		F_DisDay_Set
 
 	rts

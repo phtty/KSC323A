@@ -78,67 +78,63 @@ No_AL3_HourSet:
 
 
 
+; 闹钟开关显示
 F_Alarm_SwitchStatue:
-	lda		Sys_Status_Ordinal
-	bne		No_AL1Switch
-	lda		Alarm_Switch
-	and		#001B
-	jsr		ALSwitch_DisOnOff
-No_AL1Switch:
-	cmp		#3
-	bne		No_AL2Switch
-	lda		Alarm_Switch
-	and		#010B
-	jsr		ALSwitch_DisOnOff
-No_AL2Switch:
-	cmp		#6
-	bne		No_AL3Switch
-	lda		Alarm_Switch
-	and		#100B
-	jsr		ALSwitch_DisOnOff
-No_AL3Switch:
-	rts
-
-ALSwitch_DisOnOff:
+	pha
 	ldx		#led_COL1
-	jsr		F_ClrSymbol
+	jsr		F_DisSymbol
 	ldx		#led_COL2
-	jsr		F_ClrSymbol
+	jsr		F_DisSymbol
+	pla
+
+	jsr		L_A_Div_3							; sys ordinal除以3得到左移的量
+	txa
+	lda		#1
+	jsr		L_A_LeftShift_XBit					; 把1左移相应位计算出当前的闹钟开关的位号
+	and		Alarm_Switch						; 和闹钟开关状态相与得出该位号是开还是关
 
 	beq		ALSwitch_DisOff
-	lda		#10
+	lda		#13
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot					; 显示ON
 
-	lda		#10
+	lda		#14
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 
-	lda		#0
-	ldx		#led_d2
-	jsr		L_Dis_7Bit_DigitDot
+	bra		ALSwitch_DisNum
 
-	lda		#13
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts
 ALSwitch_DisOff:
-	lda		#10
+	lda		#16
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot					; 显示OFF
 
-	lda		#0
+	lda		#16
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 
-	lda		#12
+ALSwitch_DisNum:								; 显示闹钟序号
+	lda		#15
 	ldx		#led_d2
 	jsr		L_Dis_7Bit_DigitDot
 
-	lda		#12
+	lda		Sys_Status_Ordinal
+	bne		AlamNumDis2
+	lda		#1
 	ldx		#led_d3
 	jsr		L_Dis_7Bit_DigitDot
-	
+	rts
+AlamNumDis2:
+	cmp		#3
+	bne		AlamNumDis3
+	lda		#2
+	ldx		#led_d3
+	jsr		L_Dis_7Bit_DigitDot
+	rts
+AlamNumDis3:
+	lda		#3
+	ldx		#led_d3
+	jsr		L_Dis_7Bit_DigitDot
 	rts
 
 
@@ -302,6 +298,8 @@ L_CloseLoud:
 	rts
 
 
+
+
 L_Alarm_Process:
 	bbs7	Timer_Flag,L_BeepStart				; 每S进一次
 	rts
@@ -389,4 +387,35 @@ L_Alarm3_MinMatch:
 	sta		R_Alarm_Hour
 	lda		R_Alarm3_Min
 	sta		R_Alarm_Min
+	rts
+
+
+
+; X存商，A为余数
+L_A_Div_3:
+	ldx		#0
+L_A_Div_3_Start:
+	cmp		#3
+	bcc		L_A_Div_3_Over
+	sec
+	sbc		#3
+	inx
+	bra		L_A_Div_3_Start
+L_A_Div_3_Over:
+	rts
+
+
+; 将A左移X位
+L_A_LeftShift_XBit:
+	sta		P_Temp
+Shift_Start:
+	txa
+	beq		Shift_End
+	lda		P_Temp
+	clc
+	rol		P_Temp
+	dex
+	bra		Shift_Start
+Shift_End:
+	lda		P_Temp
 	rts

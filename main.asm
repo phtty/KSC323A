@@ -76,6 +76,7 @@ Global_Run:											; 全局生效的功能处理
 	jsr		F_Time_Run								; 走时
 	jsr		F_Louding
 	jsr		F_AlarmSW_Display
+	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
 	;jsr		F_RFC_MeasureManage
 
