@@ -5,6 +5,7 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Counter_4Hz
 	sta		Counter_16Hz
 	sta		Counter_102Hz
+	sta		Counter_DP
 	sta		Key_Flag
 	sta		Timer_Flag
 	sta		Clock_Flag
@@ -25,17 +26,17 @@ F_Init_SystemRam:							; 系统初始化
 	sta		R_Time_Hour
 	lda		#00
 	sta		R_Time_Min
-	lda		#00
+	lda		#55
 	sta		R_Time_Sec
 
 	lda		#00
 	sta		R_Alarm1_Hour
-	lda		#00
+	lda		#01
 	sta		R_Alarm1_Min
 
-	lda		#11
+	lda		#00
 	sta		R_Alarm2_Hour
-	lda		#11
+	lda		#02
 	sta		R_Alarm2_Min
 
 	lda		#22

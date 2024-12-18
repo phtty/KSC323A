@@ -26,6 +26,7 @@ Counter_1Hz				DS		1
 Counter_4Hz				DS		1
 Counter_16Hz			DS		1
 Counter_102Hz			DS		1
+Counter_DP				DS		1
 
 RR_Div_RT_H				DS		1
 RR_Div_RT_L				DS		1
@@ -78,6 +79,8 @@ Key_Flag				DS		1
 ;bit3 = 1 屏幕唤醒事件标志位
 ;bit4 = 1 按键提示音标志位
 ;bit5 = 1 长按扫键4Hz标志
+;bit6 = 1 轮显/时显互相切换标志
+;bit7 = 1 DP显示1S标志
 
 SpecialKey_Flag			DS		1	; 长短按功能不同的按键
 ;bit0 = 1 Alarm键待处理				|特殊按键

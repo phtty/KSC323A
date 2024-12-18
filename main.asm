@@ -65,6 +65,9 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
+	lda		#011B
+	sta		Alarm_Switch
+
 
 ; 状态机
 MainLoop:
@@ -90,12 +93,15 @@ Status_Juge:
 	bra		MainLoop
 Status_DisClock:
 	jsr		F_Clock_Display
+	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
 	bra		MainLoop
 Status_DisRotate:
 	jsr		F_Rotate_Display
+	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
 	bra		MainLoop
 Status_DisAlarm:
 	jsr		F_Alarm_Display
+	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
 	bra		MainLoop
 Status_SetClock:
 	jsr		F_Clock_Set
@@ -197,9 +203,10 @@ L_1Hz_Out:
 	lda		#$0
 	sta		Counter_1Hz
 	lda		Timer_Flag
-	ora		#00100110B							; 1S、增S、熄屏的1S标志位
+	ora		#10100110B							; 1S、增S、熄屏的1S、响铃1S标志位
 	sta		Timer_Flag
 	smb1	Backlight_Flag						; 亮屏1S计时
+	smb7	Key_Flag							; DP显示1S计时
 	bra		L_EndIrq
 
 L_PaIrq:

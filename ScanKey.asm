@@ -75,15 +75,17 @@ No_KeyMTrigger:
 No_KeyUTrigger:
 	cmp		#$10
 	bne		L_KeyExit
-	jmp		L_KeyDTrigger						; D键触发			
+	jmp		L_KeyDTrigger						; D键触发
 
 L_KeyExit:
 	rmb1	TMRC								; 关闭快加16Hz计时的定时器
 	rmb0	Key_Flag							; 清相关标志位
 	rmb3	Timer_Flag
+	rmb6	Key_Flag
 	lda		#0									; 清理相关变量
 	sta		QuickAdd_Counter
 	sta		SpecialKey_Flag
+	sta		Counter_DP
 	jsr		F_KeyMatrix_Reset
 L_KeyScanExit:
 	rts
@@ -270,6 +272,8 @@ SwitchState_ClockDis:
 
 ; 切换轮流显示-固定显示
 SwitchState_DisMode:
+	rmb7	Key_Flag							; 清空DP显示1S标志
+	smb6	Key_Flag							; 设置轮显/时显互相切换标志
 	lda		Sys_Status_Flag
 	and		#00000010B
 	beq		L_ChangeToRotateDis
@@ -277,6 +281,8 @@ SwitchState_DisMode:
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
+	sta		Counter_DP
+	jsr		L_Dis_dp_1
 	rts
 L_ChangeToRotateDis:
 	lda		#00000010B
@@ -284,7 +290,9 @@ L_ChangeToRotateDis:
 	lda		#0
 	sta		Sys_Status_Ordinal
 	sta		CC0									; 先清空计数和标志位
-	rmb1	Timer_Flag							; 再进入此模式
+	sta		Counter_DP							; 再进入此模式
+	rmb1	Timer_Flag
+	jsr		L_Dis_dp_2
 	rts
 
 
@@ -389,6 +397,7 @@ No_Level0:
 Alarm_Snooze:
 	smb6	Clock_Flag							; 贪睡按键触发						
 	smb3	Clock_Flag							; 进入贪睡模式
+	rmb2	Clock_Flag							; 关闭响闹模式
 	
 	lda		R_Snooze_Min						; 贪睡闹钟的时间加5
 	clc
@@ -488,15 +497,15 @@ No_AS_Alarm2_Switch:
 	bne		No_AS_Alarm2_HourAdd
 	jmp		L_Alarm2Hour_Add
 No_AS_Alarm2_HourAdd:
-	cmp		#6
+	cmp		#5
 	bne		No_AS_Alarm2_MinAdd
 	jmp		L_Alarm2Min_Add
 No_AS_Alarm2_MinAdd:
-	cmp		#7
+	cmp		#6
 	bne		No_AS_Alarm3_Switch
 	jmp		L_Alarm3_Switch
 No_AS_Alarm3_Switch:
-	cmp		#8
+	cmp		#7
 	bne		No_AS_Alarm3_HourAdd
 	jmp		L_Alarm3Hour_Add
 No_AS_Alarm3_HourAdd:

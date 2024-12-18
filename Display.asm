@@ -314,18 +314,18 @@ Juge_DegreeMode_Over:
 	ldx		#led_d4
 	jsr		L_Dis_2Bit_DigitDot
 
-	lda		#12									; 显示华氏度F
+	lda		#1									; 显示华氏度F
 	ldx		#led_d7
-	jsr		L_Dis_7Bit_DigitDot
+	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_TMP
 	jsr		F_DisSymbol
 	rts
 
 L_Celsius_Degree:
-	lda		#11									; 显示摄氏度C
+	lda		#0									; 显示摄氏度C
 	ldx		#led_d7
-	jsr		L_Dis_7Bit_DigitDot
+	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_TMP
 	jsr		F_DisSymbol
@@ -401,6 +401,100 @@ Alarm3_Switch:
 Alarm3_Switch_Off:
 	ldx		#led_AL3
 	jsr		F_ClrSymbol
+	rts
+
+
+
+F_RD_DP_Display:
+	bbs6	Key_Flag,RD_DP_Dis				; 没有轮显/时显互相切换标志则直接退出
+	rts
+RD_DP_Dis:
+	bbs7	Key_Flag,RD_DP_Dis_Juge			; 等待1S标志到来，增加计数
+	pla
+	pla
+	rts
+RD_DP_Dis_Juge:
+	rmb7	Key_Flag
+	inc		Counter_DP
+	lda		Counter_DP
+	cmp		#5
+	beq		RD_DP_Dis_Over					; 计满5s前一直显示DP
+
+	jsr		L_Dis_dp_2
+	
+	pla										; 等待1S标志到来，增加计数
+	pla
+	rts
+RD_DP_Dis_Over:
+	lda		#0
+	sta		Counter_DP
+	rmb6	Key_Flag
+	rts
+
+
+
+F_CD_DP_Display:
+	bbs6	Key_Flag,CD_DP_Dis				; 没有轮显/时显互相切换标志则直接退出
+	rts
+CD_DP_Dis:
+	bbs7	Key_Flag,CD_DP_Dis_Juge			; 等待1S标志到来，增加计数
+	pla
+	pla
+	rts
+CD_DP_Dis_Juge:
+	rmb7	Key_Flag
+	inc		Counter_DP
+	lda		Counter_DP
+	cmp		#5
+	beq		DP_Dis_Over						; 计满5s前一直显示DP
+
+	jsr		L_Dis_dp_1
+	
+	pla										; 等待1S标志到来，增加计数
+	pla
+	rts
+DP_Dis_Over:
+	lda		#0
+	sta		Counter_DP
+	rmb6	Key_Flag
+	rts
+
+
+L_Dis_dp_1:
+	ldx		#led_d0
+	lda		#5
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d1
+	lda		#6
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d2
+	lda		#7
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d3
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+	rts
+
+
+L_Dis_dp_2:
+	ldx		#led_d0
+	lda		#5
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d1
+	lda		#6
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d2
+	lda		#7
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d3
+	lda		#2
+	jsr		L_Dis_7Bit_DigitDot
 	rts
 
 

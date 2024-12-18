@@ -41,6 +41,7 @@ L_DisDate_Mode:
 
 ; 时间显示
 F_Time_Display:
+	jsr		F_CD_DP_Display
 	bbs0	Timer_Flag,L_TimeDot_Out
 	rts
 L_TimeDot_Out:
@@ -65,6 +66,7 @@ L_Dot_Clear:
 
 ; 轮流显示
 F_Rotate_Display:
+	jsr		F_RD_DP_Display
 	bbs0	Timer_Flag,Rotate_Start
 	rts
 Rotate_Start:
