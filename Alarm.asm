@@ -105,11 +105,11 @@ F_Alarm_SwitchStatue:
 	bra		ALSwitch_DisNum
 
 ALSwitch_DisOff:
-	lda		#7
+	lda		#9
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_WordDot					; 显示OFF
 
-	lda		#7
+	lda		#9
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_WordDot
 
@@ -248,7 +248,7 @@ L_Start_Loud_Juge:
 	bra		L_AlarmTrigger
 Is_Snooze:
 	bbs3	Clock_Flag,L_Snooze					; 先判断闹钟是否触发，再判断是否存在贪睡
-	bra		L_CloseLoud							; 如既无闹钟触发，又无贪睡，则不需要闹钟处理，直接关闭响闹并退出
+	rts											; 如既无闹钟触发，又无贪睡，则不需要闹钟处理，直接退出
 L_Snooze:
 	lda		R_Time_Hour							; 贪睡模式下,用贪睡闹钟和当前时钟匹配
 	cmp		R_Snooze_Hour						; 贪睡闹钟和当前时间不匹配不会进响闹模式
@@ -271,7 +271,7 @@ L_Alarm_NoStop:
 L_AlarmTrigger_Exit:
 	rts
 L_Snooze_CloseLoud:
-	bbr5	Clock_Flag,L_CloseLoud				; last==1 && now==0
+	bbr5	Clock_Flag,L_AlarmTrigger_Exit		; last==1 && now==0
 	rmb5	Clock_Flag							; 响闹结束状态同步响闹模式的保存值
 	bbr6	Clock_Flag,L_NoSnooze_CloseLoud		; 没有贪睡按键触发&&贪睡模式&&响闹结束状态才会自然结束贪睡模式
 	rmb6	Clock_Flag							; 清贪睡按键触发
@@ -279,6 +279,8 @@ L_Snooze_CloseLoud:
 L_NoSnooze_CloseLoud:							; 结束贪睡模式并关闭响闹
 	rmb3	Clock_Flag
 	rmb6	Clock_Flag
+	lda		#0
+	sta		Triggered_AlarmGroup
 L_CloseLoud:
 	rmb1	Clock_Flag							; 关闭闹钟触发标志
 	rmb2	Clock_Flag							; 关闭响闹模式
@@ -356,7 +358,7 @@ L_Alarm2_NoMatch:
 	cmp		R_Alarm3_Hour
 	beq		L_Alarm3_HourMatch
 L_Alarm3_NoMatch:
-	rmb1	Clock_Flag							; 闹钟3也不匹配，设定闹钟未触发
+	rmb1	Clock_Flag							; 闹钟3也不匹配，闹钟未触发
 	rts
 
 L_Alarm1_HourMatch:
@@ -375,17 +377,19 @@ L_Alarm3_HourMatch:
 	lda		R_Time_Min
 	cmp		R_Alarm3_Min
 	beq		L_Alarm3_MinMatch
-	rmb1	Clock_Flag							; 闹钟3分钟不匹配，设定闹钟未触发
+	rmb1	Clock_Flag							; 闹钟3分钟不匹配，闹钟未触发
 	rts
 
 L_Alarm1_MinMatch:
 	lda		R_Time_Sec							
 	cmp		#00
 	beq		Alarm1_SecMatch
-	rmb1	Clock_Flag							; 若秒不符合，则闹钟不触发并退出
+	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出
 	rts
 Alarm1_SecMatch:
 	jsr		L_Alarm_Match_Handle
+	lda		#001B
+	sta		Triggered_AlarmGroup
 	lda		R_Alarm1_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
 	sta		R_Alarm_Hour
 	lda		R_Alarm1_Min
@@ -396,10 +400,12 @@ L_Alarm2_MinMatch:
 	lda		R_Time_Sec							
 	cmp		#00
 	beq		Alarm2_SecMatch
-	rmb1	Clock_Flag							; 若秒不符合，则闹钟不触发并退出
+	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出
 	rts
 Alarm2_SecMatch:
 	jsr		L_Alarm_Match_Handle
+	lda		#010B
+	sta		Triggered_AlarmGroup
 	lda		R_Alarm2_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
 	sta		R_Alarm_Hour
 	lda		R_Alarm2_Min
@@ -410,10 +416,12 @@ L_Alarm3_MinMatch:
 	lda		R_Time_Sec							
 	cmp		#00
 	beq		Alarm3_SecMatch
-	rmb1	Clock_Flag							; 若秒不符合，则闹钟不触发并退出
+	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出
 	rts
 Alarm3_SecMatch:
 	jsr		L_Alarm_Match_Handle
+	lda		#100B
+	sta		Triggered_AlarmGroup
 	lda		R_Alarm3_Hour						; 将符合条件的闹钟的时、分同步至触发闹钟,方便后续的判断逻辑
 	sta		R_Alarm_Hour
 	lda		R_Alarm3_Min

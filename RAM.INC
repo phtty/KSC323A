@@ -27,6 +27,7 @@ Counter_4Hz				DS		1
 Counter_16Hz			DS		1
 Counter_102Hz			DS		1
 Counter_DP				DS		1
+Count_RFC				DS		1
 
 RR_Div_RT_H				DS		1
 RR_Div_RT_L				DS		1
@@ -62,6 +63,10 @@ Timer_Flag				DS		1
 ;bit6 = 1 Timer0 16Hz标志
 ;bit7 = 1 Timer2 响铃1S计时
 
+Symbol_Flag				DS		1	; 符号操作
+; bit0 = 1 ALM点半S标志
+; bit1 = 1 ALM点1S标志
+
 Sys_Status_Flag			DS		1
 ;bit0 = 1 时钟显示
 ;bit1 = 1 轮流显示
@@ -93,6 +98,8 @@ RFC_Flag				DS		1
 ;bit2 = 1 负温度
 ;bit3 = 1 湿度表查询完成标志位
 ;bit4 = 1 华氏度模式
+;bit5 = 1 温湿度测量1S标志
+;bit6 = 1 采样启用标志位
 
 Backlight_Flag			DS		1
 ;bit0 = 1 DC5V接入,常亮模式
@@ -107,6 +114,8 @@ Alarm_Switch			DS		1	; 各个闹钟开关
 ;bit0 = 1 闹钟1开启
 ;bit1 = 1 闹钟2开启
 ;bit2 = 1 闹钟3开启
+
+Triggered_AlarmGroup	DS		1
 
 RFC_ChannelCount		DS		1
 

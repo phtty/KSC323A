@@ -272,7 +272,9 @@ Table_Word_7bit:
 	.byte	$77	; A 4
 	.byte	$5e	; d 5
 	.byte	$73	; p 6
-	.byte	$40	; - 7
+	.byte	$76	; H 7
+	.byte	$70	; r 8
+	.byte	$40	; - 9
 
 Table_Week_7bit:
 	.byte	$01		; SUN

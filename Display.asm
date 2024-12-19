@@ -191,7 +191,7 @@ L_DisDate_Day:
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
-	ldx		#led_d1
+	ldx		#led_d3
 	jsr		L_Dis_7Bit_DigitDot
 	pla
 	and		#$f0
@@ -199,7 +199,7 @@ L_DisDate_Day:
 	bne		L_Day_Tens_NoZero					; 日期十位0不显示
 	lda		#10
 L_Day_Tens_NoZero:
-	ldx		#led_d0
+	ldx		#led_d2
 	jsr		L_Dis_7Bit_DigitDot
 	rts
 
@@ -208,7 +208,7 @@ L_DisDate_Month:
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
-	ldx		#led_d3
+	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 	pla
 	and		#$f0
@@ -216,7 +216,7 @@ L_DisDate_Month:
 	bne		L_Month_Tens_NoZero					; 月份十位0不显示
 	lda		#10
 L_Month_Tens_NoZero:
-	ldx		#led_d2
+	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
 	rts
 
@@ -333,7 +333,7 @@ L_Celsius_Degree:
 	rts
 
 
-
+; 显示湿度函数
 F_Display_Humid:
 	lda		R_Humidity
 	jsr		L_A_DecToHex
@@ -358,16 +358,67 @@ F_SymbolRegulate:								; 显示常亮点
 	jsr		F_DisSymbol
 	ldx		#led_Per2
 	jsr		F_DisSymbol
+
+	jsr		L_ALMDot_Blink
+	jsr		F_AlarmSW_Display
+
+	rts
+
+
+; 贪睡时闪ALM点
+L_ALMDot_Blink:
+	bbr3	Clock_Flag,L_SymbolDis_Exit			; 如果非贪睡状态，则不进此子程序
+	bbs0	Symbol_Flag,L_SymbolDis
+L_SymbolDis_Exit:
+	rts
+L_SymbolDis:
+	rmb0	Symbol_Flag							; ALM点半S标志
+	bbs1	Symbol_Flag,L_ALM_Dot_Clr
+L_ALM_Dot_Dis:
+	bbs0	Triggered_AlarmGroup,Group1_Bright
+	bbs1	Triggered_AlarmGroup,Group2_Bright
+	bbs2	Triggered_AlarmGroup,Group3_Bright
+Group1_Bright:
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	rts
+Group2_Bright:
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	rts
+Group3_Bright:
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	rts
+	
+L_ALM_Dot_Clr:
+	rmb1	Symbol_Flag							; ALM点1S标志
+	bbs0	Triggered_AlarmGroup,Group1_Extinguish
+	bbs1	Triggered_AlarmGroup,Group2_Extinguish
+	bbs2	Triggered_AlarmGroup,Group3_Extinguish
+Group1_Extinguish:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	rts
+Group2_Extinguish:
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	rts
+Group3_Extinguish:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
 	rts
 
 
 
-
+; 非闹钟显示状态下，显示开启的闹钟
 F_AlarmSW_Display:
+	bbs3	Clock_Flag,F_AlarmSW_Exit			; 贪睡时，被闪点子程序接管
 	lda		Sys_Status_Flag
 	cmp		#2
-	bne		Alarm1_Switch
-	rts											; 在闹钟显示模式下，不控制闹钟组的点显示
+	bne		Alarm1_Switch						; 在闹钟显示模式下，不控制闹钟组的点显示
+F_AlarmSW_Exit:
+	rts
 
 Alarm1_Switch:
 	lda		Alarm_Switch
@@ -449,7 +500,7 @@ CD_DP_Dis_Juge:
 	beq		DP_Dis_Over						; 计满5s前一直显示DP
 
 	jsr		L_Dis_dp_1
-	
+
 	pla										; 等待1S标志到来，增加计数
 	pla
 	rts
@@ -470,7 +521,7 @@ L_Dis_dp_1:
 	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_d2
-	lda		#7
+	lda		#9
 	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_d3
@@ -489,7 +540,7 @@ L_Dis_dp_2:
 	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_d2
-	lda		#7
+	lda		#9
 	jsr		L_Dis_7Bit_WordDot
 
 	ldx		#led_d3
@@ -497,6 +548,32 @@ L_Dis_dp_2:
 	jsr		L_Dis_7Bit_DigitDot
 	rts
 
+
+L_Dis_xxHr:
+	ldx		#led_d3
+	lda		#8
+	jsr		L_Dis_7Bit_WordDot
+
+	ldx		#led_d2
+	lda		#7
+	jsr		L_Dis_7Bit_WordDot
+
+	bbr0	Clock_Flag,L_24hMode_Set
+	ldx		#led_d1
+	lda		#2
+	jsr		L_Dis_7Bit_DigitDot
+	ldx		#led_d0
+	lda		#1
+	jsr		L_Dis_7Bit_DigitDot
+	rts
+L_24hMode_Set:
+	ldx		#led_d1
+	lda		#4
+	jsr		L_Dis_7Bit_DigitDot
+	ldx		#led_d0
+	lda		#2
+	jsr		L_Dis_7Bit_DigitDot
+	rts
 
 
 

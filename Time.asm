@@ -93,7 +93,7 @@ L_Rotate_TimeMode:
 F_Clock_Set:
 	lda		Sys_Status_Ordinal
 	bne		No_TMSwitch_Display
-	jmp		F_Display_Time						; 12/24h模式切换
+	jmp		L_Dis_xxHr							; 12/24h模式切换
 No_TMSwitch_Display:
 	cmp		#1
 	bne		No_HourSet_Display

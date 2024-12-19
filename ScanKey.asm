@@ -81,7 +81,6 @@ L_KeyExit:
 	rmb1	TMRC								; 关闭快加16Hz计时的定时器
 	rmb0	Key_Flag							; 清相关标志位
 	rmb3	Timer_Flag
-	rmb6	Key_Flag
 	lda		#0									; 清理相关变量
 	sta		QuickAdd_Counter
 	sta		SpecialKey_Flag
@@ -427,7 +426,7 @@ Switch_TimeMode:
 	lda		Clock_Flag
 	eor		#01									; 翻转12/24h模式的状态
 	sta		Clock_Flag
-
+	jsr		L_Dis_xxHr
 	rts
 
 
@@ -590,10 +589,12 @@ L_TimeHour_Add:
 	cmp		#23
 	bcs		TimeHour_AddOverflow
 	inc		R_Time_Hour
+	jsr		F_Display_Time
 	rts
 TimeHour_AddOverflow:
 	lda		#0
 	sta		R_Time_Hour
+	jsr		F_Display_Time
 	rts
 
 ; 时减少
@@ -602,6 +603,7 @@ L_TimeHour_Sub:
 	cmp		#0
 	beq		TimeHour_SubOverflow
 	dec		R_Time_Hour
+	jsr		F_Display_Time
 TimeHour_SubOverflow:
 	rts
 
@@ -617,10 +619,12 @@ L_TimeMin_Add:
 	cmp		#59
 	bcs		TimeMin_AddOverflow
 	inc		R_Time_Min
+	jsr		F_Display_Time
 	rts
 TimeMin_AddOverflow:
 	lda		#0
 	sta		R_Time_Min
+	jsr		F_Display_Time
 	rts
 
 ; 分减少
@@ -632,6 +636,7 @@ L_TimeMin_Sub:
 	cmp		#0
 	beq		TimeMin_SubOverflow
 	dec		R_Time_Min
+	jsr		F_Display_Time
 TimeMin_SubOverflow:
 	rts
 
@@ -645,11 +650,13 @@ L_DateYear_Add:
 	bcs		DateYear_AddOverflow
 	inc		R_Date_Year
 	jsr		F_Is_Leap_Year
+	jsr		L_DisDate_Year
 	rts
 DateYear_AddOverflow:
 	lda		#0
 	sta		R_Date_Year
 	jsr		F_Is_Leap_Year
+	jsr		L_DisDate_Year
 	rts
 
 ; 年减少
@@ -658,6 +665,7 @@ L_DateYear_Sub:
 	cmp		#0
 	beq		DateYear_SubOverflow
 	dec		R_Date_Year
+	jsr		L_DisDate_Year
 DateYear_SubOverflow:
 	rts
 
@@ -671,10 +679,12 @@ L_DateMonth_Add:
 	bcs		DateMonth_AddOverflow
 	inc		R_Date_Month
 	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DisDate_Month
 	rts
 DateMonth_AddOverflow:
 	lda		#1
 	sta		R_Date_Month
+	jsr		L_DisDate_Month
 	rts
 
 ; 月减少
@@ -683,6 +693,7 @@ L_DateMonth_Sub:
 	cmp		#0
 	beq		DateMonth_SubOverflow
 	dec		R_Date_Month
+	jsr		L_DisDate_Month
 DateMonth_SubOverflow:
 	rts
 
@@ -693,6 +704,7 @@ DateMonth_SubOverflow:
 L_DateDay_Add:
 	inc		R_Date_Day
 	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DisDate_Day
 	rts
 
 ; 日减少
@@ -701,6 +713,7 @@ L_DateDay_Sub:
 	cmp		#0
 	beq		DateDay_SubOverflow
 	dec		R_Date_Day
+	jsr		L_DisDate_Day
 DateDay_SubOverflow:
 	rts
 
@@ -720,10 +733,12 @@ L_Alarm1Hour_Add:
 	cmp		#23
 	bcs		Alarm1Hour_AddOverflow
 	inc		R_Alarm1_Hour
+	jsr		F_AlarmHour_Set
 	rts
 Alarm1Hour_AddOverflow:
 	lda		#0
 	sta		R_Alarm1_Hour
+	jsr		F_AlarmHour_Set
 	rts
 
 ; 闹钟1小时减少
@@ -732,6 +747,7 @@ L_Alarm1Hour_Sub:
 	cmp		#0
 	beq		Alarm1Hour_SubOverflow
 	dec		R_Alarm1_Hour
+	jsr		F_AlarmHour_Set
 Alarm1Hour_SubOverflow:
 	rts
 
@@ -741,10 +757,12 @@ L_Alarm1Min_Add:
 	cmp		#59
 	bcs		Alarm1Min_AddOverflow
 	inc		R_Alarm1_Min
+	jsr		F_AlarmMin_Set
 	rts
 Alarm1Min_AddOverflow:
 	lda		#0
 	sta		R_Alarm1_Min
+	jsr		F_AlarmMin_Set
 	rts
 
 ; 闹钟1分钟减少
@@ -753,6 +771,7 @@ L_Alarm1Min_Sub:
 	cmp		#0
 	beq		Alarm1Min_SubOverflow
 	dec		R_Alarm1_Min
+	jsr		F_AlarmMin_Set
 Alarm1Min_SubOverflow:
 	rts
 
@@ -772,10 +791,12 @@ L_Alarm2Hour_Add:
 	cmp		#23
 	bcs		Alarm2Hour_AddOverflow
 	inc		R_Alarm2_Hour
+	jsr		F_AlarmHour_Set
 	rts
 Alarm2Hour_AddOverflow:
 	lda		#0
 	sta		R_Alarm2_Hour
+	jsr		F_AlarmHour_Set
 	rts
 
 ; 闹钟2小时减少
@@ -784,6 +805,7 @@ L_Alarm2Hour_Sub:
 	cmp		#0
 	beq		Alarm2Hour_SubOverflow
 	dec		R_Alarm2_Hour
+	jsr		F_AlarmHour_Set
 Alarm2Hour_SubOverflow:
 	rts
 
@@ -794,10 +816,12 @@ L_Alarm2Min_Add:
 	cmp		#59
 	bcs		Alarm2Min_AddOverflow
 	inc		R_Alarm2_Min
+	jsr		F_AlarmMin_Set
 	rts
 Alarm2Min_AddOverflow:
 	lda		#0
 	sta		R_Alarm2_Min
+	jsr		F_AlarmMin_Set
 	rts
 
 ; 闹钟2分钟减少
@@ -806,6 +830,7 @@ L_Alarm2Min_Sub:
 	cmp		#0
 	beq		Alarm2Min_SubOverflow
 	dec		R_Alarm2_Min
+	jsr		F_AlarmMin_Set
 Alarm2Min_SubOverflow:
 	rts
 
@@ -825,10 +850,12 @@ L_Alarm3Hour_Add:
 	cmp		#23
 	bcs		Alarm3Hour_AddOverflow
 	inc		R_Alarm3_Hour
+	jsr		F_AlarmHour_Set
 	rts
 Alarm3Hour_AddOverflow:
 	lda		#0
 	sta		R_Alarm3_Hour
+	jsr		F_AlarmHour_Set
 	rts
 
 ; 闹钟3小时减少
@@ -837,6 +864,7 @@ L_Alarm3Hour_Sub:
 	cmp		#0
 	beq		Alarm3Hour_SubOverflow
 	dec		R_Alarm3_Hour
+	jsr		F_AlarmHour_Set
 Alarm3Hour_SubOverflow:
 	rts
 
@@ -846,10 +874,12 @@ L_Alarm3Min_Add:
 	cmp		#59
 	bcs		Alarm3Min_AddOverflow
 	inc		R_Alarm3_Min
+	jsr		F_AlarmMin_Set
 	rts
 Alarm3Min_AddOverflow:
 	lda		#0
 	sta		R_Alarm3_Min
+	jsr		F_AlarmMin_Set
 	rts
 
 ; 闹钟3分钟减少
@@ -858,6 +888,7 @@ L_Alarm3Min_Sub:
 	cmp		#0
 	beq		Alarm3Min_SubOverflow
 	dec		R_Alarm3_Min
+	jsr		F_AlarmMin_Set
 Alarm3Min_SubOverflow:
 	rts
 

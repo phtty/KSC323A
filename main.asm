@@ -68,6 +68,12 @@ L_Clear_Ram_Loop:
 	lda		#011B
 	sta		Alarm_Switch
 
+	lda		#1
+	sta		RR_Div_RT_H
+	lda		#29
+	sta		RR_Div_RT_L
+	jsr		L_Search_TemperTable
+
 
 ; 状态机
 MainLoop:
@@ -78,7 +84,6 @@ Global_Run:											; 全局生效的功能处理
 	jsr		F_PowerManage
 	jsr		F_Time_Run								; 走时
 	jsr		F_Louding
-	jsr		F_AlarmSW_Display
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
 	;jsr		F_RFC_MeasureManage
@@ -194,6 +199,7 @@ L_4Hz_Out:
 L_Timer2Irq:
 	rmb3	IFR									; 清中断标志位
 	smb0	Timer_Flag							; 半秒标志
+	smb0	Symbol_Flag
 	lda		Counter_1Hz
 	cmp		#01
 	bcs		L_1Hz_Out
@@ -207,6 +213,7 @@ L_1Hz_Out:
 	sta		Timer_Flag
 	smb1	Backlight_Flag						; 亮屏1S计时
 	smb7	Key_Flag							; DP显示1S计时
+	smb1	Symbol_Flag
 	bra		L_EndIrq
 
 L_PaIrq:

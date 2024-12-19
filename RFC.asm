@@ -19,11 +19,27 @@ F_RFC_MeasureStart:
 	rts
 
 F_RFC_MeasureManage:
-	bbs3	Clock_Flag,L_RFC_Exit				; 存在响闹和按键音的时候，TIM0、1被占用，不进行测量
+	bbs2	Clock_Flag,L_RFC_Exit				; 存在响闹和按键音的时候，TIM0、1被占用，不进行测量
 	bbs4	Key_Flag,L_RFC_Exit
+	bbs0	Key_Flag,L_RFC_Exit					; 按键按下时，不进行测量
+
+	bbr6	RFC_Flag,RFC_SampleStart
+	bbr5	RFC_Flag,L_RFC_Exit					; 1S标志，计数30S
+	lda		Count_RFC
+	cmp		#30
+	bcs		Count_Over
+	inc		Count_RFC
+	rts
+Count_Over:
+	lda		#0
+	sta		Count_RFC							; 满30S后，不再计数，开始采样
+	smb6	RFC_Flag
+	jsr		F_RFC_MeasureStart
+RFC_SampleStart:
 	bbs0	RFC_Flag,L_RFC_Juge
 L_RFC_Exit:
 	rts
+
 L_RFC_Juge:
 	rmb7	RFC_Flag
 	lda		RFC_ChannelCount
@@ -73,6 +89,7 @@ F_RFC_MeasureStop:
 	smb1	RFC_Flag							; 禁用RFC标志 
 	jsr		F_Timer_Init						; 定时器配置为响铃和长按状态,关闭定时器同步
 	rmb0	IER									; 关闭DIV中断
+	rmb6	RFC_Flag							; 清除采样启用标志位
 
 	lda		#0
 	sta		RFC_TempCount_H						; 清理相关变量	
@@ -81,6 +98,9 @@ F_RFC_MeasureStop:
 	sta		RFC_HumiCount_L
 	sta		RFC_StanderCount_H
 	sta		RFC_StanderCount_L
+
+	jsr		F_Display_Temper					; 结束测量后，显示温度和湿度
+	jsr		F_Display_Humid
 
 	lda		#0									; 关闭RFC功能
 	sta		RFC_ChannelCount					; 重置RFC Channel计数

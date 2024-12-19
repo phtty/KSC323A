@@ -6,11 +6,14 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Counter_16Hz
 	sta		Counter_102Hz
 	sta		Counter_DP
+	sta		Count_RFC
 	sta		Key_Flag
 	sta		Timer_Flag
 	sta		Clock_Flag
 	sta		Calendar_Flag
 	sta		Backlight_Flag
+	sta		Symbol_Flag
+	sta		Triggered_AlarmGroup
 	sta		QuickAdd_Counter					; 快加标志的计数
 	sta		Backlight_Counter
 	sta		Return_Counter
