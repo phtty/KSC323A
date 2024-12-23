@@ -68,11 +68,8 @@ L_Clear_Ram_Loop:
 	lda		#011B
 	sta		Alarm_Switch
 
-	lda		#1
-	sta		RR_Div_RT_H
-	lda		#29
-	sta		RR_Div_RT_L
-	jsr		L_Search_TemperTable
+	jsr		F_RfcTest
+	smb0	IER
 
 
 ; 状态机
@@ -86,7 +83,17 @@ Global_Run:											; 全局生效的功能处理
 	jsr		F_Louding
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
-	jsr		F_RFC_MeasureManage
+	jsr		L_Calc_RfcTemp
+	jsr		F_Display_Temper
+
+	LDA		R_Time_Sec	
+	CMP		#$20
+	BEQ		?Test
+	CMP		#$50
+	BNE		?RTS
+?Test:	
+	JSR		L_LoadRfcTest
+?RTS
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -162,13 +169,16 @@ V_IRQ:
 
 L_DivIrq:
 	rmb0	IFR									; 清中断标志位
-	inc		Counter_102Hz
-	lda		Counter_102Hz
-	cmp		#5
-	bne		L_EndIrq
-	lda		#0
-	sta		Counter_102Hz
-	smb0	RFC_Flag							; 102Hz标志，用于计数Frcx
+	;inc		Counter_102Hz
+	;lda		Counter_102Hz
+	;cmp		#5
+	;bne		L_EndIrq
+	;lda		#0
+	;sta		Counter_102Hz
+	;smb0	RFC_Flag							; 102Hz标志，用于计数Frcx
+	bbr0	R_RFCFLAG,?Skip
+	jsr		L_RFC_Int
+?Skip:
 	bra		L_EndIrq
 
 L_Timer0Irq:									; 用于蜂鸣器
@@ -258,10 +268,13 @@ L_EndIrq:
 .include	Display.asm
 .include	Alarm.asm
 .include	Ledtab.asm
-.include	RFC.asm
-.include	RFCTable.asm
-.include	TemperHandle.asm
-.include	HumidHandle.asm
+;.include	RFC.asm
+;.include	RFCTable.asm
+;.include	TemperHandle.asm
+;.include	HumidHandle.asm
+.include	RFC_008.asm
+.include	Temp.asm
+.include	Humi.asm
 .include	PowerManage.asm
 .include	TestMode.asm
 

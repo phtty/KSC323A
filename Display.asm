@@ -291,10 +291,10 @@ F_Display_Week:
 ; 显示温度函数
 F_Display_Temper:
 	lda		R_Temperature
-	bbr4	RFC_Flag,Juge_DegreeMode_Over
-	jsr		F_C2F
-	txa
-	sta		R_Temperature_F
+	;bbr4	RFC_Flag,Juge_DegreeMode_Over
+	;jsr		F_C2F
+	;txa
+	;sta		R_Temperature_F_L
 Juge_DegreeMode_Over:
 	jsr		L_A_DecToHex						; 转化为16进制
 	pha
@@ -310,7 +310,7 @@ Juge_DegreeMode_Over:
 
 	pla
 	bbr4	RFC_Flag,L_Celsius_Degree
-	lda		R_Temperature_F
+	lda		R_Temperature_F_L
 	ldx		#led_d4
 	jsr		L_Dis_2Bit_DigitDot
 
@@ -626,14 +626,14 @@ F_C2F:
 	txa
 	clc
 	adc		#32								; 正温度时，直接加上32即为华氏度结果
-	sta		R_Temperature_F
+	sta		R_Temperature_F_L
 	rts
 
 Minus_Temper:								; 处理负温度的情况
 	lda		#32
 	sec
 	sbc		P_Temp							; 负数温度则是32-计算值
-	sta		R_Temperature_F
+	sta		R_Temperature_F_L
 	rts
 
 

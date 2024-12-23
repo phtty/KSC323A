@@ -120,18 +120,51 @@ Alarm_Switch			DS		1	; 各个闹钟开关
 
 Triggered_AlarmGroup	DS		1
 
-RFC_ChannelCount		DS		1
+;RFC_ChannelCount		DS		1
 
-RFC_TempCount_H			DS		1
-RFC_TempCount_L			DS		1
-RFC_HumiCount_H			DS		1
-RFC_HumiCount_L			DS		1
-RFC_StanderCount_H		DS		1
-RFC_StanderCount_L		DS		1
+;RFC_TempCount_H			DS		1
+;RFC_TempCount_L			DS		1
+;RFC_HumiCount_H			DS		1
+;RFC_HumiCount_L			DS		1
+;RFC_StanderCount_H		DS		1
+;RFC_StanderCount_L		DS		1
 
-R_Temperature			DS		1
-R_Temperature_F			DS		1
-R_Humidity				DS		1
+;R_Temperature			DS		1
+;R_Temperature_F			DS		1
+;R_Humidity				DS		1
+R_RFC_CH		DS	1	;通道
+R_RFCCH			EQU		R_RFC_CH
+D_RR_CH			EQU	0
+D_RT_CH			EQU	1
+D_RH_CH			EQU	2
+D_RFC_CH_MAX	EQU D_RH_CH
+
+R_RFC_TIME		DS	1
+D_RFC_TIME		EQU	22;(2*25=50MS)
+D_EN_RFC		EQU	D_RFC_TIME-1
+D_EN_TIMER		EQU	D_RFC_TIME
+D_DIS_TIMER		EQU	1
+
+R_RFCFLAG		DS	1
+;BIT0=1		;RCF RUN
+;BIT7=1		;RFC TEST OVER
+
+R_RT_L				DS	1	
+R_RT_M				DS	1
+R_RT_H				DS	1
+R_RR_L				DS	1	
+R_RR_M				DS	1
+R_RR_H				DS	1
+R_RH_L				DS	1	
+R_RH_M				DS	1
+R_RH_H				DS	1
+R_Temperature		DS	1
+R_Temperature_L		DS	1
+R_Temperature_F_L	DS	1
+R_Temperature_F_H	DS	1
+
+R_Humidity			DS  1
+R_Humidity_Level	DS  1
 
 Beep_Serial				DS		1
 ;响铃序列
@@ -159,6 +192,7 @@ R_Alarm3_Hour			DS		1	;闹钟3小时
 R_Snooze_Min			DS		1	;贪睡闹钟分钟
 R_Snooze_Hour			DS		1	;贪睡闹钟小时
 CC0						DS		1
+CC1						DS		1
 
 ;---------------------------------------       
 P_Temp					DS		8
