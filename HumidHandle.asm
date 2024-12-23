@@ -8,7 +8,8 @@ L_Humid_Handle:
 
 L_Search_HumidTable:
 	lda		R_Temperature
-	jsr		L_A_Mod_5							; 将温度值除以5得到湿度表索引N
+	jsr		L_A_Mod_5							; 将温度值除以5得到湿度表索引N，用于查找相应温度下的湿度值，以便进行后续的湿度计算
+	sta		P_Temp
 	cmp		#2
 	bcs		N_GreaterThan1
 	bra		Temper_GapSmall						; 余数为0和1时用索引N查表
@@ -51,9 +52,9 @@ L_SearchTable_N:
 	sta		R_Humidity							; 湿度值
 Loop_Start:
 	bbs3	RFC_Flag,Loop_Over					; 如果在递减查表函数中减完，则退出循环
-	lda		Humid_SearchLoop_Addr+1,x			; 入栈循环开始标签的地址
+	lda		Humid_SearchLoop_Addr+1				; 入栈循环开始标签的地址
 	pha											; 以便能在递减查表函数中
-	lda		Humid_SearchLoop_Addr,x				; 能返回到该函数循环开始
+	lda		Humid_SearchLoop_Addr				; 能返回到该函数循环开始
 	pha
 
 	ldx		P_Temp
@@ -144,10 +145,12 @@ L_5Degree_Humid:
 	lda		Humid_5Degree_Table,x
 	sec
 	sbc		RH_Div_RR_L
+	sta		RH_Div_RR_L
 	inx
 	lda		Humid_5Degree_Table,x
 	sec
 	sbc		RH_Div_RR_H
+	sta		RH_Div_RR_H
 	bcs		L_5Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts

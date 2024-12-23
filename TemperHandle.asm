@@ -8,10 +8,10 @@ L_Temper_Handle:
 L_Search_TemperTable:
 	ldx		#255								; 初始值为255，进入循环后会+1溢出变为0
 L_Sub_Temper:
+	inx
 	txa
 	cmp		#50
 	bcs		L_Temper_Overflow					; 大于50度则退出循环
-	inx
 	lda		RR_Div_RT_L
 	sec
 	sbc		Temperature_Table,x

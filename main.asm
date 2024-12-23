@@ -86,7 +86,7 @@ Global_Run:											; 全局生效的功能处理
 	jsr		F_Louding
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
-	;jsr		F_RFC_MeasureManage
+	jsr		F_RFC_MeasureManage
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -214,6 +214,7 @@ L_1Hz_Out:
 	smb1	Backlight_Flag						; 亮屏1S计时
 	smb7	Key_Flag							; DP显示1S计时
 	smb1	Symbol_Flag
+	smb5	RFC_Flag							; 30S采样计时
 	bra		L_EndIrq
 
 L_PaIrq:

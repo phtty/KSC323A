@@ -220,6 +220,7 @@ F_Alarm_Handler:
 	jsr		L_Alarm_Process
 	rts
 L_No_Alarm_Process:
+	bbs4	Key_Flag,L_LoudingNoClose			; 如果有按键提示音，则不关闭蜂鸣器
 	rmb1	PADF0								; PB3 PWM输出控制
 	rmb4	PADF0								; PB3配置为IO口
 	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
@@ -227,6 +228,7 @@ L_No_Alarm_Process:
 
 	rmb6	Timer_Flag
 	rmb7	Timer_Flag
+L_LoudingNoClose:
 	lda		#0
 	sta		AlarmLoud_Counter
 	rts

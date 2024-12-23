@@ -20,6 +20,7 @@ F_Test_Mode:
 	lda		#2									; 上电蜂鸣器响1声
 	sta		Beep_Serial
 	rmb4	Clock_Flag
+	smb4	Key_Flag
 	smb0	TMRC
 
 	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电

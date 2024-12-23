@@ -3,7 +3,8 @@
 ; RAM Address
 ;***************************************
 RamStarAddr		EQU		1800H								;RAM的开始地址
-LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr		;LCD RAM的地址
+LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr		;LED RAM的地址
+LED_RamBKAddr	EQU		RamStarAddr+LED_Addr_BK-Page0RamStarAddr	;LED RAM的地址
 Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr ;事件相关数据的地址
 
 
@@ -15,10 +16,12 @@ Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr ;事件相关数据�
 ;---------------------------------------------------------------------
 	ORG	0080H
 Page0RamStarAddr		EQU		$
-LCDRAM					DS		6*6
-
+;LCDRAM					DS		6*6
 LED_Addr				EQU		$
 LED_Ram					DS		4*3
+
+LED_Addr_BK				EQU		$
+LED_Ram_BK				DS		4*3
 
 R_Int_Backup			DS		1
 

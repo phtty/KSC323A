@@ -29,15 +29,15 @@ F_Init_SystemRam:							; 系统初始化
 	sta		R_Time_Hour
 	lda		#00
 	sta		R_Time_Min
-	lda		#55
+	lda		#00
 	sta		R_Time_Sec
 
-	lda		#00
+	lda		#12
 	sta		R_Alarm1_Hour
 	lda		#01
 	sta		R_Alarm1_Min
 
-	lda		#00
+	lda		#12
 	sta		R_Alarm2_Hour
 	lda		#02
 	sta		R_Alarm2_Min
@@ -55,6 +55,9 @@ F_Init_SystemRam:							; 系统初始化
 	sta		R_Date_Year
 	lda		#00
 	sta		R_Date_Week
+
+	lda		#29
+	sta		Count_RFC
 
 	rts
 
@@ -158,7 +161,7 @@ F_Timer_Init:
 
 	lda		#C_COM_2_42_38+C_LCDIS_Rate
 	sta		LCD_COM								; 开LCD中断用于定时显示LED
-	lda		#$03
+	lda		#$02
 	sta		FRAME
 
 	rts
@@ -170,12 +173,15 @@ F_RFC_Init:
 	lda		#$0
 	sta		PD
 
+	rmb6	PC_SEG
+
 	lda		RFCC0								; PD0-3配置为RFC功能
-	ora		#$07
+	ora		#$0f
 	sta		RFCC0
 
 	lda		#$00
 	sta		RFCC1								; 关闭RFC测量功能
+	sta		PD_SEG								; PD口全部作IO口使用
 
 	rts
 

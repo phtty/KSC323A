@@ -16,15 +16,24 @@ F_RFC_MeasureStart:
 	sta		TMR0
 	sta		TMR1
 
+	smb0	TMRC								; 开启TMR0
+	smb1	TMRC								; 开启TMR1
+	lda		#0
+	sta		RFC_ChannelCount
+	tax
+	lda		T_RFC_Channel,x
+	sta		RFCC1
+
 	rts
 
 F_RFC_MeasureManage:
-	bbs2	Clock_Flag,L_RFC_Exit				; 存在响闹和按键音的时候，TIM0、1被占用，不进行测量
+	bbs1	RFC_Flag,L_RFC_Exit					; 存在响闹和按键音的时候，TIM0、1被占用，不进行测量
 	bbs4	Key_Flag,L_RFC_Exit
 	bbs0	Key_Flag,L_RFC_Exit					; 按键按下时，不进行测量
 
-	bbr6	RFC_Flag,RFC_SampleStart
+	bbs6	RFC_Flag,RFC_SampleStart
 	bbr5	RFC_Flag,L_RFC_Exit					; 1S标志，计数30S
+	rmb5	RFC_Flag
 	lda		Count_RFC
 	cmp		#30
 	bcs		Count_Over
@@ -34,25 +43,24 @@ Count_Over:
 	lda		#0
 	sta		Count_RFC							; 满30S后，不再计数，开始采样
 	smb6	RFC_Flag
-	jsr		F_RFC_MeasureStart
+	jsr		F_RFC_MeasureStart					; 采样开始的初始化
 RFC_SampleStart:
 	bbs0	RFC_Flag,L_RFC_Juge
 L_RFC_Exit:
 	rts
 
 L_RFC_Juge:
-	rmb7	RFC_Flag
+	rmb0	RFC_Flag
 	lda		RFC_ChannelCount
-	cmp		#01									; PD3口采样湿度
 	bne		L_NoHumi
-	lda		TMR0
+	lda		TMR0								; PD3口采样湿度
 	sta		RFC_HumiCount_L
 	lda		TMR1
 	sta		RFC_HumiCount_H
 	bra		L_Sample_Over
 L_NoHumi:
 	lda		RFC_ChannelCount
-	cmp		#02									; PD2口采样温度
+	cmp		#01									; PD2口采样温度
 	bne		L_NoTemp
 	lda		TMR0
 	sta		RFC_TempCount_L
@@ -61,7 +69,7 @@ L_NoHumi:
 	bra		L_Sample_Over
 L_NoTemp:
 	lda		RFC_ChannelCount
-	cmp		#03									; PD1口采样标准电阻
+	cmp		#02									; PD1口采样标准电阻
 	bne		L_Sample_Over
 	lda		TMR0
 	sta		RFC_StanderCount_L
@@ -70,10 +78,12 @@ L_NoTemp:
 	jsr		L_RFC_Handler						; 只有采样到标准电阻才会进处理函数去计算具体值
 L_Sample_Over:
 	lda		RFC_ChannelCount
-	cmp		#04									; 检测是否溢出
+	cmp		#03									; 检测是否溢出
 	bcc		L_RFC_NoOverflow
 	lda		#0
 	sta		RFC_ChannelCount
+	sta		RFCC1								; 关闭RFC
+	jmp		F_RFC_MeasureStop
 L_RFC_NoOverflow:
 	inc		RFC_ChannelCount					; 每次采样后，递增检测通道
 
@@ -86,7 +96,6 @@ L_RFC_NoOverflow:
 
 
 F_RFC_MeasureStop:
-	smb1	RFC_Flag							; 禁用RFC标志 
 	jsr		F_Timer_Init						; 定时器配置为响铃和长按状态,关闭定时器同步
 	rmb0	IER									; 关闭DIV中断
 	rmb6	RFC_Flag							; 清除采样启用标志位
@@ -102,23 +111,17 @@ F_RFC_MeasureStop:
 	jsr		F_Display_Temper					; 结束测量后，显示温度和湿度
 	jsr		F_Display_Humid
 
-	lda		#0									; 关闭RFC功能
-	sta		RFC_ChannelCount					; 重置RFC Channel计数
-	sta		RFCC1
-
 	rts
 
 
 L_RFC_Handler:
 	jsr		L_Temper_Handle
 	jsr		L_Humid_Handle
-
 	rts
 
 
 
 T_RFC_Channel:
-	db		$00 ; disable
 	db		$20	; CTRT0	PD3
 	db		$10	; RS0	PD2
 	db		$60	; CSRT0	PD1
