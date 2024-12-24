@@ -55,6 +55,7 @@ L_RR_Div_RT:
 	lda		P_Temp								; 高8位相等的情况下，看低8位
 	cmp		RFC_TempCount_L
 	bcc		?Loop_Over							; 低8位RT<RR，则循环减除数
+	beq		?Loop_Over							; 低8位RR==0，则不继续除，说明采样错误，直接返回
 ?Div_Start:
 	sec
 	lda		P_Temp								; RR循环减RT
@@ -64,15 +65,24 @@ L_RR_Div_RT:
 	sbc		RFC_TempCount_H
 	sta		P_Temp+1
 
-	inc		RR_Div_RT_L
-	bne		?Loop_Over
-	inc		RR_Div_RT_H							; 储存商
+	lda		RR_Div_RT_L
+	clc
+	adc		#1
+	sta		RR_Div_RT_L
+	lda		RR_Div_RT_H
+	adc		#0
+	sta		RR_Div_RT_H							; 储存商
 	bra		?Div_Juge
 ?Loop_Over:
 	rts
 
 ; 标准电阻乘以256
 L_RR_Multi_256:
+	lda		RFC_StanderCount_H
+	sta		RFC_StanderBK_H
+	lda		RFC_StanderCount_L
+	sta		RFC_StanderBK_L
+
 	clc
 	rol		RFC_StanderCount_L
 	rol		RFC_StanderCount_H

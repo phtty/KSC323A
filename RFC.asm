@@ -2,6 +2,7 @@ F_RFC_MeasureStart:
 	smb0	IER									; 打开DIV中断
 	rmb1	IER									; 关TMR0、1定时器中断
 	rmb2	IER
+	smb7	RFC_Flag							; 置位首个DIV中断标志位，第一个div中断不采样
 
 	lda		TMRC								; T0I设置为Frcx
 	ora		#C_T0I_1
@@ -75,14 +76,17 @@ L_NoTemp:
 	sta		RFC_StanderCount_L
 	lda		TMR1
 	sta		RFC_StanderCount_H
-	jsr		L_RFC_Handler						; 只有采样到标准电阻才会进处理函数去计算具体值
+
+	lda		#0
+	sta		RFCC1								; 采样完成，关闭RFC
+
+	jsr		L_RFC_Handler						; 三个通道采样完才会进行处理
 L_Sample_Over:
 	lda		RFC_ChannelCount
-	cmp		#03									; 检测是否溢出
+	cmp		#02									; 检测是否溢出
 	bcc		L_RFC_NoOverflow
 	lda		#0
 	sta		RFC_ChannelCount
-	sta		RFCC1								; 关闭RFC
 	jmp		F_RFC_MeasureStop
 L_RFC_NoOverflow:
 	inc		RFC_ChannelCount					; 每次采样后，递增检测通道

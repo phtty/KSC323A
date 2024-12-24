@@ -103,6 +103,7 @@ RFC_Flag				DS		1
 ;bit4 = 1 华氏度模式
 ;bit5 = 1 温湿度测量1S标志
 ;bit6 = 1 采样启用标志位
+;bit7 = 1 非首个div中断标志位
 
 Backlight_Flag			DS		1
 ;bit0 = 1 DC5V接入,常亮模式
@@ -128,6 +129,8 @@ RFC_HumiCount_H			DS		1
 RFC_HumiCount_L			DS		1
 RFC_StanderCount_H		DS		1
 RFC_StanderCount_L		DS		1
+RFC_StanderBK_H			DS		1
+RFC_StanderBK_L			DS		1
 
 R_Temperature			DS		1
 R_Temperature_F			DS		1
