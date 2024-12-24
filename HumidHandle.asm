@@ -1,15 +1,18 @@
 L_Humid_Handle:
-	jsr		L_RH_Multi_256
-	jsr		L_RR_Div_2
-	jsr		L_RH_Div_RR
+	jsr		L_RR_Multi_512
+	jsr		L_RR_Div_RH
 	jsr		L_Search_HumidTable
 
 	rts
 
 L_Search_HumidTable:
 	lda		R_Temperature
+	cmp		#51
+	bcc		L_Temper_NoOverFlow					; 若是温度大于50度，固定为50度
+	lda		#50
+L_Temper_NoOverFlow:
 	jsr		L_A_Mod_5							; 将温度值除以5得到湿度表索引N，用于查找相应温度下的湿度值，以便进行后续的湿度计算
-	sta		P_Temp
+	stx		P_Temp
 	cmp		#2
 	bcs		N_GreaterThan1
 	bra		Temper_GapSmall						; 余数为0和1时用索引N查表
@@ -42,7 +45,7 @@ Temper_GapLong:
 	rts
 
 ; 用N作为索引，查湿度表得出当前湿度值
-; P_Temp为湿度表索引N，Qh为L_RH_Div_RR
+; P_Temp为湿度表索引N，Qh为L_RR_Div_RH
 L_SearchTable_N:
 	lda		P_Temp
 	clc
@@ -90,34 +93,44 @@ Temper_Humid_table:
 	dw		L_45Degree_Humid-1
 	dw		L_50Degree_Humid-1
 
-; 湿度电阻左移8位除以2分之1标准电阻，计算比值Qh
-L_RH_Div_RR:
+; 标准电阻左移9位除以湿度电阻，计算比值Qh
+L_RR_Div_RH:
 	lda		#0
-	sta		RH_Div_RR_H
-	sta		RH_Div_RR_L
+	sta		RR_Div_RH_H
+	sta		RR_Div_RH_L
 ?Div_Juge:
-	lda		RFC_HumiCount_H						; 比较标准电阻和湿度电阻的测量值高8位
-	cmp		RFC_StanderCount_H
-	bcc		?Loop_Over							; 高8位RR大于RH时即为除完了
-	lda		RFC_StanderCount_H
+	lda		RFC_StanderCount_H					; 若标准电阻高8位不为0，则一定没除完
+	bne		?Div_Start
+	lda		RFC_StanderCount_M					; 比较标准电阻和湿度电阻的测量值高8位
 	cmp		RFC_HumiCount_H
-	bcc		?Div_Start							; 高8位RR<RH，则循环减除数
+	bcc		?Loop_Over							; 高8位RH>RR时即为除完了
+	lda		RFC_HumiCount_H
+	cmp		RFC_StanderCount_M
+	bcc		?Div_Start							; 高8位RR>RH，则还没除完
 
-	lda		RFC_HumiCount_L						; 高8位相等的情况下，看低8位
-	cmp		RFC_StanderCount_L
-	bcc		?Loop_Over							; 低8位RH<RR，也是除完了
+	lda		RFC_StanderCount_L					; 高8位相等的情况下，看低8位
+	cmp		RFC_HumiCount_L
+	bcc		?Loop_Over							; 低8位RH>RR，也是除完了
+	beq		?Loop_Over							; 此时低8位RR==0，则不继续除，说明采样错误，直接返回
 ?Div_Start:
 	sec
-	lda		RFC_HumiCount_L						; RH循环减RR
-	sbc		RFC_StanderCount_L
-	sta		RFC_HumiCount_L
-	lda		RFC_HumiCount_H						; 直到RH<RR则除法结束
-	sbc		RFC_StanderCount_H
-	sta		RFC_HumiCount_H
+	lda		RFC_StanderCount_L					; RR循环减RH
+	sbc		RFC_HumiCount_L
+	sta		RFC_StanderCount_L
+	lda		RFC_StanderCount_M
+	sbc		RFC_HumiCount_H
+	sta		RFC_StanderCount_M
+	lda		RFC_StanderCount_H
+	sbc		#0
+	sta		RFC_StanderCount_H
 
-	inc		RR_Div_RT_L
-	bne		?Loop_Over
-	inc		RR_Div_RT_H							; 储存商
+	lda		RR_Div_RH_L
+	clc
+	adc		#1
+	sta		RR_Div_RH_L
+	lda		RR_Div_RH_H
+	adc		#0
+	sta		RR_Div_RH_H							; 储存商
 	bra		?Div_Juge
 ?Loop_Over:
 	rts
@@ -127,11 +140,11 @@ L_0Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_0Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_0Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_0Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -144,13 +157,13 @@ L_5Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_5Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
-	sta		RH_Div_RR_L
+	sbc		RR_Div_RH_L
+	sta		RR_Div_RH_L
 	inx
 	lda		Humid_5Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
-	sta		RH_Div_RR_H
+	sbc		RR_Div_RH_H
+	sta		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -163,11 +176,11 @@ L_10Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_10Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_10Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_10Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -180,11 +193,11 @@ L_15Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_15Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_15Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_15Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -197,11 +210,11 @@ L_20Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_20Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_20Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_20Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -214,11 +227,11 @@ L_25Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_25Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_25Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_25Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -231,11 +244,11 @@ L_30Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_30Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_30Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_30Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -248,11 +261,11 @@ L_35Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_35Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_35Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_35Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -265,11 +278,11 @@ L_40Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_40Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_40Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_40Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -282,11 +295,11 @@ L_45Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_45Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_45Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_45Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -299,11 +312,11 @@ L_50Degree_Humid:
 	ldx		R_Humidity
 	lda		Humid_50Degree_Table,x
 	sec
-	sbc		RH_Div_RR_L
+	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_50Degree_Table,x
 	sec
-	sbc		RH_Div_RR_H
+	sbc		RR_Div_RH_H
 	bcs		L_50Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	rts
@@ -313,38 +326,48 @@ L_50Degree_Humid_BackLoop:
 	rts
 
 
-L_RH_Multi_256:
+; 标准电阻采样值乘以512
+L_RR_Multi_512:
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
 	clc
-	rol		RFC_HumiCount_L
-	rol		RFC_HumiCount_H
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
+	clc
+	rol		RFC_StanderCount_L
+	rol		RFC_StanderCount_M
+	rol		RFC_StanderCount_H
+
 	rts
 
-L_RR_Div_2:
-	clc
-	ror		RFC_StanderCount_H
-	ror		RFC_StanderCount_L
-	rts
+
 
 
 ; X存商，A为余数

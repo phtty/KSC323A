@@ -4,7 +4,7 @@ F_Init_SystemRam:							; 系统初始化
 	sta		Counter_1Hz
 	sta		Counter_4Hz
 	sta		Counter_16Hz
-	sta		Counter_102Hz
+	sta		Counter_20ms
 	sta		Counter_DP
 	sta		Count_RFC
 	sta		Key_Flag
@@ -135,6 +135,13 @@ F_Port_Init:
 
 
 F_Timer_Init:
+	rmb1	IER									; 关TMR0、1定时器中断
+	rmb1	IFR									; 清除TMR0、1中断标志位
+	rmb2	IER
+	rmb2	IFR
+	rmb0	TMRC								; 关闭TMR0
+	rmb1	TMRC								; 关闭TMR1
+
 	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0时钟源T000
 	sta		TMCLK								; TIM1时钟源Fsub/64(512Hz)
 	lda		#C_T000_Fsub

@@ -1,6 +1,6 @@
 L_Temper_Handle:
-	jsr		L_RR_Multi_256
-	jsr		L_RR_Div_RT
+	jsr		L_RT_Multi_256
+	jsr		L_RT_Div_RR
 	jsr		L_Search_TemperTable
 	rts
 
@@ -12,13 +12,13 @@ L_Sub_Temper:
 	txa
 	cmp		#50
 	bcs		L_Temper_Overflow					; 大于50度则退出循环
-	lda		RR_Div_RT_L
+	lda		RT_Div_RR_L
 	sec
 	sbc		Temperature_Table,x
-	sta		RR_Div_RT_L
-	lda		RR_Div_RT_H
+	sta		RT_Div_RR_L
+	lda		RT_Div_RR_H
 	sbc		#0
-	sta		RR_Div_RT_H
+	sta		RT_Div_RR_H
 	bcs		L_Sub_Temper
 
 L_Temper_Overflow:
@@ -35,76 +35,80 @@ L_Search_Over:
 	sta		R_Temperature
 	rts
 
-; 标准电阻左移8位除以热敏电阻，计算比值Qt，量程为-10~50度
-L_RR_Div_RT:
+; 热敏电阻左移8位除以标准电阻，计算比值Qt，量程为-10~50度
+L_RT_Div_RR:
 	lda		#0
-	sta		RR_Div_RT_H
-	sta		RR_Div_RT_L
-	lda		RFC_StanderCount_L					; 湿度计算也需要标准电阻，不能直接操作RFC_StanderCount
-	sta		P_Temp
-	lda		RFC_StanderCount_H
-	sta		P_Temp+1
+	sta		RT_Div_RR_H
+	sta		RT_Div_RR_L
 ?Div_Juge:
-	lda		P_Temp+1							; 比较标准电阻和热敏电阻的测量值高8位
-	cmp		RFC_TempCount_H
-	bcc		?Loop_Over							; 热敏电阻大于标准电阻时即为除完了
-	lda		RFC_TempCount_H
-	cmp		P_Temp+1
-	bcc		?Div_Start							; 高8位RT<RR，则循环减除数
+	lda		RFC_TempCount_H						; 若热敏电阻高8位不为0，则一定没除完
+	bne		?Div_Start
+	lda		RFC_TempCount_M						; 比较热敏电阻中8位和标准电阻的测量值高8位
+	cmp		RFC_StanderCount_M
+	bcc		?Loop_Over							; 标准电阻大于热敏电阻时即为除完了
+	lda		RFC_StanderCount_M
+	cmp		RFC_TempCount_M
+	bcc		?Div_Start							; RT<RR，则一定没除完
 
-	lda		P_Temp								; 高8位相等的情况下，看低8位
-	cmp		RFC_TempCount_L
-	bcc		?Loop_Over							; 低8位RT<RR，则循环减除数
-	beq		?Loop_Over							; 低8位RR==0，则不继续除，说明采样错误，直接返回
+	lda		RFC_TempCount_L						; 高8位相等的情况下，看低8位
+	cmp		RFC_StanderCount_L
+	bcc		?Loop_Over							; 低8位RR<RT，则循环减除数
+	beq		?Loop_Over							; 此时低8位RT==0，则不继续除，说明采样错误，直接返回
 ?Div_Start:
 	sec
-	lda		P_Temp								; RR循环减RT
-	sbc		RFC_TempCount_L
-	sta		P_Temp
-	lda		P_Temp+1							; 直到RR<RT则除法结束
-	sbc		RFC_TempCount_H
-	sta		P_Temp+1
+	lda		RFC_TempCount_L						; RT循环减RR
+	sbc		RFC_StanderCount_L
+	sta		RFC_TempCount_L
+	lda		RFC_TempCount_M
+	sbc		RFC_StanderCount_M
+	sta		RFC_TempCount_M
+	lda		RFC_TempCount_H
+	sbc		#0
+	sta		RFC_TempCount_H
 
-	lda		RR_Div_RT_L
+	lda		RT_Div_RR_L
 	clc
 	adc		#1
-	sta		RR_Div_RT_L
-	lda		RR_Div_RT_H
+	sta		RT_Div_RR_L
+	lda		RT_Div_RR_H
 	adc		#0
-	sta		RR_Div_RT_H							; 储存商
+	sta		RT_Div_RR_H							; 储存商
 	bra		?Div_Juge
 ?Loop_Over:
 	rts
 
-; 标准电阻乘以256
-L_RR_Multi_256:
-	lda		RFC_StanderCount_H
-	sta		RFC_StanderBK_H
-	lda		RFC_StanderCount_L
-	sta		RFC_StanderBK_L
-
+; 热敏电阻乘以256
+L_RT_Multi_256:
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_H
+	rol		RFC_TempCount_L
+	rol		RFC_TempCount_M
+	rol		RFC_TempCount_H
 	rts

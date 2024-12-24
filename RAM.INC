@@ -28,14 +28,9 @@ R_Int_Backup			DS		1
 Counter_1Hz				DS		1
 Counter_4Hz				DS		1
 Counter_16Hz			DS		1
-Counter_102Hz			DS		1
+Counter_20ms			DS		1
 Counter_DP				DS		1
 Count_RFC				DS		1
-
-RR_Div_RT_H				DS		1
-RR_Div_RT_L				DS		1
-RH_Div_RR_H				DS		1
-RH_Div_RR_L				DS		1
 
 QuickAdd_Counter		DS		1
 Backlight_Counter		DS		1
@@ -96,14 +91,13 @@ SpecialKey_Flag			DS		1	; 长短按功能不同的按键
 ;bit2 = 1 Mode键待处理				|特殊按键
 
 RFC_Flag				DS		1
-;bit0 = 1 10ms标志，用于计数Frcx
+;bit0 = 1 采样启用标志位
 ;bit1 = 1 禁用RFC采样标志，这通常是因为TMR0、1被占用
 ;bit2 = 1 负温度
 ;bit3 = 1 湿度表查询完成标志位
 ;bit4 = 1 华氏度模式
 ;bit5 = 1 温湿度测量1S标志
-;bit6 = 1 采样启用标志位
-;bit7 = 1 非首个div中断标志位
+;bit6 = 1 温湿度测量完成标志
 
 Backlight_Flag			DS		1
 ;bit0 = 1 DC5V接入,常亮模式
@@ -123,14 +117,18 @@ Triggered_AlarmGroup	DS		1
 
 RFC_ChannelCount		DS		1
 
+RT_Div_RR_H				DS		1
+RT_Div_RR_L				DS		1
+RR_Div_RH_H				DS		1
+RR_Div_RH_L				DS		1
 RFC_TempCount_H			DS		1
+RFC_TempCount_M			DS		1
 RFC_TempCount_L			DS		1
 RFC_HumiCount_H			DS		1
 RFC_HumiCount_L			DS		1
 RFC_StanderCount_H		DS		1
+RFC_StanderCount_M		DS		1
 RFC_StanderCount_L		DS		1
-RFC_StanderBK_H			DS		1
-RFC_StanderBK_L			DS		1
 
 R_Temperature			DS		1
 R_Temperature_F			DS		1

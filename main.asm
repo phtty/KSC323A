@@ -68,11 +68,6 @@ L_Clear_Ram_Loop:
 	lda		#011B
 	sta		Alarm_Switch
 
-	lda		#1
-	sta		RR_Div_RT_H
-	lda		#29
-	sta		RR_Div_RT_L
-	jsr		L_Search_TemperTable
 
 
 ; 状态机
@@ -157,18 +152,28 @@ V_IRQ:
 	bbs3	R_Int_Backup,L_Timer2Irq
 	bbs4	R_Int_Backup,L_PaIrq
 	bbs6	R_Int_Backup,L_LcdIrq
-
-	bra		L_EndIrq
+	jmp		L_EndIrq
 
 L_DivIrq:
 	rmb0	IFR									; 清中断标志位
-	inc		Counter_102Hz
-	lda		Counter_102Hz
-	cmp		#5
-	bne		L_EndIrq
+	sei
+	inc		Counter_20ms
+	lda		Counter_20ms
+	cmp		#1
+	beq		RFC_Start
+	cmp		#11
+	beq		RFC_Sample
+	cli
+	bra		L_EndIrq
+RFC_Start:
+	jsr		F_RFC_MeasureStart
+	cli
+	bra		L_EndIrq
+RFC_Sample:
+	jsr		L_Get_RFC_Data
 	lda		#0
-	sta		Counter_102Hz
-	smb0	RFC_Flag							; 102Hz标志，用于计数Frcx
+	sta		Counter_20ms
+	cli
 	bra		L_EndIrq
 
 L_Timer0Irq:									; 用于蜂鸣器
