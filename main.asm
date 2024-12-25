@@ -65,19 +65,23 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#011B
-	sta		Alarm_Switch
+	;lda		#011B
+	;sta		Alarm_Switch
 
-	lda		#22
-	sta		RFC_HumiCount_L
-	lda		#0
-	sta		RFC_TempCount_L
-	lda		#0
-	sta		RFC_TempCount_M
-	lda		#170
-	sta		RFC_StanderCount_L
-	jsr		L_Temper_Handle
-	jsr		L_Humid_Handle
+	;lda		#170
+	;sta		RFC_HumiCount_L
+	;lda		#$d4
+	;sta		RFC_TempCount_L
+	;lda		#$5
+	;sta		RFC_TempCount_M
+	;lda		#170
+	;sta		RFC_StanderCount_L
+	;jsr		L_Temper_Handle
+	;jsr		L_Humid_Handle
+	;smb4	RFC_Flag								; 华氏度模式
+	;jsr		F_Display_Temper
+	;rmb4	RFC_Flag
+	;jsr		F_Display_Temper
 
 
 ; 状态机

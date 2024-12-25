@@ -33,9 +33,13 @@ Temper_GapSmall:
 	jsr		L_SearchTable_N						; 在温度的余数较小时，直接采用接近的湿度表查出湿度值
 	rts
 Temper_GapMiddle:
+	lda		P_Temp
+	sta		P_Temp+1							; 查表会改变索引值，暂存索引值
 	jsr		L_SearchTable_N						; 余数较大时，采用两个湿度表计算出的平均值作为湿度值
 	lda		R_Humidity
 	sta		P_Temp+2
+	lda		P_Temp+1
+	sta		P_Temp
 	inc		P_Temp								; 查索引值为N+1的湿度表
 	jsr		L_SearchTable_N
 	lda		R_Humidity
@@ -84,7 +88,6 @@ Loop_Over:
 
 Humid_SearchLoop_Addr:							; 子程序的地址表
 	dw		Loop_Start-1
-
 Temper_Humid_table:
 	dw		L_0Degree_Humid-1
 	dw		L_5Degree_Humid-1
@@ -104,16 +107,21 @@ L_RR_Div_RH:
 	sta		RR_Div_RH_H
 	sta		RR_Div_RH_L
 ?Div_Juge:
-	lda		RFC_StanderCount_H					; 若标准电阻高8位不为0，则一定没除完
-	bne		?Div_Start
-	lda		RFC_StanderCount_M					; 比较标准电阻和湿度电阻的测量值高8位
+	lda		RFC_StanderCount_H					; 比较标准电阻和湿度电阻的测量值高8位
 	cmp		RFC_HumiCount_H
 	bcc		?Loop_Over							; 高8位RH>RR时即为除完了
 	lda		RFC_HumiCount_H
-	cmp		RFC_StanderCount_M
-	bcc		?Div_Start							; 高8位RR>RH，则还没除完
+	cmp		RFC_StanderCount_H
+	bcc		?Div_Start	
 
-	lda		RFC_StanderCount_L					; 高8位相等的情况下，看低8位
+	lda		RFC_StanderCount_M					; 比较标准电阻和湿度电阻的测量值中8位
+	cmp		RFC_HumiCount_M
+	bcc		?Loop_Over							; 中8位RH>RR时即为除完了
+	lda		RFC_HumiCount_M
+	cmp		RFC_StanderCount_M
+	bcc		?Div_Start							; 中8位RR>RH，则还没除完
+
+	lda		RFC_StanderCount_L					; 中8位相等的情况下，看低8位
 	cmp		RFC_HumiCount_L
 	bcc		?Loop_Over							; 低8位RH>RR，也是除完了
 	beq		?Loop_Over							; 此时低8位RR==0，则不继续除，说明采样错误，直接返回
@@ -123,10 +131,10 @@ L_RR_Div_RH:
 	sbc		RFC_HumiCount_L
 	sta		RFC_StanderCount_L
 	lda		RFC_StanderCount_M
-	sbc		RFC_HumiCount_H
+	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_M
 	lda		RFC_StanderCount_H
-	sbc		#0
+	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_H
 
 	lda		RR_Div_RH_L
@@ -148,7 +156,6 @@ L_0Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_0Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_0Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -172,7 +179,6 @@ L_5Degree_Humid:
 	sta		RR_Div_RH_L
 	inx
 	lda		Humid_5Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	sta		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
@@ -196,7 +202,6 @@ L_10Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_10Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_10Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -219,7 +224,6 @@ L_15Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_15Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_15Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -242,7 +246,6 @@ L_20Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_20Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_20Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -265,7 +268,6 @@ L_25Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_25Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_25Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -288,7 +290,6 @@ L_30Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_30Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_30Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -311,7 +312,6 @@ L_35Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_35Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_35Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -334,7 +334,6 @@ L_40Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_40Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_40Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -357,7 +356,6 @@ L_45Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_45Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_45Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
@@ -380,7 +378,6 @@ L_50Degree_Humid:
 	sbc		RR_Div_RH_L
 	inx
 	lda		Humid_50Degree_Table,x
-	sec
 	sbc		RR_Div_RH_H
 	bcs		L_50Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成

@@ -11,7 +11,7 @@ L_Search_TemperTable:
 L_Sub_Temper:
 	inx
 	txa
-	cmp		#50
+	cmp		#61
 	bcs		L_Temper_Overflow					; 大于等于50度则退出循环
 	lda		RT_Div_RR_L
 	sec
@@ -46,9 +46,14 @@ L_RT_Div_RR:
 	sta		RT_Div_RR_H
 	sta		RT_Div_RR_L
 ?Div_Juge:
-	lda		RFC_TempCount_H						; 若热敏电阻高8位不为0，则一定没除完
-	bne		?Div_Start
-	lda		RFC_TempCount_M						; 比较热敏电阻中8位和标准电阻的测量值高8位
+	lda		RFC_TempCount_H
+	cmp		RFC_StanderCount_H					; 比较热敏电阻和标准电阻的测量值高8位
+	bcc		?Loop_Over
+	lda		RFC_StanderCount_H
+	cmp		RFC_TempCount_H
+	bcc		?Div_Start
+
+	lda		RFC_TempCount_M						; 比较热敏电阻中8位和标准电阻的测量值中8位
 	cmp		RFC_StanderCount_M
 	bcc		?Loop_Over							; 标准电阻大于热敏电阻时即为除完了
 	lda		RFC_StanderCount_M
@@ -68,7 +73,7 @@ L_RT_Div_RR:
 	sbc		RFC_StanderCount_M
 	sta		RFC_TempCount_M
 	lda		RFC_TempCount_H
-	sbc		#0
+	sbc		RFC_StanderCount_H
 	sta		RFC_TempCount_H
 
 	lda		RT_Div_RR_L

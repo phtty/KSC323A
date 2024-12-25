@@ -125,6 +125,7 @@ RFC_TempCount_H			DS		1
 RFC_TempCount_M			DS		1
 RFC_TempCount_L			DS		1
 RFC_HumiCount_H			DS		1
+RFC_HumiCount_M			DS		1
 RFC_HumiCount_L			DS		1
 RFC_StanderCount_H		DS		1
 RFC_StanderCount_M		DS		1

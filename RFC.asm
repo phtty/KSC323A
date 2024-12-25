@@ -58,7 +58,7 @@ L_Get_RFC_Data:
 	lda		TMR0								; PD3口取得湿度计数值
 	sta		RFC_HumiCount_L
 	lda		TMR1
-	sta		RFC_HumiCount_H
+	sta		RFC_HumiCount_M
 	bra		L_Sample_Over
 L_NoHumi:
 	lda		RFC_ChannelCount
@@ -113,11 +113,13 @@ F_RFC_MeasureStop:
 	jsr		F_Display_Humid
 
 	lda		#0
-	sta		RFC_TempCount_H						; 清理相关变量	
+	sta		RFC_TempCount_H						; 清理相关变量
 	sta		RFC_TempCount_M
 	sta		RFC_TempCount_L
 	sta		RFC_HumiCount_H
+	sta		RFC_HumiCount_M
 	sta		RFC_HumiCount_L
+	sta		RFC_StanderCount_H
 	sta		RFC_StanderCount_M
 	sta		RFC_StanderCount_L
 

@@ -290,47 +290,64 @@ F_Display_Week:
 
 ; 显示温度函数
 F_Display_Temper:
+	ldx		#led_minus
+	jsr		F_ClrSymbol							; 清负号显示
+	lda		#0
+	jsr		L_Dis_2Bit_DigitDot					; 清温度百位显示
+	lda		#10
+	ldx		#led_d7
+	jsr		L_Dis_7Bit_DigitDot					; 清理温度单位显示
+
+	bbr4	RFC_Flag,Dis_CDegree
+	jmp		Display_FahrenheitDegree
+Dis_CDegree:
+	jmp		Display_CelsiusDegree
+
+
+Display_CelsiusDegree:
 	lda		R_Temperature
-	bbr4	RFC_Flag,Juge_DegreeMode_Over
-	jsr		F_C2F
-	txa
-	sta		R_Temperature_F
-Juge_DegreeMode_Over:
-	jsr		L_A_DecToHex						; 转化为16进制
+	jsr		L_A_DecToHex
 	pha
 	and		#$0f
 	ldx		#led_d6
 	jsr		L_Dis_7Bit_DigitDot
+	pla
+	and		#$f0
+	jsr		L_LSR_4Bit
+	ldx		#led_d5
+	jsr		L_Dis_7Bit_DigitDot
+
+	lda		#0									; 显示摄氏度C
+	ldx		#led_d7
+	jsr		L_Dis_7Bit_WordDot
+	rts
+
+
+Display_FahrenheitDegree:
+	jsr		F_C2F
+	lda		R_Temperature_F
+	jsr		L_A_DecToHex
+	
+	pha
+	txa
+	jsr		L_Dis_2Bit_DigitDot
 	pla
 	pha
 	and		#$f0
 	jsr		L_LSR_4Bit
 	ldx		#led_d5
 	jsr		L_Dis_7Bit_DigitDot
-
 	pla
-	bbr4	RFC_Flag,L_Celsius_Degree
-	lda		R_Temperature_F
-	ldx		#led_d4
-	jsr		L_Dis_2Bit_DigitDot
-
-	lda		#1									; 显示华氏度F
+	and		#$0f
+	ldx		#led_d6
+	jsr		L_Dis_7Bit_DigitDot
+	lda		#1									; 显示华氏度C
 	ldx		#led_d7
 	jsr		L_Dis_7Bit_WordDot
-
-	ldx		#led_TMP
-	jsr		F_DisSymbol
 	rts
 
-L_Celsius_Degree:
-	lda		#0									; 显示摄氏度C
-	ldx		#led_d7
-	jsr		L_Dis_7Bit_WordDot
 
-	ldx		#led_TMP
-	jsr		F_DisSymbol
 
-	rts
 
 
 ; 显示湿度函数
