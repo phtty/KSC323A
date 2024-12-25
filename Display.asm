@@ -336,6 +336,7 @@ L_Celsius_Degree:
 ; 显示湿度函数
 F_Display_Humid:
 	lda		R_Humidity
+	beq		?Minus_Temper						; 温度为负时，没有湿度
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
@@ -347,7 +348,14 @@ F_Display_Humid:
 	ldx		#led_d8
 	jsr		L_Dis_7Bit_DigitDot
 	rts
-
+?Minus_Temper:
+	lda		#9
+	ldx		#led_d8
+	jsr		L_Dis_7Bit_WordDot
+	lda		#9
+	ldx		#led_d9
+	jsr		L_Dis_7Bit_WordDot
+	rts
 
 
 
@@ -362,6 +370,13 @@ F_SymbolRegulate:								; 显示常亮点
 	jsr		L_ALMDot_Blink
 	jsr		F_AlarmSW_Display
 
+	bbr2	RFC_Flag,No_Minus_Temper
+	ldx		#led_minus
+	jsr		F_DisSymbol
+	rts
+No_Minus_Temper:
+	ldx		#led_minus
+	jsr		F_ClrSymbol
 	rts
 
 

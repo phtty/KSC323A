@@ -7,6 +7,11 @@ L_Humid_Handle:
 
 L_Search_HumidTable:
 	lda		R_Temperature
+	bbr2	RFC_Flag,?Start						; 若温度为负数，则湿度为0
+	lda		#0
+	sta		R_Humidity
+	rts
+?Start:
 	cmp		#51
 	bcc		L_Temper_NoOverFlow					; 若是温度大于50度，固定为50度
 	lda		#50
@@ -70,9 +75,9 @@ Loop_Over:
 	rmb3	RFC_Flag							; 复位递减完成标志位
 	lda		R_Humidity
 	clc
-	ror											; 循环查表得到的值除以2加20
+	ror											; 循环查表得到的值除以2加19(+20-1)
 	clc
-	adc		#20
+	adc		#19
 	sta		R_Humidity							; 才是实际湿度值
 	rts
 
@@ -147,10 +152,16 @@ L_0Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_0Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_0Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_0Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_0Degree_Humid_NoOverFlow:
 	rts
 
 L_5Degree_Humid:
@@ -166,10 +177,16 @@ L_5Degree_Humid:
 	sta		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_5Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_5Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_5Degree_Humid_NoOverFlow:
 	rts
 
 L_10Degree_Humid:
@@ -183,10 +200,16 @@ L_10Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_10Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_10Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_10Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_10Degree_Humid_NoOverFlow:
 	rts
 
 L_15Degree_Humid:
@@ -200,10 +223,16 @@ L_15Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_15Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_15Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_15Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_15Degree_Humid_NoOverFlow:
 	rts
 
 L_20Degree_Humid:
@@ -217,10 +246,16 @@ L_20Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_20Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_20Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_20Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_20Degree_Humid_NoOverFlow:
 	rts
 
 L_25Degree_Humid:
@@ -234,10 +269,16 @@ L_25Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_25Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_25Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_25Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_25Degree_Humid_NoOverFlow:
 	rts
 
 L_30Degree_Humid:
@@ -251,10 +292,16 @@ L_30Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_30Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_30Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_30Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_30Degree_Humid_NoOverFlow:
 	rts
 
 L_35Degree_Humid:
@@ -268,10 +315,16 @@ L_35Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_35Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_35Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_35Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_35Degree_Humid_NoOverFlow:
 	rts
 
 L_40Degree_Humid:
@@ -285,10 +338,16 @@ L_40Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_40Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_40Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_40Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_40Degree_Humid_NoOverFlow:
 	rts
 
 L_45Degree_Humid:
@@ -302,10 +361,16 @@ L_45Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_45Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_45Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_45Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_45Degree_Humid_NoOverFlow:
 	rts
 
 L_50Degree_Humid:
@@ -319,10 +384,16 @@ L_50Degree_Humid:
 	sbc		RR_Div_RH_H
 	bcs		L_50Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
+	dex
 	rts
 L_50Degree_Humid_BackLoop:
 	inx
 	stx		R_Humidity							; 更新湿度值
+	txa
+	cmp		#151
+	bcc		L_50Degree_Humid_NoOverFlow
+	smb3	RFC_Flag							; 若湿度值大于95，则达到最大量程，停止继续查表并退出
+L_50Degree_Humid_NoOverFlow:
 	rts
 
 

@@ -68,6 +68,16 @@ L_Clear_Ram_Loop:
 	lda		#011B
 	sta		Alarm_Switch
 
+	lda		#22
+	sta		RFC_HumiCount_L
+	lda		#0
+	sta		RFC_TempCount_L
+	lda		#0
+	sta		RFC_TempCount_M
+	lda		#170
+	sta		RFC_StanderCount_L
+	jsr		L_Temper_Handle
+	jsr		L_Humid_Handle
 
 
 ; 状态机

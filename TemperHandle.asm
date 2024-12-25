@@ -6,12 +6,13 @@ L_Temper_Handle:
 
 ; 通过Qt查表确定当前温度
 L_Search_TemperTable:
+	rmb2	RFC_Flag							; 清除负数温度标志位
 	ldx		#255								; 初始值为255，进入循环后会+1溢出变为0
 L_Sub_Temper:
 	inx
 	txa
 	cmp		#50
-	bcs		L_Temper_Overflow					; 大于50度则退出循环
+	bcs		L_Temper_Overflow					; 大于等于50度则退出循环
 	lda		RT_Div_RR_L
 	sec
 	sbc		Temperature_Table,x
@@ -22,12 +23,16 @@ L_Sub_Temper:
 	bcs		L_Sub_Temper
 
 L_Temper_Overflow:
+	txa
+	beq		Temper_LowerThan_M10				; -10度以下不在表中不需要递减1度
+	dex
+Temper_LowerThan_M10:
 	stx		P_Temp
 	txa
 	sec
 	sbc		#10
 	bcs		L_Search_Over						; 大于0则为正数or0温度
-	lda		#11									; 负数温度的处理
+	lda		#10									; 负数温度的处理
 	sec
 	sbc		P_Temp
 	smb2	RFC_Flag							; 负数温度标志位
