@@ -251,7 +251,7 @@ L_Start_Loud_Juge:
 Is_Snooze:
 	bbs3	Clock_Flag,L_Snooze					; 先判断闹钟是否触发，再判断是否存在贪睡
 	rts											; 如既无闹钟触发，又无贪睡，则不需要闹钟处理，直接退出
-L_Snooze:
+L_Snooze: 
 	lda		R_Time_Hour							; 贪睡模式下,用贪睡闹钟和当前时钟匹配
 	cmp		R_Snooze_Hour						; 贪睡闹钟和当前时间不匹配不会进响闹模式
 	bne		L_Snooze_CloseLoud

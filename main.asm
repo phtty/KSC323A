@@ -58,26 +58,28 @@ L_Clear_Ram_Loop:
 	jsr		F_Test_Mode
 	lda		#2
 	sta		Backlight_Level
-	smb0	PC										; 亮度设置为高亮
+	smb0	PC										; 初始亮度设置为高亮
 
 	lda		#00000001B
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	;lda		#011B
-	;sta		Alarm_Switch
+	lda		#011B
+	sta		Alarm_Switch
 
-	;lda		#170
-	;sta		RFC_HumiCount_L
-	;lda		#$d4
-	;sta		RFC_TempCount_L
-	;lda		#$5
-	;sta		RFC_TempCount_M
-	;lda		#170
-	;sta		RFC_StanderCount_L
-	;jsr		L_Temper_Handle
-	;jsr		L_Humid_Handle
+	lda		#$40
+	sta		RFC_HumiCount_L
+	lda		#$1
+	sta		RFC_HumiCount_M
+	lda		#$d4
+	sta		RFC_TempCount_L
+	lda		#$5
+	sta		RFC_TempCount_M
+	lda		#170
+	sta		RFC_StanderCount_L
+	jsr		L_Temper_Handle
+	jsr		L_Humid_Handle
 	;smb4	RFC_Flag								; 华氏度模式
 	;jsr		F_Display_Temper
 	;rmb4	RFC_Flag
@@ -107,15 +109,15 @@ Status_Juge:
 	bra		MainLoop
 Status_DisClock:
 	jsr		F_Clock_Display
-	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
+	jsr		F_Alarm_Handler							; 显示状态有响闹判断
 	bra		MainLoop
 Status_DisRotate:
 	jsr		F_Rotate_Display
-	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
+	jsr		F_Alarm_Handler							; 显示状态有响闹判断
 	bra		MainLoop
 Status_DisAlarm:
 	jsr		F_Alarm_Display
-	jsr		F_Alarm_Handler							; 三种显示状态可以响闹
+	jsr		F_Alarm_Handler							;显示状态有响闹判断
 	bra		MainLoop
 Status_SetClock:
 	jsr		F_Clock_Set

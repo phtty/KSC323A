@@ -679,38 +679,40 @@ L_LSR_4Bit:
 	rts
 
 
-;================================================
-;十进制转十六进制
+
+; 将256以内的数以十进制存储在十六进制格式中
+; A==转换的数，X==百位
 L_A_DecToHex:
-	sta		P_Temp								; 将十进制输入保存到 P_Temp
+	sta		P_Temp								; 将十进制输入保存到P_Temp
 	ldx		#0
-	lda		#0									; 初始化高位寄存器
-	sta		P_Temp+1							; 高位清零
-	sta		P_Temp+2							; 低位清零
+	lda		#0
+	sta		P_Temp+1							; 十位清零
+	sta		P_Temp+2							; 个位清零
 
 L_DecToHex_Loop:
-	lda		P_Temp								; 读取当前十进制值
+	lda		P_Temp
 	cmp		#10
-	bcc		L_DecToHex_End						; 如果小于10，则跳到结束
+	bcc		L_DecToHex_End						; 如果小于10，则不用转换
 
-	sec											; 启用借位
+	sec
 	sbc		#10									; 减去10
 	sta		P_Temp								; 更新十进制值
-	inc		P_Temp+1							; 高位+1，累加十六进制的十位
-
+	inc		P_Temp+1							; 十位+1，累加十六进制的十位
 	bra		L_DecToHex_Loop						; 重复循环
 
 L_DecToHex_End:
-	lda		P_Temp								; 最后剩余的值是低位
-	sta		P_Temp+2							; 存入低位
+	lda		P_Temp								; 最后剩余的值是个位
+	sta		P_Temp+2							; 存入个位
 
-	lda		P_Temp+1							; 将高位放入A寄存器准备结果组合
+Juge_3Positions:
+	lda		P_Temp+1							; 将十位放入A寄存器组合
 	cmp		#10
-	bcc		No_3Positions
+	bcc		No_3Positions						; 判断是否有百位
 	sec
 	sbc		#10
 	sta		P_Temp+1
 	inx
+	bra		Juge_3Positions
 No_3Positions:
 	clc
 	rol
@@ -718,6 +720,6 @@ No_3Positions:
 	rol
 	rol											; 左移4次，完成乘16
 	clc
-	adc		P_Temp+2							; 加上低位值
+	adc		P_Temp+2							; 加上个位值
 
 	rts

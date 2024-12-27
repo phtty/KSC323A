@@ -7,7 +7,7 @@ L_Humid_Handle:
 
 L_Search_HumidTable:
 	lda		R_Temperature
-	bbr2	RFC_Flag,?Start						; 若温度为负数，则湿度为0
+	bbr2	RFC_Flag,?Start						; 若温度为负数，则湿度不显示
 	lda		#0
 	sta		R_Humidity
 	rts
@@ -65,25 +65,32 @@ L_SearchTable_N:
 Loop_Start:
 	bbs3	RFC_Flag,Loop_Over					; 如果在递减查表函数中减完，则退出循环
 	lda		Humid_SearchLoop_Addr+1				; 入栈循环开始标签的地址
-	pha											; 以便能在递减查表函数中
+	pha											; 以便能在循环查表函数中
 	lda		Humid_SearchLoop_Addr				; 能返回到该函数循环开始
 	pha
 
 	ldx		P_Temp
 	lda		Temper_Humid_table+1,x
-	pha											; 入栈对应的递减查表函数地址
+	pha											; 入栈对应的循环查表函数地址
 	lda		Temper_Humid_table,x
 	pha
-	rts											; 跳转到对应递减查表函数
+	rts											; 跳转到对应循环查表函数
 Loop_Over:
-	rmb3	RFC_Flag							; 复位递减完成标志位
+	rmb3	RFC_Flag							; 复位循环完成标志位
 	lda		R_Humidity
+	beq		Humid_LowerThan20
 	clc
 	ror											; 循环查表得到的值除以2加19(+20-1)
 	clc
 	adc		#19
 	sta		R_Humidity							; 才是实际湿度值
 	rts
+Humid_LowerThan20:
+	lda		#20
+	sta		R_Humidity
+	rts
+
+
 
 
 Humid_SearchLoop_Addr:							; 子程序的地址表
@@ -134,7 +141,7 @@ L_RR_Div_RH:
 	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_M
 	lda		RFC_StanderCount_H
-	sbc		RFC_HumiCount_M
+	sbc		RFC_HumiCount_H
 	sta		RFC_StanderCount_H
 
 	lda		RR_Div_RH_L
