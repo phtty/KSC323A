@@ -320,6 +320,11 @@ Display_CelsiusDegree:
 	lda		#0									; 显示摄氏度C
 	ldx		#led_d7
 	jsr		L_Dis_7Bit_WordDot
+
+	bbr2	RFC_Flag,?NoMinusTemper				; 温度为负时，显示负号
+	ldx		#led_minus
+	jsr		F_DisSymbol
+?NoMinusTemper:
 	rts
 
 
@@ -386,14 +391,6 @@ F_SymbolRegulate:								; 显示常亮点
 
 	jsr		L_ALMDot_Blink
 	jsr		F_AlarmSW_Display
-
-	bbr2	RFC_Flag,No_Minus_Temper
-	ldx		#led_minus
-	jsr		F_DisSymbol
-	rts
-No_Minus_Temper:
-	ldx		#led_minus
-	jsr		F_ClrSymbol
 	rts
 
 

@@ -41,9 +41,7 @@ L_Clear_Ram_Loop:
 	sta		MF0										; 为内部RC振荡器提供校准数据	
 
 	jsr		F_Init_SystemRam						; 初始化系统RAM并禁用所有断电保留的RAM
-
 	jsr		F_Port_Init								; 初始化用到的IO口
-
 	jsr		F_Beep_Init
 
 	lda		#$07									; 系统时钟和中断使能
@@ -65,21 +63,21 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#011B
+	lda		#111B
 	sta		Alarm_Switch
 
-	lda		#$40
-	sta		RFC_HumiCount_L
-	lda		#$1
-	sta		RFC_HumiCount_M
-	lda		#$d4
-	sta		RFC_TempCount_L
-	lda		#$5
-	sta		RFC_TempCount_M
-	lda		#170
-	sta		RFC_StanderCount_L
-	jsr		L_Temper_Handle
-	jsr		L_Humid_Handle
+	;lda		#$9
+	;sta		RFC_HumiCount_L
+	;lda		#$0
+	;sta		RFC_HumiCount_M
+	;lda		#$d4
+	;sta		RFC_TempCount_L
+	;lda		#$5
+	;sta		RFC_TempCount_M
+	;lda		#170
+	;sta		RFC_StanderCount_L
+	;jsr		L_Temper_Handle
+	;jsr		L_Humid_Handle
 	;smb4	RFC_Flag								; 华氏度模式
 	;jsr		F_Display_Temper
 	;rmb4	RFC_Flag
