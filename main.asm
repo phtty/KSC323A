@@ -41,7 +41,9 @@ L_Clear_Ram_Loop:
 	sta		MF0										; 为内部RC振荡器提供校准数据	
 
 	jsr		F_Init_SystemRam						; 初始化系统RAM并禁用所有断电保留的RAM
+
 	jsr		F_Port_Init								; 初始化用到的IO口
+
 	jsr		F_Beep_Init
 
 	lda		#$07									; 系统时钟和中断使能
@@ -66,10 +68,8 @@ L_Clear_Ram_Loop:
 	lda		#111B
 	sta		Alarm_Switch
 
-	;lda		#$9
+	;lda		#170
 	;sta		RFC_HumiCount_L
-	;lda		#$0
-	;sta		RFC_HumiCount_M
 	;lda		#$d4
 	;sta		RFC_TempCount_L
 	;lda		#$5
@@ -131,7 +131,7 @@ F_ReturnToDisTime_Juge:
 	bbr2	Key_Flag,L_Return_Juge_Exit
 
 	lda		Return_Counter
-	cmp		#15
+	cmp		Return_MaxTime
 	bcs		L_Return_Stop
 	inc		Return_Counter
 	bra		L_Return_Juge_Exit
@@ -139,7 +139,7 @@ L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
 	rmb2	Key_Flag
-	lda		#00000001B								; 15S未响应则回到时显模式
+	lda		#00000001B								; nS未操作则回到时显模式
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
@@ -180,7 +180,7 @@ L_DivIrq:
 	cli
 	bra		L_EndIrq
 RFC_Start:
-	jsr		F_RFC_MeasureStart
+	jsr		F_RFC_Channel_Select
 	cli
 	bra		L_EndIrq
 RFC_Sample:

@@ -87,7 +87,7 @@ F_Alarm_SwitchStatue:
 	jsr		F_DisSymbol
 	pla
 
-	jsr		L_A_Div_3							; sys ordinal除以3得到左移的量
+	jsr		L_A_Div_3							; Sys_Ordinal除以3得到左移的量
 	txa
 	lda		#1
 	jsr		L_A_LeftShift_XBit					; 把1左移相应位计算出当前的闹钟开关的位号
@@ -251,7 +251,7 @@ L_Start_Loud_Juge:
 Is_Snooze:
 	bbs3	Clock_Flag,L_Snooze					; 先判断闹钟是否触发，再判断是否存在贪睡
 	rts											; 如既无闹钟触发，又无贪睡，则不需要闹钟处理，直接退出
-L_Snooze: 
+L_Snooze:
 	lda		R_Time_Hour							; 贪睡模式下,用贪睡闹钟和当前时钟匹配
 	cmp		R_Snooze_Hour						; 贪睡闹钟和当前时间不匹配不会进响闹模式
 	bne		L_Snooze_CloseLoud
@@ -263,10 +263,11 @@ L_Snooze:
 	cmp		#00
 	bne		L_Snooze_CloseLoud
 L_AlarmTrigger:
+	jsr		F_RFC_Abort							; 终止RFC采样并配置定时器为响闹模式
 	smb7	Timer_Flag
-	smb0	TMRC
-	smb2	Clock_Flag							; 开启响闹模式和蜂鸣器计时TIM0
-	smb1	RFC_Flag							; 禁用RFC采样
+	smb0	TMRC								; 响铃定时器TIM0开启
+	smb2	Clock_Flag							; 开启响闹模式
+	rmb1 	Clock_Flag							; 关闭闹钟触发标志，避免重复进闹钟触发
 L_Alarm_NoStop:
 	bbs5	Clock_Flag,L_AlarmTrigger_Exit
 	smb5	Clock_Flag							; 保存响闹模式的值,区分响闹结束状态和未响闹状态
@@ -281,14 +282,17 @@ L_Snooze_CloseLoud:
 L_NoSnooze_CloseLoud:							; 结束贪睡模式并关闭响闹
 	rmb3	Clock_Flag
 	rmb6	Clock_Flag
+	rmb1	RFC_Flag							; 取消禁用RFC采样
 	lda		#0
 	sta		Triggered_AlarmGroup
 L_CloseLoud:
+	lda		#0
+	sta		AlarmLoud_Counter
 	rmb1	Clock_Flag							; 关闭闹钟触发标志
 	rmb2	Clock_Flag							; 关闭响闹模式
-	rmb1	RFC_Flag							; 取消禁用RFC采样
 	rmb5	Clock_Flag
 
+	bbs4	Key_Flag,L_LoudingJuge_Exit			; 如果有按键提示音，则不关闭蜂鸣器
 	rmb1	PADF0								; PB3 PWM输出控制
 	rmb4	PADF0								; PB3配置为IO口
 	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
@@ -297,6 +301,7 @@ L_CloseLoud:
 	rmb6	Timer_Flag
 	rmb7	Timer_Flag
 	rmb0	TMRC
+L_LoudingJuge_Exit:
 	rts
 
 
@@ -383,7 +388,7 @@ L_Alarm3_HourMatch:
 	rts
 
 L_Alarm1_MinMatch:
-	lda		R_Time_Sec							
+	lda		R_Time_Sec
 	cmp		#00
 	beq		Alarm1_SecMatch
 	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出
@@ -399,7 +404,7 @@ Alarm1_SecMatch:
 	rts
 
 L_Alarm2_MinMatch:
-	lda		R_Time_Sec							
+	lda		R_Time_Sec
 	cmp		#00
 	beq		Alarm2_SecMatch
 	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出
@@ -415,7 +420,7 @@ Alarm2_SecMatch:
 	rts
 
 L_Alarm3_MinMatch:
-	lda		R_Time_Sec							
+	lda		R_Time_Sec
 	cmp		#00
 	beq		Alarm3_SecMatch
 	rmb1	Clock_Flag							; 若秒不匹配，则闹钟不触发并退出

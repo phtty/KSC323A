@@ -27,4 +27,12 @@ F_Test_Mode:
 	smb3	Key_Flag							; 上电先给一个唤醒事件，免得上电不显示
 	rmb4	PD
 StartUp_WakeUp:
+	lda		#0
+	sta		P_Temp
+L_Test_Loop:
+	jsr		F_Louding
+	bbr0	TMRC,L_Test_Over
+	bra		L_Test_Loop
+L_Test_Over:
+	;rmb0	SYSCLK
 	rts

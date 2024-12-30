@@ -35,6 +35,7 @@ Count_RFC				DS		1
 QuickAdd_Counter		DS		1
 Backlight_Counter		DS		1
 Return_Counter			DS		1
+Return_MaxTime			DS		1
 AlarmLoud_Counter		DS		1
 COM_Counter				DS		1
 
@@ -140,6 +141,7 @@ Beep_Serial				DS		1
 
 PA_IO_Backup			DS		1
 PC_IO_Backup			DS		1
+
 ;---------------------------------------
 Time_Str_Addr	EQU		$
 R_Time_Sec				DS		1	;时间秒

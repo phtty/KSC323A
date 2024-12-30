@@ -141,7 +141,7 @@ L_RR_Div_RH:
 	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_M
 	lda		RFC_StanderCount_H
-	sbc		RFC_HumiCount_H
+	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_H
 
 	lda		RR_Div_RH_L
@@ -183,9 +183,11 @@ L_5Degree_Humid:
 	lda		Humid_5Degree_Table,x
 	sec
 	sbc		RR_Div_RH_L
+	sta		RR_Div_RH_L
 	inx
 	lda		Humid_5Degree_Table,x
 	sbc		RR_Div_RH_H
+	sta		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	dex

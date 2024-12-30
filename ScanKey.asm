@@ -24,7 +24,11 @@ L_Key4Hz:
 	bbr5	Key_Flag,L_KeyScanExit
 	rmb5	Key_Flag
 L_KeyScan:										; 长按处理部分
-	bbr0	Key_Flag,L_KeyScanExit				; 没有扫键标志直接退出
+	bbr0	Key_Flag,L_KeyNoScanExit			; 没有扫键标志则为无按键处理了，判断是否取消禁用RFC采样
+
+	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
+	jsr		F_RFC_Abort
+?RFC_Sample_Juge:
 
 	jsr		F_QuikAdd_Scan						; 矩阵扫描，需要开启IO口
 	bbr4	Timer_Flag,L_KeyScanExit			; 没开始快加时，用16Hz扫描
@@ -37,7 +41,7 @@ L_KeyScan:										; 长按处理部分
 	jsr		F_SpecialKey_Handle					; 长按终止时，进行一次特殊按键的处理
 	bra		L_KeyExit
 L_4_16Hz_Count:
-	bbs3	Timer_Flag,Counter_NoAdd			; 在快加触发后不能继续快加计数
+	bbs3	Timer_Flag,Counter_NoAdd			; 在快加触发后不再继续增加计数
 	inc		QuickAdd_Counter					; 否则计数溢出后会导致不触发按键功能
 Counter_NoAdd:
 	lda		QuickAdd_Counter
@@ -89,6 +93,13 @@ L_KeyExit:
 L_KeyScanExit:
 	rts
 
+L_KeyNoScanExit:								; 没有扫键的情况下是空闲状态，此时判断是否取消禁用RFC采样
+	bbs4	Key_Flag,L_KeyScanExit				; 按键音和响闹模式下，则不取消禁用
+	bbs2	Clock_Flag,L_KeyScanExit
+	rmb1	RFC_Flag							; 取消禁用RFC采样						
+	rts
+
+
 F_SpecialKey_Handle:							; 特殊按键的处理
 	lda		SpecialKey_Flag
 	bne		SpecialKey_Handle
@@ -104,7 +115,7 @@ L_KeyB_ShortHandle:
 	jsr		LightLevel_Change					; 三档亮度切换
 	rts
 L_KeyM_ShortHandle:
-	jsr		SwitchState_ClockDis				; 这里是切换两种时钟显示模式的业务逻辑函数
+	jsr		SwitchState_ClockDis				; 显示模式下切换24/12h模式
 	rts
 
 
@@ -226,6 +237,8 @@ StatusAS_No_KeyD:
 ; 由于打断贪睡和响闹的功能B键没有，故不在本函数内处理
 L_Universal_TriggerHandle:
 	jsr		F_KeyMatrix_Reset					; 按键矩阵的GPIO状态重置
+	lda		#0
+	sta		Return_Counter						; 重置返回时显模式计时
 
 	bbs4	PD,WakeUp_Event
 	bbs3	Timer_Flag,?Handle_Exit
@@ -233,8 +246,7 @@ L_Universal_TriggerHandle:
 	sta		Beep_Serial
 	smb0	TMRC								; 开TIM0蜂鸣器时钟
 	rmb4	Clock_Flag							; 序列响铃模式
-	smb4	Key_Flag							; 置位按键提示音
-	smb1	RFC_Flag							; 禁用RFC采样
+	smb4	Key_Flag							; 置位按键提示音标志
 	lda		#0
 	sta		Backlight_Counter
 ?Handle_Exit:
@@ -248,6 +260,7 @@ WakeUp_Event:
 No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
+	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
 	lda		#2
 	sta		Backlight_Counter					; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
@@ -397,7 +410,7 @@ Alarm_Snooze:
 	smb6	Clock_Flag							; 贪睡按键触发						
 	smb3	Clock_Flag							; 进入贪睡模式
 	rmb2	Clock_Flag							; 关闭响闹模式
-	
+
 	lda		R_Snooze_Min						; 贪睡闹钟的时间加5
 	clc
 	adc		#5
@@ -426,7 +439,9 @@ Switch_TimeMode:
 	lda		Clock_Flag
 	eor		#01									; 翻转12/24h模式的状态
 	sta		Clock_Flag
-	jsr		L_Dis_xxHr
+	bbs0	Sys_Status_Flag,Switch_TimeMode_Exit
+	jsr		L_Dis_xxHr							; 显示模式下不显示12/24Hr
+Switch_TimeMode_Exit:
 	rts
 
 

@@ -11,13 +11,14 @@ RFC_NoComplete:
 	rmb5	RFC_Flag
 	lda		Count_RFC
 	cmp		#30
-	bcs		Count_Over
+	bcs		F_RFC_MeasureStart
 	inc		Count_RFC
 	rts
-Count_Over:
+F_RFC_MeasureStart:
 	lda		#0
 	sta		Count_RFC							; 满30S后，不再计数，开始采样
 	sta		RFC_ChannelCount					; 采样开始，清除通道计数
+	
 	smb0	RFC_Flag
 	rmb0	IFR									; 清除DIV中断标志位
 	smb0	IER									; 打开DIV中断
@@ -28,7 +29,7 @@ L_RFC_Exit:
 
 
 
-F_RFC_MeasureStart:
+F_RFC_Channel_Select:
 	jsr		F_RFC_TimerReset					; 初始化RFC采样定时器状态
 
 	lda		TMRC								; T0I设置为Frcx
@@ -80,9 +81,9 @@ L_NoTemp:
 	smb6	RFC_Flag							; 采样完成，准备计算
 L_Sample_Over:
 	lda		#0
-	sta		RFCC1								; 通道采样完成，关闭RFC
+	sta		RFCC1								; 当前通道采样完成，关闭RFC
 	inc		RFC_ChannelCount
-	jmp		F_RFC_TimerReset					; 采样未完成，重置定时器状态
+	jmp		F_RFC_TimerReset					; 等待下一通道采样开始，重置定时器状态
 
 
 
@@ -103,9 +104,7 @@ F_RFC_TimerReset:
 
 
 F_RFC_MeasureStop:
-	jsr		F_Timer_Init						; 定时器配置为响铃和长按状态,关闭定时器同步
-	rmb0	IER									; 关闭DIV中断
-	rmb0	RFC_Flag							; 清除采样启用中标志位
+	jsr		F_Timer_NormalMode					; 定时器配置为响铃和长按状态,关闭定时器同步
 
 	jsr		L_Temper_Handle
 	jsr		L_Humid_Handle
@@ -123,6 +122,28 @@ F_RFC_MeasureStop:
 	sta		RFC_StanderCount_M
 	sta		RFC_StanderCount_L
 
+	rts
+
+
+
+; RFC采样被打断,通常是由其他需要定时器的功能调用
+; 此时需要禁用RFC采样直到此功能结束
+F_RFC_Abort:
+	smb1	RFC_Flag							; 禁用RFC采样
+	jsr		F_Timer_NormalMode					; 定时器配置为响铃和长按状态,关闭定时器同步
+
+	lda		#0
+	sta		RFC_TempCount_H						; 清理三通道的采样值
+	sta		RFC_TempCount_M
+	sta		RFC_TempCount_L
+	sta		RFC_HumiCount_H
+	sta		RFC_HumiCount_M
+	sta		RFC_HumiCount_L
+	sta		RFC_StanderCount_H
+	sta		RFC_StanderCount_M
+	sta		RFC_StanderCount_L
+
+	sta		RFC_ChannelCount					; 重置通道计数
 	rts
 
 

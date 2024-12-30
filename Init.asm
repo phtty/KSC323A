@@ -1,4 +1,4 @@
-F_Init_SystemRam:							; 系统初始化
+F_Init_SystemRam:								; 系统内存初始化
 	lda		#0
 	sta		CC0
 	sta		Counter_1Hz
@@ -29,15 +29,15 @@ F_Init_SystemRam:							; 系统初始化
 	sta		R_Time_Hour
 	lda		#00
 	sta		R_Time_Min
-	lda		#00
+	lda		#50
 	sta		R_Time_Sec
 
-	lda		#12
+	lda		#00
 	sta		R_Alarm1_Hour
 	lda		#01
 	sta		R_Alarm1_Min
 
-	lda		#12
+	lda		#00
 	sta		R_Alarm2_Hour
 	lda		#02
 	sta		R_Alarm2_Min
@@ -156,7 +156,7 @@ F_Timer_Init:
 	lda		#$0
 	sta		TMR2
 
-	lda		#$e0								; 16Hz一次中断
+	lda		#$256-32							; 16Hz一次中断
 	sta		TMR1
 
 	lda		IER									; 开定时器中断
@@ -172,6 +172,38 @@ F_Timer_Init:
 	sta		FRAME
 
 	rts
+
+
+
+F_Timer_NormalMode:
+	rmb1	IER									; 关TMR0、1定时器中断
+	rmb1	IFR									; 清除TMR0、1中断标志位
+	rmb2	IER
+	rmb2	IFR
+	rmb0	TMRC								; 关闭TMR0
+	rmb1	TMRC								; 关闭TMR1
+	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0时钟源T000
+	sta		TMCLK								; TIM1时钟源Fsub/64(512Hz)
+	lda		#C_T000_Fsub
+	sta		PADF1								; T000选择为Fsub
+	lda		#C_Asynchronous+C_DIVC_Fsub_64
+	sta		DIVC								; 关闭定时器同步并选择DIV时钟源为Fsub/64(512Hz)
+
+	lda		#256-8								; 配置TIM0频率为4096Hz
+	sta		TMR0
+	lda		#256-32								; 配置TIM1频率为16Hz
+	sta		TMR1
+
+	rmb0	IER									; 关闭DIV中断
+	lda		IER									; 开TIM0、1定时器中断
+	ora		#C_TMR0I+C_TMR1I
+	sta		IER
+
+	rmb0	RFC_Flag							; 清除采样启用中标志位
+
+	rts
+
+
 
 
 F_RFC_Init:
