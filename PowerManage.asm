@@ -1,4 +1,7 @@
 F_PowerManage:
+	jsr		L_HLightLevel_WithTime
+	jsr		L_LLightLevel_WithTime
+
 	bbr6	PB,No_5VDC_PWR
 	rts
 No_5VDC_PWR:
@@ -19,4 +22,33 @@ L_ShutDown_Display:
 	sta		Backlight_Counter
 	smb4	PD									; 屏幕唤醒结束，拉高PD4关闭5020
 	rmb3	Key_Flag
+	rts
+
+
+L_HLightLevel_WithTime:
+	lda		R_Time_Hour
+	cmp		#7
+	bne		?LightLevel_Exit
+	lda		R_Time_Min
+	cmp		#0
+	bne		?LightLevel_Exit
+	lda		R_Time_Sec
+	cmp		#0
+	bne		?LightLevel_Exit
+	smb0	PC									; 设置为高亮
+?LightLevel_Exit:
+	rts
+
+L_LLightLevel_WithTime:
+	lda		R_Time_Hour
+	cmp		#18
+	bne		?LightLevel_Exit
+	lda		R_Time_Min
+	cmp		#0
+	bne		?LightLevel_Exit
+	lda		R_Time_Sec
+	cmp		#0
+	bne		?LightLevel_Exit
+	rmb0	PC									; 设置为高亮
+?LightLevel_Exit:
 	rts

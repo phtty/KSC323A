@@ -1,26 +1,13 @@
 F_Test_Mode:
-	jsr		F_ClearScreen
+	jsr		F_FillScreen
 
-	ldx		#led_d0
-	lda		#1
-	jsr		L_Dis_7Bit_DigitDot
+Loop_FillScr:
+	
+	bra		Loop_FillScr
 
-	ldx		#led_d1
-	lda		#1
-	jsr		L_Dis_7Bit_DigitDot
-
-	ldx		#led_d2
-	lda		#1
-	jsr		L_Dis_7Bit_DigitDot
-
-	ldx		#led_d3
-	lda		#1
-	jsr		L_Dis_7Bit_DigitDot
-
-	lda		#2									; 上电蜂鸣器响1声
+	lda		#4									; 上电蜂鸣器响1声
 	sta		Beep_Serial
 	rmb4	Clock_Flag
-	smb4	Key_Flag
 	smb0	TMRC
 
 	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电
@@ -35,4 +22,39 @@ L_Test_Loop:
 	bra		L_Test_Loop
 L_Test_Over:
 	;rmb0	SYSCLK
+	rts
+
+
+L_DisDigit_Test:
+	ldx		#led_d0
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d1
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d2
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d5
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d6
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d7
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d8
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
+
+	ldx		#led_d9
+	lda		P_Temp
+	jsr		L_Dis_7Bit_DigitDot
 	rts

@@ -65,7 +65,7 @@ L_Clear_Ram_Loop:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#111B
+	lda		#000B
 	sta		Alarm_Switch
 
 	;lda		#170
@@ -96,6 +96,7 @@ Global_Run:											; 全局生效的功能处理
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
 	jsr		F_RFC_MeasureManage
+	jsr		F_ReturnToDisTime						; 定时返回时显模式
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -127,23 +128,26 @@ Status_SetAlarm:
 
 
 
-F_ReturnToDisTime_Juge:
-	bbr2	Key_Flag,L_Return_Juge_Exit
+F_ReturnToDisTime:
+	bbr7	Clock_Flag,L_Return_Juge_Exit
+	bbs1	Sys_Status_Flag,L_Return_Juge_Exit		; 轮显模式不判断
+	bbr0	Sys_Status_Flag,L_Return_Juge			; 非轮显和时显直接进判断
+	lda		Sys_Status_Ordinal
+	beq		L_Return_Juge_Exit
 
+L_Return_Juge:
+	rmb7	Clock_Flag
 	lda		Return_Counter
-	cmp		Return_MaxTime
+	cmp		Return_MaxTime							; 当前模式的返回时间
 	bcs		L_Return_Stop
 	inc		Return_Counter
 	bra		L_Return_Juge_Exit
 L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
-	rmb2	Key_Flag
+	sta		Sys_Status_Ordinal
 	lda		#00000001B								; nS未操作则回到时显模式
 	sta		Sys_Status_Flag
-	lda		#0
-	sta		Sys_Status_Ordinal
-	;jsr		F_SymbolRegulate					; 显示对应模式的常亮符号
 L_Return_Juge_Exit:
 	rts
 
@@ -233,6 +237,7 @@ L_1Hz_Out:
 	smb1	Backlight_Flag						; 亮屏1S计时
 	smb7	Key_Flag							; DP显示1S计时
 	smb1	Symbol_Flag
+	smb7	Clock_Flag							; 返回时显1S计时
 	smb5	RFC_Flag							; 30S采样计时
 	bra		L_EndIrq
 

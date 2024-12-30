@@ -186,8 +186,6 @@ L_DisMode_KeyM_LongTri:
 L_KeyUTrigger:
 	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
-	lda		#0
-	sta		Return_Counter						; 重置返回时显模式计时
 	
 	lda		Sys_Status_Flag
 	and		#00000111B
@@ -210,8 +208,6 @@ StatusAS_No_KeyU:
 L_KeyDTrigger:
 	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
-	lda		#0
-	sta		Return_Counter						; 重置返回时显模式计时
 
 	lda		Sys_Status_Flag
 	and		#00000111B
@@ -277,6 +273,9 @@ SwitchState_ClockDis:
 	lda		Sys_Status_Ordinal					; 对第一位取反，在日期显示和时间显示之间切换
 	eor		#1
 	sta		Sys_Status_Ordinal
+
+	lda		#5
+	sta		Return_MaxTime						; 显示模式，5S返回时显
 	rts
 
 
@@ -312,6 +311,9 @@ L_ChangeToRotateDis:
 
 ; 切换到闹钟显示状态
 SwitchState_AlarmDis:
+	lda		#5
+	sta		Return_MaxTime						; 显示模式，5S返回时显
+
 	lda		Sys_Status_Flag
 	cmp		#00000100B
 	beq		L_Change_Ordinal_AD					; 判断当前状态是否已经是闹钟显示
@@ -326,9 +328,7 @@ L_Change_Ordinal_AD:
 	cmp		#3
 	bcc		L_Ordinal_Exit_AD
 	lda		#0
-	sta		Sys_Status_Ordinal					; 子模式序号大于2时，则回到时显模式，并清空序号
-	lda		#00000001B
-	sta		Sys_Status_Flag
+	sta		Sys_Status_Ordinal					; 子模式序号大于2时，重置子模式序号
 L_Ordinal_Exit_AD:
 	rts
 
@@ -337,6 +337,9 @@ L_Ordinal_Exit_AD:
 
 ; 切换到时间设置模式
 SwitchState_ClockSet:
+	lda		#15
+	sta		Return_MaxTime						; 设置模式，15S返回时显
+
 	lda		Sys_Status_Flag
 	cmp		#00001000B
 	beq		L_Change_Ordinal_CS					; 判断当前状态是否已经是时钟设置
@@ -360,8 +363,11 @@ L_Ordinal_Exit_CS:
 
 
 
-; 进入闹钟设置模式
+; 切换到闹钟设置模式
 SwitchState_AlarmSet:
+	lda		#15
+	sta		Return_MaxTime						; 设置模式，15S返回时显
+
 	lda		Sys_Status_Flag
 	cmp		#00010000B
 	beq		L_Change_Ordinal_AS					; 判断当前状态是否已经是闹钟设置
@@ -434,7 +440,7 @@ L_Snooze_Exit:
 
 
 
-; 显示模式下的12、24h模式切换
+; 12、24h模式切换
 Switch_TimeMode:
 	lda		Clock_Flag
 	eor		#01									; 翻转12/24h模式的状态
