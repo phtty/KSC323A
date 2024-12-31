@@ -1,6 +1,6 @@
 F_PowerManage:
-	jsr		L_HLightLevel_WithTime
-	jsr		L_LLightLevel_WithTime
+	jsr		L_HLightLevel_WithTime				; 7点后设为高亮
+	jsr		L_LLightLevel_WithTime				; 18点后设为低亮
 
 	bbr6	PB,No_5VDC_PWR
 	rts

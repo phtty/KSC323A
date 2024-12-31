@@ -8,6 +8,7 @@ L_Beeping:
 	beq		L_NoBeep_Serial_Mode
 	dec		Beep_Serial
 	bbr0	Beep_Serial,L_NoBeep_Serial_Mode
+	smb0	SYSCLK
 	smb4	PADF0								; PB3配置为IO口
 	smb3	PB_TYPE								; PB3 设置CMOS输出
 	smb1	PADF0								; PB3 PWM输出控制
@@ -17,6 +18,7 @@ L_NoBeep_Serial_Mode:
 	rmb4	PADF0								; PB3配置为IO口
 	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
 	smb3	PB
+	rmb0	SYSCLK
 
 	bbr4	Key_Flag,No_KeyBeep_Over			; 如果是按键音则需要在响铃结束后关闭蜂鸣定时器
 	rmb4	Key_Flag
@@ -32,6 +34,7 @@ L_ConstBeep_Mode:
 
 	bbr0	Beep_Serial,L_NoBeep_Const_Mode
 
+	smb0	SYSCLK
 	smb4	PADF0								; PB3配置为IO口
 	smb3	PB_TYPE								; PB3 设置CMOS输出
 	smb1	PADF0								; PB3 PWM输出控制
@@ -41,5 +44,6 @@ L_NoBeep_Const_Mode:
 	rmb4	PADF0								; PB3配置为IO口
 	rmb3	PB_TYPE								; PB3选择NMOS输出1避免漏电
 	smb3	PB
+	rmb0	SYSCLK
 	rmb4	Key_Flag
 	rts

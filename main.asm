@@ -41,9 +41,7 @@ L_Clear_Ram_Loop:
 	sta		MF0										; 为内部RC振荡器提供校准数据	
 
 	jsr		F_Init_SystemRam						; 初始化系统RAM并禁用所有断电保留的RAM
-
 	jsr		F_Port_Init								; 初始化用到的IO口
-
 	jsr		F_Beep_Init
 
 	lda		#$07									; 系统时钟和中断使能
@@ -55,33 +53,23 @@ L_Clear_Ram_Loop:
 	cli												; 开总中断
 
 ; Test Code
-	jsr		F_Test_Mode
 	lda		#2
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
+
+	jsr		F_Test_Mode								; 上电显示部分
+
+	jsr		F_RFC_MeasureStart						; 上电先进行一次温湿度测量
+Wait_RFC_MeasureOver:
+	jsr		F_RFC_MeasureManage
+	bbs0	RFC_Flag,Wait_RFC_MeasureOver
+	jsr		F_Display_Time
+	jsr		F_Display_Week
 
 	lda		#00000001B
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
-
-	lda		#000B
-	sta		Alarm_Switch
-
-	;lda		#170
-	;sta		RFC_HumiCount_L
-	;lda		#$d4
-	;sta		RFC_TempCount_L
-	;lda		#$5
-	;sta		RFC_TempCount_M
-	;lda		#170
-	;sta		RFC_StanderCount_L
-	;jsr		L_Temper_Handle
-	;jsr		L_Humid_Handle
-	;smb4	RFC_Flag								; 华氏度模式
-	;jsr		F_Display_Temper
-	;rmb4	RFC_Flag
-	;jsr		F_Display_Temper
 
 
 ; 状态机

@@ -7,18 +7,18 @@ F_FillScreen:
 F_ClearScreen:
 	lda		#0
 L_FillLed:
-	sta		$1824
-	sta		$1825
-	sta		$1826
-	sta		$1827
-	sta		$1828
-	sta		$1829
-	sta		$182a
-	sta		$182b
-	sta		$182c
-	sta		$182d
-	sta		$182e
-	sta		$182f
+	sta		$1800
+	sta		$1801
+	sta		$1802
+	sta		$1803
+	sta		$1804
+	sta		$1805
+	sta		$1806
+	sta		$1807
+	sta		$1808
+	sta		$1809
+	sta		$180a
+	sta		$180b
 
 	rts
 
