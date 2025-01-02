@@ -71,8 +71,8 @@ Wait_RFC_MeasureOver:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	;lda		#001B
-	;sta		Alarm_Switch
+	lda		#001B
+	sta		Alarm_Switch
 
 
 ; 状态机
@@ -133,14 +133,17 @@ L_Return_Juge:
 L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
-	bbr0	Sys_Status_Flag,L_RotateReturn
-	bbs1	Sys_Status_Ordinal,L_RotateReturn
-	sta		Sys_Status_Ordinal						; 非时显模式下，返回到时显模式
-	bra		L_NoRotateReturn
-L_RotateReturn:
+	bbr0	Sys_Status_Flag,No_TimeDis_Return		; Sys Flag第一位为0则不是时显
+	bbs0	Sys_Status_Ordinal,No_TimeDis_Return	; Sys Ordinal不为0则不是时显
 	lda		#1
-	sta		Sys_Status_Ordinal						; 时显且轮显模式下，返回到日显模式
-L_NoRotateReturn:
+	sta		Sys_Status_Ordinal						; 时显下若有轮显，则计时结束返回日显
+	bra		Return_Over
+
+No_TimeDis_Return:
+	lda		#0
+	sta		Sys_Status_Ordinal						; 非时显若计时结束则返回时显
+
+Return_Over:
 	lda		#0001B									; 回到时显模式
 	sta		Sys_Status_Flag
 L_Return_Juge_Exit:

@@ -119,7 +119,7 @@ L_Mode_Clear:
 
 F_DisHour_Set:
 	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Hour	; 有按键时不闪烁
-	bbs0	Timer_Flag,L_Blink_Hour				; 没有半S标志时不闪烁
+	bbs0	Timer_Flag,L_Blink_Hour
 	rts
 L_Blink_Hour:
 	rmb0	Timer_Flag							; 清半S标志

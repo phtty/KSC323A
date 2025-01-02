@@ -490,6 +490,7 @@ F_DP_Display:
 	bbs6	Key_Flag,DP_Display				; 没有DP显示标志则显示时钟
 	rts
 DP_Display:
+	jsr		F_ClrCol						; DP显示需要灭秒点
 	bbs7	Key_Flag,DP_Display_Juge		; 在DP显示里，如果没1S则不继续显示时钟，直接退出
 	pla
 	pla
