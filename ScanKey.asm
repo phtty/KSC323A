@@ -49,8 +49,12 @@ Counter_NoAdd:
 	bcs		L_QuikAdd
 	rts											; 长按计时，必须满2S才有快加
 L_QuikAdd:
+	bbs3	Timer_Flag,NoQuikAdd_Beep
+	jsr		L_Key_Beep
+NoQuikAdd_Beep:
 	smb3	Timer_Flag
 	rmb5	Key_Flag
+	
 
 L_KeyHandle:
 	jsr		F_KeyMatrix_PC4Scan_Ready			; 判断Alarm键和Backlight键
@@ -105,17 +109,51 @@ F_SpecialKey_Handle:							; 特殊按键的处理
 	bne		SpecialKey_Handle
 	rts
 SpecialKey_Handle:
+	bbs3	Timer_Flag,SpecialKey_NoBeep
+	jsr		L_Key_Beep
+SpecialKey_NoBeep:
 	bbs0	SpecialKey_Flag, L_KeyA_ShortHandle	; 短按的特殊功能处理
 	bbs1	SpecialKey_Flag, L_KeyB_ShortHandle
 	bbs2	SpecialKey_Flag, L_KeyM_ShortHandle
+	bbs3	SpecialKey_Flag, L_KeyU_ShortHandle
+	bbs4	SpecialKey_Flag, L_KeyD_ShortHandle
 L_KeyA_ShortHandle:
+	lda		Sys_Status_Flag
+	cmp		#1000B
+	bne		No_SwitchState_AlarmSet				; 闹设模式切换设置内容
+	jsr		SwitchState_AlarmSet
+	rts
+No_SwitchState_AlarmSet:
 	jsr		SwitchState_AlarmDis				; 切换闹钟显示状态
 	rts
+
 L_KeyB_ShortHandle:
 	jsr		LightLevel_Change					; 三档亮度切换
 	rts
+
 L_KeyM_ShortHandle:
+	lda		Sys_Status_Flag
+	cmp		#0100B
+	bne		No_SwitchState_ClockSet
+	jsr		SwitchState_ClockSet				; 时设模式切换设置内容
+	rts
+No_SwitchState_ClockSet:
 	jsr		SwitchState_ClockDis				; 显示模式下切换日期显示、时间显示模式
+	rts
+
+L_KeyU_ShortHandle:
+	lda		Sys_Status_Flag
+	cmp		#0011B
+	bne		ShortHandle_Exit
+	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
+	rts
+
+L_KeyD_ShortHandle:
+	lda		Sys_Status_Flag
+	cmp		#0011B
+	bne		ShortHandle_Exit
+	jsr		SwitchState_DisMode					; 切换固显-轮显
+ShortHandle_Exit:
 	rts
 
 
@@ -132,8 +170,8 @@ L_KeyATrigger:
 StatusCS_No_KeyA:
 	cmp		#1000B
 	bne		StatusAS_No_KeyA
-	jsr		SwitchState_AlarmSet				; 闹设模式切换设置内容
-	jmp		L_KeyExit							; 快加时，不重复执行功能函数
+	smb0	SpecialKey_Flag						; 闹设模式下，A键为特殊功能按键
+	rts
 StatusAS_No_KeyA:
 	bbs3	Timer_Flag,L_DisMode_KeyA_LongTri
 	smb0	SpecialKey_Flag						; 显示模式下，A键为特殊功能按键
@@ -165,12 +203,12 @@ L_KeyMTrigger:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyM
-	jsr		SwitchState_ClockSet				; 时设模式切换设置内容
-	jmp		L_KeyExit							; 快加时，不重复执行功能函数
+	smb2	SpecialKey_Flag
+	rts
 StatusCS_No_KeyM:
 	cmp		#1000B
 	bne		StatusAS_No_KeyM
-	jmp		L_KeyExit							; 时设模式M键无效
+	jmp		L_KeyExit							; 闹设模式M键无效
 StatusAS_No_KeyM:
 	bbs3	Timer_Flag,L_DisMode_KeyM_LongTri	; 判断显示模式下的M长按
 	cmp		#0001B
@@ -190,17 +228,19 @@ L_KeyUTrigger:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		Status_NoDisMode_KeyU				; 时钟显和闹显U键切换12/24h
-	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
-	jmp		L_KeyExit							; 快加时，不重复执行功能函数
+	smb3	SpecialKey_Flag
+	rts
 Status_NoDisMode_KeyU:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU
 	jsr		AddNum_CS							; 时设模式增数
+	smb3	SpecialKey_Flag
 StatusCS_No_KeyU:
 	cmp		#1000B
 	bne		StatusAS_No_KeyU
 	jsr		AddNum_AS							; 闹设模式增数
+	smb3	SpecialKey_Flag
 StatusAS_No_KeyU:
 	rts
 
@@ -212,18 +252,20 @@ L_KeyDTrigger:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		Status_NoDisMode_KeyD				; 判断是否为显示模式
-	jsr		SwitchState_DisMode					; 切换固显-轮显
-	jmp		L_KeyExit							; 快加时，不重复执行功能函数
+	smb4	SpecialKey_Flag
+	rts
 Status_NoDisMode_KeyD:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
 	jsr		SubNum_CS							; 时设模式减数
+	smb4	SpecialKey_Flag
 	rts
 StatusCS_No_KeyD:
 	cmp		#1000B
 	bne		StatusAS_No_KeyD
 	jsr		SubNum_AS							; 闹设模式减数
+	smb4	SpecialKey_Flag
 StatusAS_No_KeyD:
 	rts
 
@@ -241,7 +283,7 @@ L_Key_NoSnoozeLoud:
 	rts
 
 
-; 按键触发通用功能，包括按键矩阵GPIO状态重置，按键音，唤醒屏幕
+; 按键触发通用功能，包括按键矩阵GPIO状态重置，唤醒屏幕
 ; 同时会给出是否存在唤醒事件
 ; 由于打断贪睡和响闹的功能B键没有，故不在本函数内处理
 L_Universal_TriggerHandle:
@@ -251,11 +293,7 @@ L_Universal_TriggerHandle:
 
 	bbs4	PD,WakeUp_Event
 	bbs3	Timer_Flag,?Handle_Exit
-	lda		#10B								; 设置按键提示音的响铃序列
-	sta		Beep_Serial
-	smb0	TMRC								; 开TIM0蜂鸣器时钟
-	rmb4	Clock_Flag							; 序列响铃模式
-	smb4	Key_Flag							; 置位按键提示音标志
+	;jsr		L_Key_Beep
 	lda		#0
 	sta		Backlight_Counter
 ?Handle_Exit:
@@ -276,6 +314,14 @@ No_Extinguish:
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
 
+	rts
+
+
+L_Key_Beep:
+	lda		#10B								; 设置按键提示音的响铃序列
+	sta		Beep_Serial
+	smb0	TMRC								; 开TIM0蜂鸣器时钟
+	smb4	Key_Flag							; 置位按键提示音标志
 	rts
 
 
@@ -642,6 +688,7 @@ TimeHour_AddOverflow:
 	lda		#0
 	sta		R_Time_Hour
 TimeHour_Add_Exit:
+	jsr		L_LightLevel_WithKeyU
 	jsr		F_Display_Time
 	rts
 
@@ -655,6 +702,7 @@ TimeHour_SubOverflow:
 	lda		#23
 	sta		R_Time_Hour
 TimeHour_Sub_Exit:
+	jsr		L_LightLevel_WithKeyD
 	jsr		F_Display_Time
 	rts
 

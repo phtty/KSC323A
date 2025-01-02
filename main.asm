@@ -58,6 +58,8 @@ L_Clear_Ram_Loop:
 	smb0	PC										; 初始亮度设置为高亮
 
 	;jsr		F_Test_Mode								; 上电显示部分
+	smb3	Key_Flag								; 上电先给一个唤醒事件，免得上电不显示
+	rmb4	PD
 
 	jsr		F_RFC_MeasureStart						; 上电先进行一次温湿度测量
 Wait_RFC_MeasureOver:
@@ -71,7 +73,7 @@ Wait_RFC_MeasureOver:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#001B
+	lda		#000B
 	sta		Alarm_Switch
 
 
@@ -237,6 +239,7 @@ L_1Hz_Out:
 	smb1	Symbol_Flag
 	smb7	Clock_Flag							; 返回时显1S计时
 	smb5	RFC_Flag							; 30S采样计时
+	rmb4	Clock_Flag							; 清除响闹阻塞标志
 	bra		L_EndIrq
 
 L_PaIrq:

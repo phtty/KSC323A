@@ -142,7 +142,7 @@ L_AlarmHour_Set:
 Alarm_Serial_HourOut:
 	sta		Sys_Status_Ordinal					; 为了调用显示闹钟函数，子模式序号改为闹钟显示模式
 
-	bbs0	Key_Flag,L_AlarmHour_Display		; 有按键时直接常亮
+	bbs3	Timer_Flag,L_AlarmHour_Display		; 有快加时常亮
 	bbs1	Timer_Flag,L_AlarmHour_Clear
 L_AlarmHour_Display:
 	jsr		L_DisAlarm_Hour
@@ -175,7 +175,7 @@ L_AlarmMin_Set:
 	ror
 	sta		Sys_Status_Ordinal					; 为了调用显示闹钟函数，子模式序号改为闹钟显示模式
 
-	bbs0	Key_Flag,L_AlarmMin_Display			; 有按键时直接常亮
+	bbs3	Timer_Flag,L_AlarmMin_Display		; 有快加时直接常亮
 	bbs1	Timer_Flag,L_AlarmMin_Clear
 L_AlarmMin_Display:
 	jsr		L_DisAlarm_Hour
@@ -295,21 +295,20 @@ L_BeepStart:
 	beq		L_NoSnooze_CloseLoud				; 响铃60S后关闭响闹
 	lda		#8									; 响闹的序列为8，4声
 	sta		Beep_Serial
-	rmb4	Clock_Flag
 	inc		AlarmLoud_Counter
 	rts
 
 
 ; 任意一组闹钟设定值的时、分符合当前时间，就设置闹钟触发标志位,并同步至触发闹钟
-; 优先判断闹钟1，其次闹钟2，最后闹钟3
+; 优先判断闹钟3，其次闹钟2，最后闹钟1
 Is_Alarm_Trigger:
 	lda		Alarm_Switch
-	and		#001B
-	beq		L_Alarm1_NoMatch					; 如果此闹钟没有开启，则不会判断它
+	and		#100B
+	beq		L_Alarm3_NoMatch					; 如果此闹钟没有开启，则不会判断它
 	lda		R_Time_Hour
-	cmp		R_Alarm1_Hour
-	beq		L_Alarm1_HourMatch
-L_Alarm1_NoMatch:
+	cmp		R_Alarm3_Hour
+	beq		L_Alarm3_HourMatch
+L_Alarm3_NoMatch:
 	lda		Alarm_Switch
 	and		#010B
 	beq		L_Alarm2_NoMatch					; 如果此闹钟没有开启，则不会判断它
@@ -318,12 +317,12 @@ L_Alarm1_NoMatch:
 	beq		L_Alarm2_HourMatch
 L_Alarm2_NoMatch:
 	lda		Alarm_Switch
-	and		#100B
-	beq		L_Alarm3_NoMatch					; 如果此闹钟没有开启，则不会判断它
+	and		#001B
+	beq		L_Alarm1_NoMatch					; 如果此闹钟没有开启，则不会判断它
 	lda		R_Time_Hour
-	cmp		R_Alarm3_Hour
-	beq		L_Alarm3_HourMatch
-L_Alarm3_NoMatch:
+	cmp		R_Alarm1_Hour
+	beq		L_Alarm1_HourMatch
+L_Alarm1_NoMatch:
 	rmb1	Clock_Flag							; 闹钟3也不匹配，闹钟未触发
 	rts
 
@@ -400,7 +399,10 @@ Alarm3_SecMatch:
 ; 确定闹钟触发后的处理，若当前在贪睡，则要重置贪睡状态
 L_Alarm_Match_Handle:
 	jsr		L_NoSnooze_CloseLoud
+	bbs4	Clock_Flag,Alarm_Blocked
 	smb1	Clock_Flag							; 同时满足小时和分钟的匹配，设置闹钟触发
+Alarm_Blocked:
+	smb4	Clock_Flag							; 闹钟触发后，阻塞下一次1S内的闹钟触发
 	rts
 
 

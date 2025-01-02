@@ -59,7 +59,6 @@ Loop_DisSymbol3:
 
 	lda		#4									; 上电蜂鸣器响2声
 	sta		Beep_Serial
-	rmb4	Clock_Flag
 	smb0	TMRC
 
 	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电

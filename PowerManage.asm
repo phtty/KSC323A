@@ -2,6 +2,11 @@ F_PowerManage:
 	jsr		L_HLightLevel_WithTime				; 7点后设为高亮
 	jsr		L_LLightLevel_WithTime				; 18点后设为低亮
 
+	bbr2	Clock_Flag,NoAlarm_WakeUp
+	rmb4	PD									; 响闹时5020开启
+	rts
+NoAlarm_WakeUp:
+
 	bbr6	PB,No_5VDC_PWR
 	rts
 No_5VDC_PWR:
@@ -22,6 +27,10 @@ L_ShutDown_Display:
 	sta		Backlight_Counter
 	smb4	PD									; 屏幕唤醒结束，拉高PD4关闭5020
 	rmb3	Key_Flag
+	rts
+
+
+
 	rts
 
 
@@ -49,6 +58,37 @@ L_LLightLevel_WithTime:
 	lda		R_Time_Sec
 	cmp		#0
 	bne		?LightLevel_Exit
-	rmb0	PC									; 设置为高亮
+	rmb0	PC									; 设置为低亮
 ?LightLevel_Exit:
+	rts
+
+
+
+L_LightLevel_WithKeyU:
+	lda		R_Time_Hour
+	cmp		#7
+	beq		KeyU_HighLight
+	cmp		#18
+	beq		KeyU_LowLight
+	rts
+KeyU_HighLight:
+	smb0	PC									; 设置为高亮
+	rts
+KeyU_LowLight:
+	rmb0	PC									; 设置为低亮
+	rts
+
+
+L_LightLevel_WithKeyD:
+	lda		R_Time_Hour
+	cmp		#17
+	beq		KeyD_HighLight
+	cmp		#6
+	beq		KeyD_LowLight
+	rts
+KeyD_HighLight:
+	smb0	PC									; 设置为高亮
+	rts
+KeyD_LowLight:
+	rmb0	PC									; 设置为低亮
 	rts

@@ -1,10 +1,10 @@
-F_Calendar_Add:									; 走日期
+F_Calendar_Add:										; 走日期
 	smb1	Calendar_Flag
 	jsr		F_Is_Leap_Year
-	ldx		R_Date_Month						; 月份数作为索引，查表
+	ldx		R_Date_Month							; 月份数作为索引，查表
 	dex
-	bbs0	Calendar_Flag,L_Leap_Year			; 如果是闰年，查闰年月份天数表
-	lda		L_Table_Month_Common,x				; 否则查平年月份天数表
+	bbs0	Calendar_Flag,L_Leap_Year				; 如果是闰年，查闰年月份天数表
+	lda		L_Table_Month_Common,x					; 否则查平年月份天数表
 	bra		L_Day_Juge
 L_Leap_Year:
 	lda		L_Table_Month_Leap,x
@@ -12,11 +12,11 @@ L_Day_Juge:
 	cmp		R_Date_Day
 	bne		L_Day_Add			
 	lda		#1
-	sta		R_Date_Day							; 日进位发生
+	sta		R_Date_Day								; 日进位发生
 	lda		R_Date_Month
-	cmp		#12									; 若是月份到已经计到12
-	beq		L_Year_Add							; 月份进位
-	inc		R_Date_Month						; 月份正常加
+	cmp		#12										; 若是月份到已经计到12
+	beq		L_Year_Add								; 月份进位
+	inc		R_Date_Month							; 月份正常加
 	rts
 
 L_Day_Add:
@@ -27,8 +27,8 @@ L_Year_Add:
 	lda		#1
 	sta		R_Date_Month
 	lda		R_Date_Year
-	cmp		#99									; 年份走到2099
-	beq		L_Reload_Year						; 则下一年回到2000
+	cmp		#99										; 年份走到2099
+	beq		L_Reload_Year							; 则下一年回到2000
 	inc		R_Date_Year
 	rts
 L_Reload_Year:
@@ -39,8 +39,8 @@ L_Reload_Year:
 ; 判断平闰年函数
 F_Is_Leap_Year:
 	lda		R_Date_Year
-	and		#0011B								; 取最后两位
-	beq		L_Set_LeapYear_Flag					; 若都为0则能被4整除
+	and		#0011B									; 取最后两位
+	beq		L_Set_LeapYear_Flag						; 若都为0则能被4整除
 	rmb0	Calendar_Flag
 	rts
 L_Set_LeapYear_Flag:
@@ -53,37 +53,37 @@ L_GetWeek:
 	jsr		F_Is_Leap_Year
 
 	ldx		R_Date_Day
-	dex											; 当前日期-1->A
+	dex												; 当前日期-1->A
 	txa
 	jsr		L_MOD_A_7
-	sta		P_Temp								; 当前日期相对月首日的星期数偏移量->P_Temp
+	sta		P_Temp									; 当前日期相对月首日的星期数偏移量->P_Temp
 
 	ldx		R_Date_Month
 	dex
 	bbs0	Calendar_Flag,L_DateToWeek_Leap
-	lda		L_Table_Gap_CommonMonth,x			; 平年月份首日的星期数->A
+	lda		L_Table_Gap_CommonMonth,x				; 平年月份首日的星期数->A
 	bra		L_Get_Week
 L_DateToWeek_Leap:
-	lda		L_Table_Gap_LeapMonth,x				; 闰年月份首日的星期数->A
+	lda		L_Table_Gap_LeapMonth,x					; 闰年月份首日的星期数->A
 L_Get_Week:
-	sta		P_Temp+1							; 月份首日的星期数->P_Temp+1
+	sta		P_Temp+1								; 月份首日的星期数->P_Temp+1
 
-	lda		R_Date_Year							; 获取当前年首日的星期数
+	lda		R_Date_Year								; 获取当前年首日的星期数
 	clc
-	ror											; 年份除以2来查表
+	ror												; 年份除以2来查表
 	tax
 	lda		L_Table_WeekInYear,x
 	bbs0	R_Date_Year,L_Odd_Year
-	and		#0111B								; 偶数年份取低4位
+	and		#0111B									; 偶数年份取低4位
 	bra		L_Get_Weak_YearFirstDay
 L_Odd_Year:
 	jsr		L_LSR_4Bit
-	and		#0111B								; 奇数年份取高4位
+	and		#0111B									; 奇数年份取高4位
 L_Get_Weak_YearFirstDay:
 	clc
 	adc		P_Temp
 	clc
-	adc		P_Temp+1							; 当前年首日的星期数+总偏移==当前星期数
+	adc		P_Temp+1								; 当前年首日的星期数+总偏移==当前星期数
 	jsr		L_MOD_A_7
 	sta		R_Date_Week
 	rts
@@ -92,62 +92,62 @@ L_Get_Weak_YearFirstDay:
 
 ; 日期显示
 F_Date_Display:
-	jsr		F_ClrCol							; 日期不显示COL和PM
+	jsr		F_ClrCol								; 日期不显示COL和PM
 	ldx		#led_PM
 	jsr		F_ClrSymbol
 
-	jsr		F_Display_Date						; 显示月日
+	jsr		F_Display_Date							; 显示月日
 
 	rts
 
 
 
 F_DisYear_Set:
-	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Year	; 有按键时不闪烁
-	bbs0	Timer_Flag,L_Blink_Year				; 没有半S标志不闪烁
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Year	; 有快加时不闪烁
+	bbs0	Timer_Flag,L_Blink_Year					; 没有半S标志不闪烁
 	rts
 L_Blink_Year:
-	rmb0	Timer_Flag							; 清半S标志
-	bbs1	Timer_Flag,L_Year_Clear				; 有1S标志时灭
+	rmb0	Timer_Flag								; 清半S标志
+	bbs1	Timer_Flag,L_Year_Clear					; 有1S标志时灭
 L_KeyTrigger_NoBlink_Year:
 	jsr		L_DisDate_Year
 	rts
 L_Year_Clear:
-	rmb1	Timer_Flag							; 清1S标志
+	rmb1	Timer_Flag								; 清1S标志
 	jsr		F_UnDisplay_Year
 	rts
 
 
 F_DisMonth_Set:
-	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Month	; 有按键时不闪烁
-	bbs0	Timer_Flag,L_Blink_Month			; 没有半S标志不闪烁
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Month	; 有快加时不闪烁
+	bbs0	Timer_Flag,L_Blink_Month				; 没有半S标志不闪烁
 	rts
 L_Blink_Month:
-	rmb0	Timer_Flag							; 清半S标志
-	bbs1	Timer_Flag,L_Month_Clear			; 有1S标志时灭
+	rmb0	Timer_Flag								; 清半S标志
+	bbs1	Timer_Flag,L_Month_Clear				; 有1S标志时灭
 L_KeyTrigger_NoBlink_Month:
 	jsr		L_DisDate_Month
 	jsr		L_DisDate_Day
 	rts	
 L_Month_Clear:
-	rmb1	Timer_Flag							; 清1S标志
+	rmb1	Timer_Flag								; 清1S标志
 	jsr		F_UnDisplay_Month
 	rts
 
 
 F_DisDay_Set:
-	bbs0	Key_Flag,L_KeyTrigger_NoBlink_Day	; 有按键时不闪烁
-	bbs0	Timer_Flag,L_Blink_Day				; 没有半S标志不闪烁
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Day		; 有快加时不闪烁
+	bbs0	Timer_Flag,L_Blink_Day					; 没有半S标志不闪烁
 	rts
 L_Blink_Day:
-	rmb0	Timer_Flag							; 清半S标志
-	bbs1	Timer_Flag,L_Day_Clear				; 有1S标志时灭
+	rmb0	Timer_Flag								; 清半S标志
+	bbs1	Timer_Flag,L_Day_Clear					; 有1S标志时灭
 L_KeyTrigger_NoBlink_Day:
 	jsr		L_DisDate_Day
 	jsr		L_DisDate_Month
 	rts	
 L_Day_Clear:
-	rmb1	Timer_Flag							; 清1S标志
+	rmb1	Timer_Flag								; 清1S标志
 	jsr		F_UnDisplay_Day
 	rts
 
