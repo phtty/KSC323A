@@ -42,10 +42,7 @@ Loop_DisSymbol1:
 	jsr		F_ClearScreen						; 显示dot点
 	lda		#0
 	sta		P_Temp+4
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol
 Loop_DisSymbol2:
 	bbr0	Timer_Flag,Loop_DisSymbol2
 	rmb0	Timer_Flag

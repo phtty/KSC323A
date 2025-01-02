@@ -57,7 +57,7 @@ L_Clear_Ram_Loop:
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
 
-	jsr		F_Test_Mode								; 上电显示部分
+	;jsr		F_Test_Mode								; 上电显示部分
 
 	jsr		F_RFC_MeasureStart						; 上电先进行一次温湿度测量
 Wait_RFC_MeasureOver:
@@ -66,7 +66,7 @@ Wait_RFC_MeasureOver:
 	jsr		F_Display_Time
 	jsr		F_Display_Week
 
-	lda		#00000001B
+	lda		#0001B
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
@@ -88,18 +88,13 @@ Global_Run:											; 全局生效的功能处理
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
-	bbs1	Sys_Status_Flag,Status_DisRotate
-	bbs2	Sys_Status_Flag,Status_DisAlarm
-	bbs3	Sys_Status_Flag,Status_SetClock
-	bbs4	Sys_Status_Flag,Status_SetAlarm
+	bbs1	Sys_Status_Flag,Status_DisAlarm
+	bbs2	Sys_Status_Flag,Status_SetClock
+	bbs3	Sys_Status_Flag,Status_SetAlarm
 
 	bra		MainLoop
 Status_DisClock:
 	jsr		F_Clock_Display
-	jsr		F_Alarm_Handler							; 显示状态有响闹判断
-	bra		MainLoop
-Status_DisRotate:
-	jsr		F_Rotate_Display
 	jsr		F_Alarm_Handler							; 显示状态有响闹判断
 	bra		MainLoop
 Status_DisAlarm:
@@ -117,12 +112,14 @@ Status_SetAlarm:
 
 
 F_ReturnToDisTime:
-	bbr7	Clock_Flag,L_Return_Juge_Exit
-	bbs1	Sys_Status_Flag,L_Return_Juge_Exit		; 轮显模式不判断
-	bbr0	Sys_Status_Flag,L_Return_Juge			; 非轮显和时显直接进判断
-	lda		Sys_Status_Ordinal
-	beq		L_Return_Juge_Exit
-
+	bbs7	Clock_Flag,L_Return_Start
+	rts
+L_Return_Start:
+	bbr0	Sys_Status_Flag,L_Return_Juge
+	bbs1	Sys_Status_Ordinal,L_Return_Juge
+	bbr2	Key_Flag,L_Return_Juge_Exit				; 时显模式下，如果固显，则不进行返回计时
+	lda		#10
+	sta		Return_MaxTime
 L_Return_Juge:
 	rmb7	Clock_Flag
 	lda		Return_Counter
@@ -133,8 +130,15 @@ L_Return_Juge:
 L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
-	sta		Sys_Status_Ordinal
-	lda		#00000001B								; nS未操作则回到时显模式
+	bbr0	Sys_Status_Flag,L_RotateReturn
+	bbs1	Sys_Status_Ordinal,L_RotateReturn
+	sta		Sys_Status_Ordinal						; 非时显模式下，返回到时显模式
+	bra		L_NoRotateReturn
+L_RotateReturn:
+	lda		#1
+	sta		Sys_Status_Ordinal						; 时显且轮显模式下，返回到日显模式
+L_NoRotateReturn:
+	lda		#0001B									; 回到时显模式
 	sta		Sys_Status_Flag
 L_Return_Juge_Exit:
 	rts

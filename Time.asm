@@ -28,6 +28,7 @@ L_Time_SecRun_Exit:
 
 
 
+
 ; 时钟显示模式
 F_Clock_Display:
 	bbs0	Sys_Status_Ordinal,L_DisDate_Mode
@@ -39,9 +40,10 @@ L_DisDate_Mode:
 
 
 
+
 ; 时间显示
 F_Time_Display:
-	jsr		F_CD_DP_Display
+	jsr		F_DP_Display
 	bbs0	Timer_Flag,L_TimeDot_Out
 	rts
 L_TimeDot_Out:
@@ -49,42 +51,11 @@ L_TimeDot_Out:
 	jsr		F_Display_Time
 
 	bbs1	Timer_Flag,L_Dot_Clear
-	ldx		#led_COL1							; 没1S标志亮点
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol							; 没1S标志亮点
 	rts											; 半S触发时没1S标志不走时，直接返回
 L_Dot_Clear:
-	rmb1	Timer_Flag							; 清1S标志
-	ldx		#led_COL1							; 有1S标志灭点
-	jsr		F_ClrSymbol
-	ldx		#led_COL2
-	jsr		F_ClrSymbol
-	rts
-
-
-
-; 轮流显示
-F_Rotate_Display:
-	jsr		F_RD_DP_Display
-	bbs0	Timer_Flag,Rotate_Start
-	rts
-Rotate_Start:
-	inc		CC0
-	lda		CC0
-	cmp		#11
-	bcs		L_Rotate_DateMode
-	jsr		F_Time_Display
-	rts
-L_Rotate_DateMode:
-	cmp		#16
-	bcs		L_Rotate_TimeMode
-	rmb0	Timer_Flag
-	jsr		F_Date_Display
-	rts
-L_Rotate_TimeMode:
-	lda		#0
-	sta		CC0
+	rmb1	Timer_Flag
+	jsr		F_ClrCol							; 有1S标志灭S点
 	rts
 
 
@@ -93,7 +64,7 @@ L_Rotate_TimeMode:
 F_Clock_Set:
 	lda		Sys_Status_Ordinal
 	bne		No_TMSwitch_Display
-	jmp		L_Dis_xxHr							; 12/24h模式切换
+	jmp		F_TimeMode_Switch					; 12/24h模式切换
 No_TMSwitch_Display:
 	cmp		#1
 	bne		No_HourSet_Display
@@ -105,34 +76,42 @@ No_HourSet_Display:
 No_MinSet_Display:
 	cmp		#3
 	bne		No_YearSet_Display
-	ldx		#led_COL1							; 日期不显示COL和PM
-	jsr		F_ClrSymbol
-	ldx		#led_COL2
-	jsr		F_ClrSymbol
+	jsr		F_ClrCol							; 日期不显示COL和PM
 	ldx		#led_PM
 	jsr		F_ClrSymbol
 	jmp		F_DisYear_Set
 No_YearSet_Display:
 	cmp		#4
 	bne		No_MonthSet_Display
-	ldx		#led_COL1							; 日期不显示COL和PM
-	jsr		F_ClrSymbol
-	ldx		#led_COL2
-	jsr		F_ClrSymbol
+	jsr		F_ClrCol							; 日期不显示COL和PM
 	ldx		#led_PM
 	jsr		F_ClrSymbol
 
 	jmp		F_DisMonth_Set
 No_MonthSet_Display:
-	ldx		#led_COL1							; 日期不显示COL和PM
-	jsr		F_ClrSymbol
-	ldx		#led_COL2
-	jsr		F_ClrSymbol
+	jsr		F_ClrCol							; 日期不显示COL和PM
 	ldx		#led_PM
 	jsr		F_ClrSymbol
 
 	jmp		F_DisDay_Set
 
+	rts
+
+
+
+
+; 时间模式切换显示
+F_TimeMode_Switch:
+	bbs0	Timer_Flag,L_TimeMode_Out
+	rts
+L_TimeMode_Out:
+	rmb0	Timer_Flag
+	bbs1	Timer_Flag,L_Mode_Clear
+	jsr		L_Dis_xxHr
+	rts
+L_Mode_Clear:
+	rmb1	Timer_Flag							; 清1S标志
+	jsr		F_UnDisplay_Hour
 	rts
 
 
@@ -145,10 +124,7 @@ F_DisHour_Set:
 L_Blink_Hour:
 	rmb0	Timer_Flag							; 清半S标志
 
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol
 
 	bbs1	Timer_Flag,L_Hour_Clear
 L_KeyTrigger_NoBlink_Hour:
@@ -168,10 +144,7 @@ F_DisMin_Set:
 L_Blink_Min:
 	rmb0	Timer_Flag							; 清半S标志
 
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol
 
 	bbs1	Timer_Flag,L_Min_Clear
 L_KeyTrigger_NoBlink_Min:

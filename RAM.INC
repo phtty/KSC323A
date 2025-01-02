@@ -69,10 +69,9 @@ Symbol_Flag				DS		1	; 符号操作
 
 Sys_Status_Flag			DS		1
 ;bit0 = 1 时钟显示
-;bit1 = 1 轮流显示
-;bit2 = 1 闹钟显示
-;bit3 = 1 设置时钟
-;bit4 = 1 设置闹钟
+;bit1 = 1 闹钟显示
+;bit2 = 1 设置时钟
+;bit3 = 1 设置闹钟
 
 Sys_Status_Ordinal		DS		1
 ; 子模式的序号
@@ -80,11 +79,11 @@ Sys_Status_Ordinal		DS		1
 Key_Flag				DS		1
 ;bit0 = 1 扫键标志位
 ;bit1 = 1 首次触发
-;bit2 = 1 非显示状态标志，通常用于计时返回时间显示模式
+;bit2 = 1 轮流显示标志位
 ;bit3 = 1 屏幕唤醒事件标志位
 ;bit4 = 1 按键提示音标志位
 ;bit5 = 1 长按扫键4Hz标志
-;bit6 = 1 轮显/时显互相切换标志
+;bit6 = 1 DP显示标志位
 ;bit7 = 1 DP显示1S标志
 
 SpecialKey_Flag			DS		1	; 长短按功能不同的按键

@@ -122,3 +122,66 @@ L_RT_Multi_256:
 	rol		RFC_TempCount_M
 	rol		RFC_TempCount_H
 	rts
+
+
+
+
+; 摄氏->华氏度转换
+F_C2F:
+	lda		R_Temperature
+	sta		P_Temp							; 初始化一些变量
+
+	lda		#0
+	sta		P_Temp+1
+
+	clc
+	rol		P_Temp							; 左移三位乘以8
+	rol		P_Temp+1
+	clc
+	rol		P_Temp							; 左移三位乘以8
+	rol		P_Temp+1
+	clc
+	rol		P_Temp							; 左移三位乘以8
+	rol		P_Temp+1
+
+
+	lda		P_Temp
+	clc
+	adc		R_Temperature					; 加上它自身完成乘9
+	sta		P_Temp
+	lda		P_Temp+1
+	adc		#0
+	sta		P_Temp+1
+
+	ldx		#0								; 使用X寄存器来计数商
+?Div_By_5_Loop:
+	lda		P_Temp+1
+	bne		?Div_By_5_Loop_Start			; 有高8位的时候，直接减
+	lda		P_Temp							; 无高8位时，再判断低8位的情况
+	cmp		#5
+	bcc		?Loop_Over
+?Div_By_5_Loop_Start:
+	lda		P_Temp
+	sec
+	sbc		#5
+	sta		P_Temp
+	lda		P_Temp+1
+	sbc		#0
+	sta		P_Temp+1
+	inx
+	bra		?Div_By_5_Loop
+?Loop_Over:
+	stx		P_Temp							; 算出除以5的值
+	bbs2	RFC_Flag,Minus_Temper
+	txa
+	clc
+	adc		#32								; 正温度时，直接加上32即为华氏度结果
+	sta		R_Temperature_F
+	rts
+
+Minus_Temper:								; 处理负温度的情况
+	lda		#32
+	sec
+	sbc		P_Temp							; 负数温度则是32-计算值
+	sta		R_Temperature_F
+	rts

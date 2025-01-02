@@ -22,7 +22,7 @@ F_Init_SystemRam:								; 系统内存初始化
 	sta		Alarm_Switch
 	sta		Sys_Status_Ordinal
 
-	lda		#01
+	lda		#0001B
 	sta		Sys_Status_Flag
 
 	lda		#00

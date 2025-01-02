@@ -115,7 +115,7 @@ L_KeyB_ShortHandle:
 	jsr		LightLevel_Change					; 三档亮度切换
 	rts
 L_KeyM_ShortHandle:
-	jsr		SwitchState_ClockDis				; 显示模式下切换24/12h模式
+	jsr		SwitchState_ClockDis				; 显示模式下切换日期显示、时间显示模式
 	rts
 
 
@@ -126,11 +126,11 @@ L_KeyATrigger:
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
-	cmp		#00001000B
+	cmp		#0100B
 	bne		StatusCS_No_KeyA
 	jmp		L_KeyExit							; 时钟设置模式A键无效
 StatusCS_No_KeyA:
-	cmp		#000010000B
+	cmp		#1000B
 	bne		StatusAS_No_KeyA
 	jsr		SwitchState_AlarmSet				; 闹设模式切换设置内容
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
@@ -163,17 +163,17 @@ L_KeyMTrigger:
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
-	cmp		#00001000B
+	cmp		#0100B
 	bne		StatusCS_No_KeyM
 	jsr		SwitchState_ClockSet				; 时设模式切换设置内容
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
 StatusCS_No_KeyM:
-	cmp		#00010000B
+	cmp		#1000B
 	bne		StatusAS_No_KeyM
 	jmp		L_KeyExit							; 时设模式M键无效
 StatusAS_No_KeyM:
 	bbs3	Timer_Flag,L_DisMode_KeyM_LongTri	; 判断显示模式下的M长按
-	cmp		#00000001B
+	cmp		#0001B
 	bne		StatusTD_No_KeyM
 	smb2	SpecialKey_Flag						; 时显下，M键才为特殊功能按键
 StatusTD_No_KeyM:
@@ -188,17 +188,16 @@ L_KeyUTrigger:
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 	
 	lda		Sys_Status_Flag
-	and		#00000111B
-	beq		Status_NoDisMode_KeyU				; 时显、闹显和轮显模式U键切换12/24h
+	and		#0011B
+	beq		Status_NoDisMode_KeyU				; 时钟显和闹显U键切换12/24h
 	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
 Status_NoDisMode_KeyU:
-	lda		Sys_Status_Flag
-	cmp		#00001000B
+	cmp		#0100B
 	bne		StatusCS_No_KeyU
 	jsr		AddNum_CS							; 时设模式增数
 StatusCS_No_KeyU:
-	cmp		#00010000B
+	cmp		#1000B
 	bne		StatusAS_No_KeyU
 	jsr		AddNum_AS							; 闹设模式增数
 StatusAS_No_KeyU:
@@ -210,18 +209,17 @@ L_KeyDTrigger:
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
-	and		#00000111B
+	and		#0011B
 	beq		Status_NoDisMode_KeyD				; 判断是否为显示模式
 	jsr		SwitchState_DisMode					; 切换固显-轮显
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
 Status_NoDisMode_KeyD:
-	lda		Sys_Status_Flag
-	cmp		#00001000B
+	cmp		#0100B
 	bne		StatusCS_No_KeyD
 	jsr		SubNum_CS							; 时设模式减数
 	rts
 StatusCS_No_KeyD:
-	cmp		#00010000B
+	cmp		#1000B
 	bne		StatusAS_No_KeyD
 	jsr		SubNum_AS							; 闹设模式减数
 StatusAS_No_KeyD:
@@ -274,8 +272,15 @@ SwitchState_ClockDis:
 	eor		#1
 	sta		Sys_Status_Ordinal
 
+	lda		#0001B
+	sta		Sys_Status_Flag
+
+	rmb6	Key_Flag							; 清除DP显示
+
+	bbr0	Sys_Status_Ordinal,?SWState_ClockDis_Eixt
 	lda		#5
-	sta		Return_MaxTime						; 显示模式，5S返回时显
+	sta		Return_MaxTime						; 日显示模式，返回时间设为5S
+?SWState_ClockDis_Eixt:
 	rts
 
 
@@ -283,27 +288,23 @@ SwitchState_ClockDis:
 
 ; 切换轮流显示-固定显示
 SwitchState_DisMode:
-	rmb7	Key_Flag							; 清空DP显示1S标志
-	smb6	Key_Flag							; 设置轮显/时显互相切换标志
-	lda		Sys_Status_Flag
-	and		#00000010B
-	beq		L_ChangeToRotateDis
-	lda		#00000001B							; 回到时显模式
-	sta		Sys_Status_Flag
+	smb7	Key_Flag							; 设置DP显示1S标志
+	smb6	Key_Flag							; 设置DP显示标志
 	lda		#0
-	sta		Sys_Status_Ordinal
 	sta		Counter_DP
-	jsr		L_Dis_dp_1
-	rts
-L_ChangeToRotateDis:
-	lda		#00000010B
-	sta		Sys_Status_Flag
-	lda		#0
 	sta		Sys_Status_Ordinal
-	sta		CC0									; 先清空计数和标志位
-	sta		Counter_DP							; 再进入此模式
-	rmb1	Timer_Flag
-	jsr		L_Dis_dp_2
+	lda		#0001B
+	sta		Sys_Status_Flag						; 切换轮、固显会切换状态为时显状态
+
+	lda		Key_Flag
+	eor		#100B
+	sta		Key_Flag							; 取反轮显标志位
+
+	bbr2	Key_Flag,L_NoRotateDis				; 若是切换到固显，则直接退出
+	lda		#10
+	sta		Return_MaxTime						; 若是切换到轮显，则设置一次返回时间10s
+L_NoRotateDis:	
+	jsr		F_Clock_Display
 	rts
 
 
@@ -315,9 +316,9 @@ SwitchState_AlarmDis:
 	sta		Return_MaxTime						; 显示模式，5S返回时显
 
 	lda		Sys_Status_Flag
-	cmp		#00000100B
+	cmp		#0010B
 	beq		L_Change_Ordinal_AD					; 判断当前状态是否已经是闹钟显示
-	lda		#00000100B
+	lda		#0010B
 	sta		Sys_Status_Flag						; 当前状态非闹显则切换至闹显
 	lda		#0
 	sta		Sys_Status_Ordinal					; 清零子模式序号
@@ -335,15 +336,15 @@ L_Ordinal_Exit_AD:
 
 
 
-; 切换到时间设置模式
+; 切换到时钟设置模式
 SwitchState_ClockSet:
 	lda		#15
 	sta		Return_MaxTime						; 设置模式，15S返回时显
 
 	lda		Sys_Status_Flag
-	cmp		#00001000B
+	cmp		#0100B
 	beq		L_Change_Ordinal_CS					; 判断当前状态是否已经是时钟设置
-	lda		#00001000B
+	lda		#0100B
 	sta		Sys_Status_Flag						; 当前状态非时设则切换至时设
 	lda		#0
 	sta		Sys_Status_Ordinal					; 清零子模式序号
@@ -355,7 +356,7 @@ L_Change_Ordinal_CS:
 	bcc		L_Ordinal_Exit_CS
 	lda		#0
 	sta		Sys_Status_Ordinal					; 子模式序号大于5时，则回到时显模式，并清空序号
-	lda		#00000001B
+	lda		#0001B
 	sta		Sys_Status_Flag
 L_Ordinal_Exit_CS:
 	rts
@@ -369,9 +370,9 @@ SwitchState_AlarmSet:
 	sta		Return_MaxTime						; 设置模式，15S返回时显
 
 	lda		Sys_Status_Flag
-	cmp		#00010000B
+	cmp		#1000B
 	beq		L_Change_Ordinal_AS					; 判断当前状态是否已经是闹钟设置
-	lda		#00010000B
+	lda		#1000B
 	sta		Sys_Status_Flag						; 当前状态非闹设则切换至闹设
 	lda		#0
 	sta		Sys_Status_Ordinal					; 清零子模式序号
@@ -383,7 +384,7 @@ L_Change_Ordinal_AS:
 	bcc		L_Ordinal_Exit_AS
 	lda		#0
 	sta		Sys_Status_Ordinal					; 子模式序号大于8时，则回到时显模式，并清空序号
-	lda		#00000001B
+	lda		#0001B
 	sta		Sys_Status_Flag
 L_Ordinal_Exit_AS:
 	rts
@@ -445,9 +446,13 @@ Switch_TimeMode:
 	lda		Clock_Flag
 	eor		#01									; 翻转12/24h模式的状态
 	sta		Clock_Flag
-	bbs0	Sys_Status_Flag,Switch_TimeMode_Exit
-	jsr		L_Dis_xxHr							; 显示模式下不显示12/24Hr
-Switch_TimeMode_Exit:
+
+	rmb6	Key_Flag							; 清除DP显示
+
+	bbr2	Key_Flag,SW_TimeMode_Exit
+	lda		#0
+	sta		Sys_Status_Ordinal					; 如果是轮显模式，切换小时制会回到时显
+SW_TimeMode_Exit:
 	rts
 
 
@@ -711,7 +716,7 @@ DateMonth_AddOverflow:
 ; 月减少
 L_DateMonth_Sub:
 	lda		R_Date_Month
-	cmp		#0
+	cmp		#1
 	beq		DateMonth_SubOverflow
 	dec		R_Date_Month
 	jsr		L_DisDate_Month
@@ -731,7 +736,7 @@ L_DateDay_Add:
 ; 日减少
 L_DateDay_Sub:
 	lda		R_Date_Day
-	cmp		#0
+	cmp		#1
 	beq		DateDay_SubOverflow
 	dec		R_Date_Day
 	jsr		L_DisDate_Day

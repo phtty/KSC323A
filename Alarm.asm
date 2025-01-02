@@ -1,8 +1,5 @@
 F_Alarm_Display:
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_ClrCol
 
 	jsr		F_Display_Alarm
 
@@ -41,54 +38,49 @@ Alarm_Display_Exit:
 
 F_Alarm_Set:
 	lda		Sys_Status_Ordinal
-	bne		No_AL1Switch_Set
-	jmp		F_Alarm_SwitchStatue
-No_AL1Switch_Set:
 	cmp		#1
 	bne		No_AL1_HourSet
-	jmp		F_AlarmHour_Set
+	jmp		F_AlarmHour_Set						; 闹钟1小时设置
 No_AL1_HourSet:
 	cmp		#2
 	bne		No_AL1_MinSet
-	jmp		F_AlarmMin_Set
+	jmp		F_AlarmMin_Set						; 闹钟1分钟设置
 No_AL1_MinSet:
-	cmp		#3
-	bne		No_AL2Switch_Set
-	jmp		F_Alarm_SwitchStatue
-No_AL2Switch_Set:
 	cmp		#4
 	bne		No_AL2_HourSet
-	jmp		F_AlarmHour_Set
+	jmp		F_AlarmHour_Set						; 闹钟2小时设置
 No_AL2_HourSet:
 	cmp		#5
 	bne		No_AL2_MinSet
-	jmp		F_AlarmMin_Set
+	jmp		F_AlarmMin_Set						; 闹钟2分钟设置
 No_AL2_MinSet:
-	cmp		#6
-	bne		No_AL3Switch_Set
-	jmp		F_Alarm_SwitchStatue
-No_AL3Switch_Set:
 	cmp		#7
 	bne		No_AL3_HourSet
-	jmp		F_AlarmHour_Set
+	jmp		F_AlarmHour_Set						; 闹钟3小时设置
 No_AL3_HourSet:
-	jmp		F_AlarmMin_Set
-	rts
+	cmp		#8
+	bne		No_AL3_MinSet
+	jmp		F_AlarmMin_Set						; 闹钟3分钟设置
+No_AL3_MinSet:
+	jmp		F_Alarm_SwitchStatue				; 闹钟开关
+
 
 
 
 
 ; 闹钟开关显示
 F_Alarm_SwitchStatue:
-	pha
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
-	pla
+	jsr		F_ClrCol
 
+	bbs0	Timer_Flag,?AlarmSW_BlinkStart
+	rts
+?AlarmSW_BlinkStart:
+	rmb0	Timer_Flag
+	bbs1	Timer_Flag,AlarmSW_UnDisplay
+	lda		Sys_Status_Ordinal
 	jsr		L_A_Div_3							; Sys_Ordinal除以3得到左移的量
 	txa
+	pha											; 保存闹钟序号
 	lda		#1
 	jsr		L_A_LeftShift_XBit					; 把1左移相应位计算出当前的闹钟开关的位号
 	and		Alarm_Switch						; 和闹钟开关状态相与得出该位号是开还是关
@@ -101,7 +93,6 @@ F_Alarm_SwitchStatue:
 	lda		#3
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_WordDot
-
 	bra		ALSwitch_DisNum
 
 ALSwitch_DisOff:
@@ -112,27 +103,20 @@ ALSwitch_DisOff:
 	lda		#9
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_WordDot
+	bra		ALSwitch_DisNum
+
+AlarmSW_UnDisplay:
+	rmb1	Timer_Flag
+	jsr		F_UnDisplay_Hour
 
 ALSwitch_DisNum:								; 显示闹钟序号
 	lda		#4
 	ldx		#led_d2
 	jsr		L_Dis_7Bit_WordDot
 
-	lda		Sys_Status_Ordinal
-	bne		AlamNumDis2
-	lda		#1
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts
-AlamNumDis2:
-	cmp		#3
-	bne		AlamNumDis3
-	lda		#2
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts
-AlamNumDis3:
-	lda		#3
+	pla											; +1为实际闹钟序号
+	clc
+	adc		#1
 	ldx		#led_d3
 	jsr		L_Dis_7Bit_DigitDot
 	rts
@@ -146,10 +130,7 @@ F_AlarmHour_Set:
 L_AlarmHour_Set:
 	rmb0	Timer_Flag
 
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol
 
 	lda		Sys_Status_Ordinal					; 保存子模式序号
 	pha
@@ -184,10 +165,7 @@ F_AlarmMin_Set:
 L_AlarmMin_Set:
 	rmb0	Timer_Flag
 
-	ldx		#led_COL1
-	jsr		F_DisSymbol
-	ldx		#led_COL2
-	jsr		F_DisSymbol
+	jsr		F_DisCol
 
 	lda		Sys_Status_Ordinal					; 保存子模式序号
 	pha

@@ -444,7 +444,7 @@ Group3_Extinguish:
 F_AlarmSW_Display:
 	bbs3	Clock_Flag,F_AlarmSW_Exit			; 贪睡时，被闪点子程序接管
 	lda		Sys_Status_Flag
-	cmp		#2
+	cmp		#0010B
 	bne		Alarm1_Switch						; 在闹钟显示模式下，不控制闹钟组的点显示
 F_AlarmSW_Exit:
 	rts
@@ -485,55 +485,32 @@ Alarm3_Switch_Off:
 
 
 
-F_RD_DP_Display:
-	bbs6	Key_Flag,RD_DP_Dis				; 没有轮显/时显互相切换标志则直接退出
+
+F_DP_Display:
+	bbs6	Key_Flag,DP_Display				; 没有DP显示标志则显示时钟
 	rts
-RD_DP_Dis:
-	bbs7	Key_Flag,RD_DP_Dis_Juge			; 等待1S标志到来，增加计数
+DP_Display:
+	bbs7	Key_Flag,DP_Display_Juge		; 在DP显示里，如果没1S则不继续显示时钟，直接退出
 	pla
 	pla
 	rts
-RD_DP_Dis_Juge:
+DP_Display_Juge:
 	rmb7	Key_Flag
 	inc		Counter_DP
 	lda		Counter_DP
-	cmp		#5
-	beq		RD_DP_Dis_Over					; 计满5s前一直显示DP
+	cmp		#6
+	beq		DP_Display_Over					; 计满5s前一直显示DP
 
-	jsr		L_Dis_dp_2
-	
+	bbs2	Key_Flag,DP_RDMode
+	jsr		L_Dis_dp_1						; 固显DP-1
+	bra		DP_Mode_Return
+DP_RDMode:
+	jsr		L_Dis_dp_2						; 轮显DP-2
+DP_Mode_Return:
 	pla										; 等待1S标志到来，增加计数
 	pla
 	rts
-RD_DP_Dis_Over:
-	lda		#0
-	sta		Counter_DP
-	rmb6	Key_Flag
-	rts
-
-
-
-F_CD_DP_Display:
-	bbs6	Key_Flag,CD_DP_Dis				; 没有轮显/时显互相切换标志则直接退出
-	rts
-CD_DP_Dis:
-	bbs7	Key_Flag,CD_DP_Dis_Juge			; 等待1S标志到来，增加计数
-	pla
-	pla
-	rts
-CD_DP_Dis_Juge:
-	rmb7	Key_Flag
-	inc		Counter_DP
-	lda		Counter_DP
-	cmp		#5
-	beq		DP_Dis_Over						; 计满5s前一直显示DP
-
-	jsr		L_Dis_dp_1
-
-	pla										; 等待1S标志到来，增加计数
-	pla
-	rts
-DP_Dis_Over:
+DP_Display_Over:
 	lda		#0
 	sta		Counter_DP
 	rmb6	Key_Flag
@@ -606,63 +583,20 @@ L_24hMode_Set:
 
 
 
-F_C2F:
-	lda		R_Temperature
-	sta		P_Temp							; 初始化一些变量
-
-	lda		#0
-	sta		P_Temp+1
-
-	clc
-	rol		P_Temp							; 左移三位乘以8
-	rol		P_Temp+1
-	clc
-	rol		P_Temp							; 左移三位乘以8
-	rol		P_Temp+1
-	clc
-	rol		P_Temp							; 左移三位乘以8
-	rol		P_Temp+1
-
-
-	lda		P_Temp
-	clc
-	adc		R_Temperature					; 加上它自身完成乘9
-	sta		P_Temp
-	lda		P_Temp+1
-	adc		#0
-	sta		P_Temp+1
-
-	ldx		#0								; 使用X寄存器来计数商
-?Div_By_5_Loop:
-	lda		P_Temp+1
-	bne		?Div_By_5_Loop_Start			; 有高8位的时候，直接减
-	lda		P_Temp							; 无高8位时，再判断低8位的情况
-	cmp		#5
-	bcc		?Loop_Over
-?Div_By_5_Loop_Start:
-	lda		P_Temp
-	sec
-	sbc		#5
-	sta		P_Temp
-	lda		P_Temp+1
-	sbc		#0
-	sta		P_Temp+1
-	inx
-	bra		?Div_By_5_Loop
-?Loop_Over:
-	stx		P_Temp							; 算出除以5的值
-	bbs2	RFC_Flag,Minus_Temper
-	txa
-	clc
-	adc		#32								; 正温度时，直接加上32即为华氏度结果
-	sta		R_Temperature_F
+; 亮秒点
+F_DisCol:
+	ldx		#led_COL1
+	jsr		F_DisSymbol
+	ldx		#led_COL2
+	jsr		F_DisSymbol
 	rts
 
-Minus_Temper:								; 处理负温度的情况
-	lda		#32
-	sec
-	sbc		P_Temp							; 负数温度则是32-计算值
-	sta		R_Temperature_F
+; 灭秒点
+F_ClrCol:
+	ldx		#led_COL1
+	jsr		F_ClrSymbol
+	ldx		#led_COL2
+	jsr		F_ClrSymbol
 	rts
 
 
