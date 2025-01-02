@@ -122,7 +122,7 @@ L_KeyM_ShortHandle:
 
 ; 按键触发函数，处理每个按键触发后的响应条件
 L_KeyATrigger:
-	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
@@ -159,7 +159,7 @@ L_DisMode_KeyB_LongTri:
 
 
 L_KeyMTrigger:
-	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
@@ -184,7 +184,7 @@ L_DisMode_KeyM_LongTri:
 
 
 L_KeyUTrigger:
-	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 	
 	lda		Sys_Status_Flag
@@ -193,6 +193,7 @@ L_KeyUTrigger:
 	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
 Status_NoDisMode_KeyU:
+	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU
 	jsr		AddNum_CS							; 时设模式增数
@@ -205,7 +206,7 @@ StatusAS_No_KeyU:
 
 
 L_KeyDTrigger:
-	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
 
 	lda		Sys_Status_Flag
@@ -214,6 +215,7 @@ L_KeyDTrigger:
 	jsr		SwitchState_DisMode					; 切换固显-轮显
 	jmp		L_KeyExit							; 快加时，不重复执行功能函数
 Status_NoDisMode_KeyD:
+	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
 	jsr		SubNum_CS							; 时设模式减数
@@ -225,6 +227,18 @@ StatusCS_No_KeyD:
 StatusAS_No_KeyD:
 	rts
 
+
+; 按键打断贪睡和响闹
+L_Key_NoSnoozeLoud:
+	lda		Clock_Flag
+	and		#00001100B
+	beq		?NoSnoozeLoud
+	jsr		L_NoSnooze_CloseLoud				; 打断贪睡和响闹
+	pla
+	pla
+	jmp		L_KeyExit
+?NoSnoozeLoud:
+	rts
 
 ; 按键触发通用功能，包括按键矩阵GPIO状态重置，按键音，唤醒屏幕
 ; 同时会给出是否存在唤醒事件
@@ -368,6 +382,7 @@ L_Ordinal_Exit_CS:
 SwitchState_AlarmSet:
 	lda		#15
 	sta		Return_MaxTime						; 设置模式，15S返回时显
+	smb0	Timer_Flag							; 切换时给一个半S标志，立刻更新显示
 
 	lda		Sys_Status_Flag
 	cmp		#1000B

@@ -1,4 +1,4 @@
-	.CHIP	W65C02S									; cpu的选型
+	.CHIP		W65C02S								; cpu的选型
 	.MACLIST	ON
 
 CODE_BEG	EQU		E000H							; 起始地址
@@ -70,6 +70,9 @@ Wait_RFC_MeasureOver:
 	sta		Sys_Status_Flag
 	lda		#0
 	sta		Sys_Status_Ordinal
+
+	;lda		#001B
+	;sta		Alarm_Switch
 
 
 ; 状态机

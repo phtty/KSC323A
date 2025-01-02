@@ -107,7 +107,7 @@ ALSwitch_DisOff:
 
 AlarmSW_UnDisplay:
 	rmb1	Timer_Flag
-	jsr		F_UnDisplay_Hour
+	jmp		F_UnDisplay_Hour
 
 ALSwitch_DisNum:								; 显示闹钟序号
 	lda		#4
@@ -286,36 +286,17 @@ L_LoudingJuge_Exit:
 
 
 L_Alarm_Process:
-	bbs7	Timer_Flag,L_BeepStart				; 每S进一次
+	bbs7	Timer_Flag,L_BeepStart				; 每响铃1S进一次
 	rts
 L_BeepStart:
 	rmb7	Timer_Flag
-	inc		AlarmLoud_Counter					; 响铃1次加1响铃计数
 	lda		AlarmLoud_Counter
-	cmp		#11
-	bcs		No_Loud_Serial_2
-	lda		#2									; 0-10S响闹的序列为2，1声
-	sta		Beep_Serial
-	rmb4	Clock_Flag							; 0-30S为序列响铃
-	bra		L_Alarm_Exit
-No_Loud_Serial_2:
-	cmp		#21
-	bcs		No_Loud_Serial_4
-	lda		#4									; 10-20S响闹的序列为4，2声
+	cmp		#60
+	beq		L_NoSnooze_CloseLoud				; 响铃60S后关闭响闹
+	lda		#8									; 响闹的序列为8，4声
 	sta		Beep_Serial
 	rmb4	Clock_Flag
-	bra		L_Alarm_Exit
-No_Loud_Serial_4:
-	cmp		#31
-	bcs		No_Loud_Serial_8
-	lda		#8									; 20-30S响闹的序列为8，4声
-	sta		Beep_Serial
-	rmb4	Clock_Flag
-	bra		L_Alarm_Exit
-No_Loud_Serial_8:
-	smb4	Clock_Flag							; 30S以上使用持续响铃
-
-L_Alarm_Exit:
+	inc		AlarmLoud_Counter
 	rts
 
 
