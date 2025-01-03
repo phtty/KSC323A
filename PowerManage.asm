@@ -15,7 +15,7 @@ No_5VDC_PWR:
 	rts
 WakeUp_Event_Yes:
 	lda		Backlight_Counter
-	cmp		#15
+	cmp		#16
 	bcs		L_ShutDown_Display					; 计满15S则断开5020供电，熄屏等待按键唤醒
 	bbr1	Backlight_Flag,BacklightCount_NoAdd
 	rmb1	Backlight_Flag

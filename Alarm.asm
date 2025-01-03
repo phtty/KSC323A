@@ -1,6 +1,5 @@
 F_Alarm_Display:
-	jsr		F_ClrCol
-
+	jsr		F_DisCol
 	jsr		F_Display_Alarm
 
 	lda		Sys_Status_Ordinal
@@ -19,14 +18,10 @@ No_Alarm1_Display:
 	jsr		F_ClrSymbol
 	ldx		#led_AL2
 	jsr		F_DisSymbol
-	ldx		#led_AL3
-	jsr		F_ClrSymbol
 	bra		Alarm_Display_Exit
 No_Alarm2_Display:
 	cmp		#2
 	bne		Alarm_Display_Exit
-	ldx		#led_AL1
-	jsr		F_ClrSymbol
 	ldx		#led_AL2
 	jsr		F_ClrSymbol
 	ldx		#led_AL3
@@ -145,8 +140,7 @@ Alarm_Serial_HourOut:
 	bbs3	Timer_Flag,L_AlarmHour_Display		; 有快加时常亮
 	bbs1	Timer_Flag,L_AlarmHour_Clear
 L_AlarmHour_Display:
-	jsr		L_DisAlarm_Hour
-	jsr		L_DisAlarm_Min
+	jsr		F_Display_Alarm
 	bra		AlarmHour_Set_Exit
 L_AlarmHour_Clear:
 	rmb1	Timer_Flag							; 清1S标志
@@ -164,7 +158,7 @@ F_AlarmMin_Set:
 	rts
 L_AlarmMin_Set:
 	rmb0	Timer_Flag
-
+ 
 	jsr		F_DisCol
 
 	lda		Sys_Status_Ordinal					; 保存子模式序号
@@ -178,8 +172,7 @@ L_AlarmMin_Set:
 	bbs3	Timer_Flag,L_AlarmMin_Display		; 有快加时直接常亮
 	bbs1	Timer_Flag,L_AlarmMin_Clear
 L_AlarmMin_Display:
-	jsr		L_DisAlarm_Hour
-	jsr		L_DisAlarm_Min
+	jsr		F_Display_Alarm
 	bra		AlarmMin_Set_Exit
 L_AlarmMin_Clear:
 	rmb1	Timer_Flag							; 清1S标志

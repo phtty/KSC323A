@@ -4,7 +4,7 @@ F_Louding:
 L_Beeping:
 	rmb6	Timer_Flag
 
-	lda		Beep_Serial							; 序列响铃模式
+	lda		Beep_Serial
 	beq		L_NoBeep_Serial_Mode
 	dec		Beep_Serial
 	bbr0	Beep_Serial,L_NoBeep_Serial_Mode

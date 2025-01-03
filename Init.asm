@@ -29,22 +29,22 @@ F_Init_SystemRam:								; 系统内存初始化
 	sta		R_Time_Hour
 	lda		#00
 	sta		R_Time_Min
-	lda		#55
+	lda		#00
 	sta		R_Time_Sec
 
 	lda		#00
 	sta		R_Alarm1_Hour
-	lda		#01
+	lda		#00
 	sta		R_Alarm1_Min
 
-	lda		#00
+	lda		#12
 	sta		R_Alarm2_Hour
-	lda		#02
+	lda		#00
 	sta		R_Alarm2_Min
 
-	lda		#22
+	lda		#12
 	sta		R_Alarm3_Hour
-	lda		#22
+	lda		#00
 	sta		R_Alarm3_Min
 
 	lda		#01
@@ -151,7 +151,7 @@ F_Timer_Init:
 	lda		#C_Asynchronous+C_DIVC_Fsub_64
 	sta		DIVC								; 关闭定时器同步，DIV时钟源为Fsub/64(512Hz)
 
-	lda		#256-8								; 配置TIM0频率为2048Hz
+	lda		#256-8								; 配置TIM0频率为4096Hz
 	sta		TMR0
 	lda		#$0
 	sta		TMR2
