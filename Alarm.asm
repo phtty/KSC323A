@@ -107,7 +107,7 @@ ALSwitch_DisOff:
 
 AlarmSW_UnDisplay:
 	rmb1	Timer_Flag
-	jmp		F_UnDisplay_Hour
+	jmp		F_UnDisplay_D0_1
 
 ALSwitch_DisNum:								; 显示闹钟序号
 	lda		#4
@@ -150,7 +150,7 @@ L_AlarmHour_Display:
 	bra		AlarmHour_Set_Exit
 L_AlarmHour_Clear:
 	rmb1	Timer_Flag							; 清1S标志
-	jsr		F_UnDisplay_Hour
+	jsr		F_UnDisplay_D0_1
 AlarmHour_Set_Exit:
 	pla
 	sta		Sys_Status_Ordinal					; 将子模式序号恢复为闹钟设置模式版本
@@ -183,7 +183,7 @@ L_AlarmMin_Display:
 	bra		AlarmMin_Set_Exit
 L_AlarmMin_Clear:
 	rmb1	Timer_Flag							; 清1S标志
-	jsr		F_UnDisplay_Min
+	jsr		F_UnDisplay_D2_3
 AlarmMin_Set_Exit:
 	pla
 	sta		Sys_Status_Ordinal					; 将子模式序号恢复为闹钟设置模式版本

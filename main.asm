@@ -57,9 +57,7 @@ L_Clear_Ram_Loop:
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
 
-	;jsr		F_Test_Mode								; 上电显示部分
-	smb3	Key_Flag								; 上电先给一个唤醒事件，免得上电不显示
-	rmb4	PD
+	jsr		F_Test_Mode								; 上电显示部分
 
 	jsr		F_RFC_MeasureStart						; 上电先进行一次温湿度测量
 Wait_RFC_MeasureOver:

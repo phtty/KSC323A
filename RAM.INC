@@ -2,12 +2,12 @@
 ;***************************************
 ; RAM Address
 ;***************************************
-RamStarAddr		EQU		1800H								;RAM的开始地址
-LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr		;LED RAM的地址
-LED_RamBKAddr	EQU		RamStarAddr+LED_Addr_BK-Page0RamStarAddr	;LED RAM的地址
-Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr ;事件相关数据的地址
-
-
+RamStarAddr		EQU		1800H											;RAM的开始地址
+LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr			;LED RAM的地址
+LED_RamBKAddr	EQU		RamStarAddr+LED_Addr_BK-Page0RamStarAddr		;LED RAM的地址
+Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr		;事件相关数据的地址
+Alarm_MinAddr	EQU		RamStarAddr+Alarm_Min_Addr-Page0RamStarAddr		;闹钟组分钟数据地址
+Alarm_HourAddr	EQU		RamStarAddr+Alarm_Hour_Addr-Page0RamStarAddr	;闹钟组小时数据地址
 ;***************************************
 ;Time_Addr		EUQ		B0H
 ;***************************************
@@ -145,7 +145,7 @@ PA_IO_Backup			DS		1
 PC_IO_Backup			DS		1
 
 ;---------------------------------------
-Time_Str_Addr	EQU		$
+Time_Str_Addr			EQU		$
 R_Time_Sec				DS		1	;时间秒
 R_Time_Min				DS		1	;时间分
 R_Time_Hour				DS		1	;时间小时
@@ -156,12 +156,16 @@ R_Date_Month			DS		1	;月份，从1开始
 R_Date_Year				DS		1	;年份，由于只计2000-2099，所以由0-99代替
 R_Date_Week				DS		1	;星期数，从1开始
 
+Alarm_Min_Addr			EQU		$
 R_Alarm1_Min			DS		1	;闹钟1分
-R_Alarm1_Hour			DS		1	;闹钟1小时
 R_Alarm2_Min			DS		1	;闹钟2分
-R_Alarm2_Hour			DS		1	;闹钟2小时
 R_Alarm3_Min			DS		1	;闹钟3分
+
+Alarm_Hour_Addr			EQU		$
+R_Alarm1_Hour			DS		1	;闹钟1小时
+R_Alarm2_Hour			DS		1	;闹钟2小时
 R_Alarm3_Hour			DS		1	;闹钟3小时
+
 R_Snooze_Min			DS		1	;贪睡闹钟分钟
 R_Snooze_Hour			DS		1	;贪睡闹钟小时
 CC0						DS		1

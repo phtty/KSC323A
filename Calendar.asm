@@ -114,7 +114,8 @@ L_KeyTrigger_NoBlink_Year:
 	rts
 L_Year_Clear:
 	rmb1	Timer_Flag								; 清1S标志
-	jsr		F_UnDisplay_Year
+	jsr		F_UnDisplay_D0_1
+	jsr		F_UnDisplay_D2_3
 	rts
 
 
@@ -131,7 +132,7 @@ L_KeyTrigger_NoBlink_Month:
 	rts	
 L_Month_Clear:
 	rmb1	Timer_Flag								; 清1S标志
-	jsr		F_UnDisplay_Month
+	jsr		F_UnDisplay_D0_1
 	rts
 
 
@@ -148,7 +149,7 @@ L_KeyTrigger_NoBlink_Day:
 	rts	
 L_Day_Clear:
 	rmb1	Timer_Flag								; 清1S标志
-	jsr		F_UnDisplay_Day
+	jsr		F_UnDisplay_D2_3
 	rts
 
 

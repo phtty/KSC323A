@@ -60,24 +60,6 @@ L_Hour_Tens_NoZero:
 	jsr		L_Dis_7Bit_DigitDot
 	rts 
 
-F_UnDisplay_Hour:
-	lda		#10
-	ldx		#led_d0
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#10
-	ldx		#led_d1
-	jsr		L_Dis_7Bit_DigitDot
-	rts
-
-F_UnDisplay_Min:
-	lda		#10
-	ldx		#led_d2
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#10
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts
-
 
 
 
@@ -89,21 +71,18 @@ F_Display_Alarm:									; 调用显示函数显示当前闹钟
 
 L_DisAlarm_Min:
 	lda		Sys_Status_Ordinal						; 判断要显示三组闹钟的哪一个
-	cmp		#0
 	bne		No_Alarm1Min_Display
 	lda		R_Alarm1_Min
-	sta		R_Alarm_Min
 	bra		AlarmMin_Display_Start
 No_Alarm1Min_Display:
 	cmp		#1
 	bne		No_Alarm2Min_Display
 	lda		R_Alarm2_Min
-	sta		R_Alarm_Min
 	bra		AlarmMin_Display_Start
 No_Alarm2Min_Display:
 	lda		R_Alarm3_Min
-	sta		R_Alarm_Min
 AlarmMin_Display_Start:
+	sta		R_Alarm_Min
 	lda		R_Alarm_Min
 
 	jsr		L_A_DecToHex
@@ -123,18 +102,16 @@ L_DisAlarm_Hour:								; 显示闹钟小时
 	cmp		#0
 	bne		No_Alarm1Hour_Display
 	lda		R_Alarm1_Hour
-	sta		R_Alarm_Hour
 	bra		AlarmHour_Display_Start
 No_Alarm1Hour_Display:
 	cmp		#1
 	bne		No_Alarm2Hour_Display
 	lda		R_Alarm2_Hour
-	sta		R_Alarm_Hour
 	bra		AlarmHour_Display_Start
 No_Alarm2Hour_Display:
 	lda		R_Alarm3_Hour
-	sta		R_Alarm_Hour
 AlarmHour_Display_Start:
+	sta		R_Alarm_Hour
 	bbr0	Clock_Flag,L_24hMode_Alarm
 
 	lda		R_Alarm_Hour
@@ -222,7 +199,6 @@ L_Month_Tens_NoZero:
 
 L_DisDate_Year:
 	lda		#00									; 20xx年的开头20是固定的
-	jsr		L_A_DecToHex						; 所以20固定会显示
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 	lda		#02
@@ -244,22 +220,9 @@ L_DisDate_Year:
 	rts
 
 
-F_UnDisplay_Year:								; 闪烁时取消显示用的函数
-	lda		#10
-	ldx		#led_d0
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#10
-	ldx		#led_d1
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#10
-	ldx		#led_d2
-	jsr		L_Dis_7Bit_DigitDot
-	lda		#10
-	ldx		#led_d3
-	jsr		L_Dis_7Bit_DigitDot
-	rts
 
-F_UnDisplay_Month:								; 闪烁时取消显示用的函数
+
+F_UnDisplay_D0_1:								; 闪烁时取消显示用的函数
 	lda		#10
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
@@ -268,7 +231,8 @@ F_UnDisplay_Month:								; 闪烁时取消显示用的函数
 	jsr		L_Dis_7Bit_DigitDot
 	rts
 
-F_UnDisplay_Day:								; 闪烁时取消显示用的函数
+
+F_UnDisplay_D2_3:								; 闪烁时取消显示用的函数
 	lda		#10
 	ldx		#led_d2
 	jsr		L_Dis_7Bit_DigitDot
@@ -276,6 +240,8 @@ F_UnDisplay_Day:								; 闪烁时取消显示用的函数
 	ldx		#led_d3
 	jsr		L_Dis_7Bit_DigitDot
 	rts
+
+
 
 
 F_Display_Week:
@@ -416,7 +382,7 @@ Group2_Bright:
 	jsr		F_DisSymbol
 	rts
 Group3_Bright:
-	ldx		#led_AL1
+	ldx		#led_AL3
 	jsr		F_DisSymbol
 	rts
 	
@@ -434,7 +400,7 @@ Group2_Extinguish:
 	jsr		F_ClrSymbol
 	rts
 Group3_Extinguish:
-	ldx		#led_AL1
+	ldx		#led_AL3
 	jsr		F_ClrSymbol
 	rts
 

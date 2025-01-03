@@ -106,12 +106,13 @@ F_TimeMode_Switch:
 	rts
 L_TimeMode_Out:
 	rmb0	Timer_Flag
+	jsr		F_ClrCol
 	bbs1	Timer_Flag,L_Mode_Clear
 	jsr		L_Dis_xxHr
 	rts
 L_Mode_Clear:
 	rmb1	Timer_Flag								; 清1S标志
-	jsr		F_UnDisplay_Hour
+	jsr		F_UnDisplay_D0_1
 	rts
 
 
@@ -133,7 +134,7 @@ L_KeyTrigger_NoBlink_Hour:
 	rts
 L_Hour_Clear:
 	rmb1	Timer_Flag
-	jsr		F_UnDisplay_Hour						; 1S灭
+	jsr		F_UnDisplay_D0_1						; 1S灭
 	rts
 
 
@@ -153,5 +154,5 @@ L_KeyTrigger_NoBlink_Min:
 	rts
 L_Min_Clear:
 	rmb1	Timer_Flag
-	jsr		F_UnDisplay_Min							; 1S灭
+	jsr		F_UnDisplay_D2_3						; 1S灭
 	rts

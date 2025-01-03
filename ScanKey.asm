@@ -143,17 +143,38 @@ No_SwitchState_ClockSet:
 
 L_KeyU_ShortHandle:
 	lda		Sys_Status_Flag
-	cmp		#0011B
-	bne		ShortHandle_Exit
+	and		#0011B
+	beq		No_Switch_TimeMode
 	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
+	rts
+No_Switch_TimeMode:
+	lda		Sys_Status_Flag
+	cmp		#0100B
+	bne		No_AddNum_CS
+	jsr		AddNum_CS							; 时设模式增数
+	rts
+No_AddNum_CS:
+	cmp		#1000B
+	bne		KeyU_ShortHandle_Exit
+	jsr		AddNum_AS							; 闹设模式增数
+KeyU_ShortHandle_Exit:
 	rts
 
 L_KeyD_ShortHandle:
 	lda		Sys_Status_Flag
-	cmp		#0011B
-	bne		ShortHandle_Exit
+	and		#0011B
+	beq		No_SwitchState_DisMode
 	jsr		SwitchState_DisMode					; 切换固显-轮显
-ShortHandle_Exit:
+No_SwitchState_DisMode:
+	lda		Sys_Status_Flag
+	cmp		#0100B
+	bne		No_SubNum_CS
+	jsr		SubNum_CS							; 时设模式减数
+No_SubNum_CS:
+	cmp		#1000B
+	bne		KeyD_ShortHandle_Exit
+	jsr		SubNum_AS							; 闹设模式减数
+KeyD_ShortHandle_Exit:
 	rts
 
 
@@ -234,12 +255,10 @@ Status_NoDisMode_KeyU:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU
-	jsr		AddNum_CS							; 时设模式增数
 	smb3	SpecialKey_Flag
 StatusCS_No_KeyU:
 	cmp		#1000B
 	bne		StatusAS_No_KeyU
-	jsr		AddNum_AS							; 闹设模式增数
 	smb3	SpecialKey_Flag
 StatusAS_No_KeyU:
 	rts
@@ -258,13 +277,11 @@ Status_NoDisMode_KeyD:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
-	jsr		SubNum_CS							; 时设模式减数
 	smb4	SpecialKey_Flag
 	rts
 StatusCS_No_KeyD:
 	cmp		#1000B
 	bne		StatusAS_No_KeyD
-	jsr		SubNum_AS							; 闹设模式减数
 	smb4	SpecialKey_Flag
 StatusAS_No_KeyD:
 	rts
@@ -293,7 +310,7 @@ L_Universal_TriggerHandle:
 
 	bbs4	PD,WakeUp_Event
 	bbs3	Timer_Flag,?Handle_Exit
-	;jsr		L_Key_Beep
+	rmb1	Backlight_Flag
 	lda		#0
 	sta		Backlight_Counter
 ?Handle_Exit:
@@ -309,7 +326,7 @@ No_Extinguish:
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
 	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
 	lda		#2
-	sta		Backlight_Counter					; 熄屏后有按键，则亮度等级设置为最高并亮屏
+	sta		Backlight_Level						; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
@@ -542,10 +559,7 @@ TemperMode_Change:
 AddNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch
-	jsr		Switch_TimeMode
-	pla
-	pla
-	jmp		L_KeyExit							; 在时钟设置的12/24h模式切换下，按键只生效1次
+	jmp		Switch_TimeMode
 No_CS_TMSwitch:
 	cmp		#1
 	bne		No_CS_HourAdd
@@ -572,37 +586,46 @@ No_CS_MonthAdd:
 AddNum_AS:
 	lda		Sys_Status_Ordinal
 	bne		No_AS_Alarm1_Switch
-	jmp		L_Alarm1_Switch
+	lda		#001B
+	jmp		L_Alarm_Switch
 No_AS_Alarm1_Switch:
 	cmp		#1
 	bne		No_AS_Alarm1_HourAdd
-	jmp		L_Alarm1Hour_Add
+	ldx		#0
+	jmp		L_AlarmHour_Add
 No_AS_Alarm1_HourAdd:
 	cmp		#2
 	bne		No_AS_Alarm1_MinAdd
-	jmp		L_Alarm1Min_Add
+	ldx		#0
+	jmp		L_AlarmMin_Add
 No_AS_Alarm1_MinAdd:
 	cmp		#3
 	bne		No_AS_Alarm2_Switch
-	jmp		L_Alarm2_Switch
+	lda		#010B
+	jmp		L_Alarm_Switch
 No_AS_Alarm2_Switch:
 	cmp		#4
 	bne		No_AS_Alarm2_HourAdd
-	jmp		L_Alarm2Hour_Add
+	ldx		#1
+	jmp		L_AlarmHour_Add
 No_AS_Alarm2_HourAdd:
 	cmp		#5
 	bne		No_AS_Alarm2_MinAdd
-	jmp		L_Alarm2Min_Add
+	ldx		#1
+	jmp		L_AlarmMin_Add
 No_AS_Alarm2_MinAdd:
 	cmp		#6
 	bne		No_AS_Alarm3_Switch
-	jmp		L_Alarm3_Switch
+	lda		#100B
+	jmp		L_Alarm_Switch
 No_AS_Alarm3_Switch:
 	cmp		#7
 	bne		No_AS_Alarm3_HourAdd
-	jmp		L_Alarm3Hour_Add
+	ldx		#2
+	jmp		L_AlarmHour_Add
 No_AS_Alarm3_HourAdd:
-	jmp		L_Alarm3Min_Add
+	ldx		#2
+	jmp		L_AlarmMin_Add
 
 
 
@@ -611,10 +634,7 @@ No_AS_Alarm3_HourAdd:
 SubNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch2
-	jsr		Switch_TimeMode
-	pla
-	pla
-	jmp		L_KeyExit							; 在时钟设置的12/24h模式切换下，按键只生效1次
+	jmp		Switch_TimeMode
 No_CS_TMSwitch2:
 	cmp		#1
 	bne		No_CS_HourSub
@@ -641,37 +661,46 @@ No_CS_MonthSub:
 SubNum_AS:
 	lda		Sys_Status_Ordinal
 	bne		No_AS_Alarm1_Switch2
-	jmp		L_Alarm1_Switch
+	lda		#001B
+	jmp		L_Alarm_Switch
 No_AS_Alarm1_Switch2:
 	cmp		#1
 	bne		No_AS_Alarm1_HourSub
-	jmp		L_Alarm1Hour_Sub
+	ldx		#0
+	jmp		L_AlarmHour_Sub
 No_AS_Alarm1_HourSub:
 	cmp		#2
 	bne		No_AS_Alarm1_MinSub
-	jmp		L_Alarm1Min_Sub
+	ldx		#0
+	jmp		L_AlarmMin_Sub
 No_AS_Alarm1_MinSub:
 	cmp		#3
 	bne		No_AS_Alarm2_Switch2
-	jmp		L_Alarm2_Switch
+	lda		#010B
+	jmp		L_Alarm_Switch
 No_AS_Alarm2_Switch2:
 	cmp		#4
 	bne		No_AS_Alarm2_HourSub
-	jmp		L_Alarm2Hour_Sub
+	ldx		#1
+	jmp		L_AlarmHour_Sub
 No_AS_Alarm2_HourSub:
 	cmp		#5
 	bne		No_AS_Alarm2_MinSub
-	jmp		L_Alarm2Min_Sub
+	ldx		#1
+	jmp		L_AlarmMin_Sub
 No_AS_Alarm2_MinSub:
 	cmp		#6
 	bne		No_AS_Alarm3_Switch2
-	jmp		L_Alarm3_Switch
+	lda		#100B
+	jmp		L_Alarm_Switch
 No_AS_Alarm3_Switch2:
 	cmp		#7
 	bne		No_AS_Alarm3_HourSub
-	jmp		L_Alarm3Hour_Sub
+	ldx		#2
+	jmp		L_AlarmHour_Sub
 No_AS_Alarm3_HourSub:
-	jmp		L_Alarm3Min_Sub
+	ldx		#2
+	jmp		L_AlarmMin_Sub
 
 
 
@@ -842,194 +871,76 @@ DateDay_Sub_Exit:
 
 
 
-; 闹钟1开关
-L_Alarm1_Switch:
-	lda		Alarm_Switch
-	eor		#001B
+
+; 闹钟开关
+; A闹钟组（按bit）
+L_Alarm_Switch:
+	eor		Alarm_Switch
 	sta		Alarm_Switch
 	rts
 
-; 闹钟1小时增加
-L_Alarm1Hour_Add:
-	lda		R_Alarm1_Hour
-	cmp		#23
-	bcs		Alarm1Hour_AddOverflow
-	inc		R_Alarm1_Hour
-	bra		Alarm1Hour_Add_Exit
-Alarm1Hour_AddOverflow:
-	lda		#0
-	sta		R_Alarm1_Hour
-Alarm1Hour_Add_Exit:
-	jsr		F_AlarmHour_Set
-	rts
 
-; 闹钟1小时减少
-L_Alarm1Hour_Sub:
-	lda		R_Alarm1_Hour
-	beq		Alarm1Hour_SubOverflow
-	dec		R_Alarm1_Hour
-	bra		Alarm1Hour_Sub_Exit
-Alarm1Hour_SubOverflow:
-	lda		#23
-	sta		R_Alarm1_Hour
-Alarm1Hour_Sub_Exit:
-	jsr		F_AlarmHour_Set
-	rts
-
-; 闹钟1分增加
-L_Alarm1Min_Add:
-	lda		R_Alarm1_Min
+; 闹钟分增加
+; X闹钟组，0~2
+L_AlarmMin_Add:
+	lda		Alarm_MinAddr,x
 	cmp		#59
-	bcs		Alarm1Min_AddOverflow
-	inc		R_Alarm1_Min
-	bra		Alarm1Min_Add_Exit
-Alarm1Min_AddOverflow:
+	bcs		AlarmMin_AddOverflow
+	clc
+	adc		#1
+	bra		AlarmMin_Add_Exit
+AlarmMin_AddOverflow:
 	lda		#0
-	sta		R_Alarm1_Min
-Alarm1Min_Add_Exit:
+	sta		Alarm_MinAddr,x
+AlarmMin_Add_Exit:
 	jsr		F_AlarmMin_Set
 	rts
 
-; 闹钟1分钟减少
-L_Alarm1Min_Sub:
-	lda		R_Alarm1_Min
-	beq		Alarm1Min_SubOverflow
-	dec		R_Alarm1_Min
-	bra		Alarm1Min_Sub_Exit
-Alarm1Min_SubOverflow:
+; 闹钟分减少
+; X闹钟组，0~2
+L_AlarmMin_Sub:
+	lda		Alarm_MinAddr,x
+	beq		AlarmMin_SubOverflow
+	sec
+	sbc		#1
+	bra		AlarmMin_Sub_Exit
+AlarmMin_SubOverflow:
 	lda		#59
-	sta		R_Alarm1_Min
-Alarm1Min_Sub_Exit:
+	sta		Alarm_MinAddr,x
+AlarmMin_Sub_Exit:
 	jsr		F_AlarmMin_Set
 	rts
 
 
-
-
-; 闹钟2开关
-L_Alarm2_Switch:
-	lda		Alarm_Switch
-	eor		#010B
-	sta		Alarm_Switch
-	rts
-
-; 闹钟2小时增加
-L_Alarm2Hour_Add:
-	lda		R_Alarm2_Hour
-	cmp		#23
-	bcs		Alarm2Hour_AddOverflow
-	inc		R_Alarm2_Hour
-	bra		Alarm2Hour_Add_Exit
-Alarm2Hour_AddOverflow:
-	lda		#0
-	sta		R_Alarm2_Hour
-Alarm2Hour_Add_Exit:
-	jsr		F_AlarmHour_Set
-	rts
-
-; 闹钟2小时减少
-L_Alarm2Hour_Sub:
-	lda		R_Alarm2_Hour
-	beq		Alarm2Hour_SubOverflow
-	dec		R_Alarm2_Hour
-	bra		Alarm2Hour_Sub_Exit
-Alarm2Hour_SubOverflow:
-	lda		#23
-	sta		R_Alarm2_Hour
-Alarm2Hour_Sub_Exit:
-	jsr		F_AlarmHour_Set
-	rts
-
-
-; 闹钟2分增加
-L_Alarm2Min_Add:
-	lda		R_Alarm2_Min
+; 闹钟时增加
+; X闹钟组，0~2
+L_AlarmHour_Add:
+	lda		Alarm_HourAddr,x
 	cmp		#59
-	bcs		Alarm2Min_AddOverflow
-	inc		R_Alarm2_Min
-	bra		Alarm2Min_Add_Exit
-Alarm2Min_AddOverflow:
+	bcs		AlarmHour_AddOverflow
+	clc
+	adc		#1
+	bra		AlarmHour_Add_Exit
+AlarmHour_AddOverflow:
 	lda		#0
-	sta		R_Alarm2_Min
-Alarm2Min_Add_Exit:
-	jsr		F_AlarmMin_Set
-	rts
-
-; 闹钟2分钟减少
-L_Alarm2Min_Sub:
-	lda		R_Alarm2_Min
-	beq		Alarm2Min_SubOverflow
-	dec		R_Alarm2_Min
-	bra		Alarm2Min_Sub_Exit
-Alarm2Min_SubOverflow:
-	lda		#59
-	sta		R_Alarm2_Min
-Alarm2Min_Sub_Exit:
-	jsr		F_AlarmMin_Set
-	rts
-
-
-
-
-; 闹钟3开关
-L_Alarm3_Switch:
-	lda		Alarm_Switch
-	eor		#100B
-	sta		Alarm_Switch
-	rts
-
-; 闹钟3小时增加
-L_Alarm3Hour_Add:
-	lda		R_Alarm3_Hour
-	cmp		#23
-	bcs		Alarm3Hour_AddOverflow
-	inc		R_Alarm3_Hour
-	bra		Alarm3Hour_Add_Exit
-Alarm3Hour_AddOverflow:
-	lda		#0
-	sta		R_Alarm3_Hour
-Alarm3Hour_Add_Exit:
+	sta		Alarm_HourAddr,x
+AlarmHour_Add_Exit:
 	jsr		F_AlarmHour_Set
 	rts
 
-; 闹钟3小时减少
-L_Alarm3Hour_Sub:
-	lda		R_Alarm3_Hour
-	beq		Alarm3Hour_SubOverflow
-	dec		R_Alarm3_Hour
-	bra		Alarm3Hour_Sub_Exit
-Alarm3Hour_SubOverflow:
+; 闹钟时减少
+; X闹钟组，0~2
+L_AlarmHour_Sub:
+	lda		Alarm_HourAddr,x
+	beq		AlarmHour_SubOverflow
+	sec
+	sbc		#1
+	bra		AlarmHour_Sub_Exit
+AlarmHour_SubOverflow:
 	lda		#23
-	sta		R_Alarm3_Hour
-Alarm3Hour_Sub_Exit:
+	sta		Alarm_HourAddr,x
+AlarmHour_Sub_Exit:
 	jsr		F_AlarmHour_Set
-	rts
-
-; 闹钟3分增加
-L_Alarm3Min_Add:
-	lda		R_Alarm3_Min
-	cmp		#59
-	bcs		Alarm3Min_AddOverflow
-	inc		R_Alarm3_Min
-	bra		Alarm3Min_Add_Exit
-Alarm3Min_AddOverflow:
-	lda		#0
-	sta		R_Alarm3_Min
-Alarm3Min_Add_Exit:
-	jsr		F_AlarmMin_Set
-	rts
-
-; 闹钟3分钟减少
-L_Alarm3Min_Sub:
-	lda		R_Alarm3_Min
-	beq		Alarm3Min_SubOverflow
-	dec		R_Alarm3_Min
-	bra		Alarm3Min_Sub_Exit
-Alarm3Min_SubOverflow:
-	lda		#59
-	sta		R_Alarm3_Min
-Alarm3Min_Sub_Exit:
-	jsr		F_AlarmMin_Set
 	rts
 
 
