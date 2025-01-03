@@ -18,6 +18,7 @@ L_DelayTrigger:									; 消抖延时循环用标签
 	rts
 L_KeyYes:
 	sta		PA_IO_Backup
+	jsr		L_NoBeep_Serial_Mode				; 首次触发时，清除按键音，避免重复进入导致出错
 	bra		L_KeyHandle							; 首次触发处理结束
 
 L_Key4Hz:
@@ -144,16 +145,16 @@ No_SwitchState_ClockSet:
 L_KeyU_ShortHandle:
 	lda		Sys_Status_Flag
 	and		#0011B
-	beq		No_Switch_TimeMode
+	beq		KeyU_NoDisMode
 	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
 	rts
-No_Switch_TimeMode:
+KeyU_NoDisMode:
 	lda		Sys_Status_Flag
 	cmp		#0100B
-	bne		No_AddNum_CS
+	bne		StatusCS_No_KeyU
 	jsr		AddNum_CS							; 时设模式增数
 	rts
-No_AddNum_CS:
+StatusCS_No_KeyU:
 	cmp		#1000B
 	bne		KeyU_ShortHandle_Exit
 	jsr		AddNum_AS							; 闹设模式增数
@@ -163,14 +164,16 @@ KeyU_ShortHandle_Exit:
 L_KeyD_ShortHandle:
 	lda		Sys_Status_Flag
 	and		#0011B
-	beq		No_SwitchState_DisMode
-	jsr		SwitchState_DisMode					; 切换固显-轮显
-No_SwitchState_DisMode:
+	beq		KeyD_NoDisMode
+	jsr		SwitchState_DisMode					; 切换固显-轮显	
+	rts
+KeyD_NoDisMode:
 	lda		Sys_Status_Flag
 	cmp		#0100B
-	bne		No_SubNum_CS
+	bne		StatusCS_No_KeyD_Short
 	jsr		SubNum_CS							; 时设模式减数
-No_SubNum_CS:
+	rts
+StatusCS_No_KeyD_Short:
 	cmp		#1000B
 	bne		KeyD_ShortHandle_Exit
 	jsr		SubNum_AS							; 闹设模式减数
@@ -232,10 +235,11 @@ StatusCS_No_KeyM:
 	jmp		L_KeyExit							; 闹设模式M键无效
 StatusAS_No_KeyM:
 	bbs3	Timer_Flag,L_DisMode_KeyM_LongTri	; 判断显示模式下的M长按
-	cmp		#0001B
-	bne		StatusTD_No_KeyM
-	smb2	SpecialKey_Flag						; 时显下，M键才为特殊功能按键
-StatusTD_No_KeyM:
+	lda		Sys_Status_Flag
+	and		#0011B
+	beq		StatusDM_No_KeyM
+	smb2	SpecialKey_Flag						; 显示模式下，M键为特殊功能按键
+StatusDM_No_KeyM:
 	rts
 L_DisMode_KeyM_LongTri:
 	jsr		SwitchState_ClockSet				; 从显示模式切换到时间设置模式
@@ -252,15 +256,21 @@ L_KeyUTrigger:
 	smb3	SpecialKey_Flag
 	rts
 Status_NoDisMode_KeyU:
+	bbr3	Timer_Flag,KeyU_NoQuikAdd
+	rmb3	SpecialKey_Flag
 	lda		Sys_Status_Flag
 	cmp		#0100B
-	bne		StatusCS_No_KeyU
-	smb3	SpecialKey_Flag
-StatusCS_No_KeyU:
+	bne		StatusCS_No_KeyU_Short
+	jsr		AddNum_CS							; 时设模式增数
+	rts
+StatusCS_No_KeyU_Short:
 	cmp		#1000B
 	bne		StatusAS_No_KeyU
-	smb3	SpecialKey_Flag
+	jsr		AddNum_AS							; 闹设模式增数
 StatusAS_No_KeyU:
+	rts
+KeyU_NoQuikAdd:
+	smb3	SpecialKey_Flag
 	rts
 
 
@@ -274,16 +284,21 @@ L_KeyDTrigger:
 	smb4	SpecialKey_Flag
 	rts
 Status_NoDisMode_KeyD:
+	bbr3	Timer_Flag,KeyD_NoQuikAdd
+	rmb4	SpecialKey_Flag
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
-	smb4	SpecialKey_Flag
+	jsr		SubNum_CS							; 时设模式减数
 	rts
 StatusCS_No_KeyD:
 	cmp		#1000B
 	bne		StatusAS_No_KeyD
-	smb4	SpecialKey_Flag
+	jsr		SubNum_AS							; 闹设模式减数
 StatusAS_No_KeyD:
+	rts
+KeyD_NoQuikAdd:
+	smb4	SpecialKey_Flag
 	rts
 
 
@@ -339,6 +354,7 @@ L_Key_Beep:
 	sta		Beep_Serial
 	smb0	TMRC								; 开TIM0蜂鸣器时钟
 	smb4	Key_Flag							; 置位按键提示音标志
+	jsr		L_Beeping
 	rts
 
 
@@ -372,16 +388,12 @@ SwitchState_DisMode:
 	sta		Counter_DP
 	sta		Sys_Status_Ordinal
 	lda		#0001B
-	sta		Sys_Status_Flag						; 切换轮、固显会切换状态为时显状态
+	sta		Sys_Status_Flag						; 切换轮、固显会将当前状态设置为时显
 
 	lda		Key_Flag
 	eor		#100B
 	sta		Key_Flag							; 取反轮显标志位
 
-	bbr2	Key_Flag,L_NoRotateDis				; 若是切换到固显，则直接退出
-	lda		#10
-	sta		Return_MaxTime						; 若是切换到轮显，则设置一次返回时间10s
-L_NoRotateDis:	
 	jsr		F_Clock_Display
 	rts
 
@@ -877,6 +889,9 @@ DateDay_Sub_Exit:
 L_Alarm_Switch:
 	eor		Alarm_Switch
 	sta		Alarm_Switch
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
+	jsr		F_Alarm_SwitchStatue				; 刷新一次闹钟开关显示
 	rts
 
 
@@ -888,11 +903,14 @@ L_AlarmMin_Add:
 	bcs		AlarmMin_AddOverflow
 	clc
 	adc		#1
+	sta		Alarm_HourAddr,x
 	bra		AlarmMin_Add_Exit
 AlarmMin_AddOverflow:
 	lda		#0
 	sta		Alarm_MinAddr,x
 AlarmMin_Add_Exit:
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
 	jsr		F_AlarmMin_Set
 	rts
 
@@ -903,11 +921,14 @@ L_AlarmMin_Sub:
 	beq		AlarmMin_SubOverflow
 	sec
 	sbc		#1
+	sta		Alarm_HourAddr,x
 	bra		AlarmMin_Sub_Exit
 AlarmMin_SubOverflow:
 	lda		#59
 	sta		Alarm_MinAddr,x
 AlarmMin_Sub_Exit:
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
 	jsr		F_AlarmMin_Set
 	rts
 
@@ -916,15 +937,18 @@ AlarmMin_Sub_Exit:
 ; X闹钟组，0~2
 L_AlarmHour_Add:
 	lda		Alarm_HourAddr,x
-	cmp		#59
+	cmp		#23
 	bcs		AlarmHour_AddOverflow
 	clc
 	adc		#1
+	sta		Alarm_HourAddr,x
 	bra		AlarmHour_Add_Exit
 AlarmHour_AddOverflow:
 	lda		#0
 	sta		Alarm_HourAddr,x
 AlarmHour_Add_Exit:
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
 	jsr		F_AlarmHour_Set
 	rts
 
@@ -935,11 +959,14 @@ L_AlarmHour_Sub:
 	beq		AlarmHour_SubOverflow
 	sec
 	sbc		#1
+	sta		Alarm_HourAddr,x
 	bra		AlarmHour_Sub_Exit
 AlarmHour_SubOverflow:
 	lda		#23
 	sta		Alarm_HourAddr,x
 AlarmHour_Sub_Exit:
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
 	jsr		F_AlarmHour_Set
 	rts
 

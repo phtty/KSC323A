@@ -71,9 +71,6 @@ Wait_RFC_MeasureOver:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	lda		#000B
-	sta		Alarm_Switch
-
 
 ; 状态机
 MainLoop:
@@ -119,8 +116,9 @@ F_ReturnToDisTime:
 	rts
 L_Return_Start:
 	bbr0	Sys_Status_Flag,L_Return_Juge
-	bbs1	Sys_Status_Ordinal,L_Return_Juge
-	bbr2	Key_Flag,L_Return_Juge_Exit				; 时显模式下，如果固显，则不进行返回计时
+	bbs0	Sys_Status_Ordinal,L_Return_Juge
+	bbr2	Key_Flag,L_Return_Juge_Exit				; 时显模式下，如果固显，则不继续执行
+	bbs6	Key_Flag,L_Return_Juge_Exit				; DP显示时，不计数
 	lda		#10
 	sta		Return_MaxTime
 L_Return_Juge:
@@ -135,9 +133,8 @@ L_Return_Stop:
 	sta		Return_Counter
 	bbr0	Sys_Status_Flag,No_TimeDis_Return		; Sys Flag第一位为0则不是时显
 	bbs0	Sys_Status_Ordinal,No_TimeDis_Return	; Sys Ordinal不为0则不是时显
-	lda		#1
-	sta		Sys_Status_Ordinal						; 时显下若有轮显，则计时结束返回日显
-	bra		Return_Over
+	jsr		SwitchState_ClockDis					; 时显下若有轮显，则计时结束返回日显
+	bra		L_Return_Juge_Exit
 
 No_TimeDis_Return:
 	lda		#0
@@ -270,6 +267,39 @@ L_EndIrq:
 	tax
 	pla
 	rti
+
+
+;I_PaIRQ_Handler:
+;	smb0	Key_Flag
+;	smb1	Key_Flag							; 首次触发
+;	rmb3	Timer_Flag							; 如果有新的下降沿到来，清快加标志位
+;	rmb4	Timer_Flag							; 16Hz计时
+;
+;	smb1	TMRC								; 打开快加定时
+;	bra		L_EndIrq
+;
+;
+;I_Timer2IRQ_Handler:
+;	smb0	Timer_Flag							; 半秒标志
+;	smb0	Symbol_Flag
+;	lda		Counter_1Hz
+;	cmp		#01
+;	bcs		L_1Hz_Out
+;	inc		Counter_1Hz
+;	bra		L_EndIrq
+;L_1Hz_Out:
+;	lda		#$0
+;	sta		Counter_1Hz
+;	lda		Timer_Flag
+;	ora		#10100110B							; 1S、增S、熄屏的1S、响铃1S标志位
+;	sta		Timer_Flag
+;	smb1	Backlight_Flag						; 亮屏1S计时
+;	smb7	Key_Flag							; DP显示1S计时
+;	smb1	Symbol_Flag
+;	smb7	Clock_Flag							; 返回时显1S计时
+;	smb5	RFC_Flag							; 30S采样计时
+;	rmb4	Clock_Flag							; 清除响闹阻塞标志
+;	bra		L_EndIrq
 
 
 .include	ScanKey.asm
