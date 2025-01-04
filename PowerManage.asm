@@ -2,16 +2,14 @@ F_PowerManage:
 	jsr		L_HLightLevel_WithTime				; 7点后设为高亮
 	jsr		L_LLightLevel_WithTime				; 18点后设为低亮
 
-	bbr2	Clock_Flag,NoAlarm_WakeUp
-	rmb4	PD									; 响闹时5020开启
-	smb6	IER									; 亮屏开启LCD中断
-	rts
-NoAlarm_WakeUp:
+	bbs2	Clock_Flag,WakeUp_Trigger			; 响闹时5020开启
 
 	bbr6	PB,No_5VDC_PWR
 	bbr0	Backlight_Flag,No_First_DCWake
-	rmb0	Backlight_Flag
-	rmb4	PD									; 插入DC5V时进行一次亮屏
+	rmb0	Backlight_Flag						; 插入DC5V时进行一次亮屏
+	bbs2	Backlight_Flag,No_First_DCWake		; 手动进入的熄屏模式不唤醒
+WakeUp_Trigger:
+	rmb4	PD
 	smb6	IER									; 亮屏后打开LCD中断
 	lda		#0
 	sta		Backlight_Counter
