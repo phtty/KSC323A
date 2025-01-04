@@ -246,9 +246,14 @@ F_UnDisplay_D2_3:								; 闪烁时取消显示用的函数
 
 F_Display_Week:
 	jsr		L_GetWeek
-
 	sta		R_Date_Week
-	ldx		#led_week
+
+	rmb2	Calendar_Flag
+	ldx		#led_week1
+	jsr		L_Dis_7Bit_WeekDot
+	smb2	Calendar_Flag
+	lda		R_Date_Week
+	ldx		#led_week2
 	jsr		L_Dis_7Bit_WeekDot
 	rts
 

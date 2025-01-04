@@ -58,33 +58,33 @@ NoQuikAdd_Beep:
 	
 
 L_KeyHandle:
-	jsr		F_KeyMatrix_PC4Scan_Ready			; 判断Alarm键和Backlight键
+	jsr		F_KeyMatrix_PC5Scan_Ready			; 判断Down键和Backlight键
 	lda		PA
 	eor		#$0c								; 按键是反逻辑的，将指定的几位按键口取反
 	and		#$0c
 	cmp		#$04
-	bne		No_KeyATrigger						; 由于跳转指令寻址能力的问题，这里采用jmp进行跳转
-	jmp		L_KeyATrigger
-No_KeyATrigger:
+	bne		No_KeyDTrigger						; 由于跳转指令寻址能力的问题，这里采用jmp进行跳转
+	jmp		L_KeyDTrigger
+No_KeyDTrigger:
 	cmp		#$08
 	bne		No_KeyBTrigger
 	jmp		L_KeyBTrigger
 No_KeyBTrigger:
-	jsr		F_KeyMatrix_PC5Scan_Ready			; 判断Mode键、Up键、Down键
+	jsr		F_KeyMatrix_PC4Scan_Ready			; 判断Mode键、Alarm键、Up键
 	lda		PA
 	eor		#$1c								; 按键是反逻辑的，将指定的几位按键口取反
 	and		#$1c
 	cmp		#$04
-	bne		No_KeyMTrigger
-	jmp		L_KeyMTrigger
-No_KeyMTrigger:
-	cmp		#$08
 	bne		No_KeyUTrigger
-	jmp		L_KeyUTrigger						; U键触发
+	jmp		L_KeyUTrigger
 No_KeyUTrigger:
+	cmp		#$08
+	bne		No_KeyATrigger
+	jmp		L_KeyATrigger
+No_KeyATrigger:
 	cmp		#$10
 	bne		L_KeyExit
-	jmp		L_KeyDTrigger						; D键触发
+	jmp		L_KeyMTrigger						; M键触发
 
 L_KeyExit:
 	rmb1	TMRC								; 关闭快加16Hz计时的定时器

@@ -69,7 +69,10 @@ L_Dis_7Bit_WeekDot:
 	stx		P_Temp+1					; 偏移量暂存进P_Temp+1, 腾出X来做变址寻址
 
 	ldx		R_Date_Week					; 取得当前星期数
-	lda		Table_Week_7bit,x			; 将显示的数字通过查表找到对应的段码存进A
+	lda		Table_Week_7bit,x			; 将显示的星期通过查表找到对应的段码存进A
+	bbr2	Calendar_Flag,Now_Week		; 若是需要反显，则显示按位取反值
+	eor		#$7f
+Now_Week:
 	sta		P_Temp						; 暂存段码值到P_Temp
 
 	lda		#7
@@ -287,6 +290,6 @@ Table_Week_7bit:
 	.byte	$00		; undisplay
 
 Table_COMx_SEL:
-	.byte	$fd		; COM0_SEL
+	.byte	$f7		; COM0_SEL
 	.byte	$fb		; COM1_SEL
-	.byte	$f7		; COM2_SEL
+	.byte	$fd		; COM2_SEL
