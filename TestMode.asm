@@ -64,6 +64,7 @@ Loop_DisSymbol3:
 	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电
 	smb3	Key_Flag							; 上电先给一个唤醒事件，免得上电不显示
 	rmb4	PD
+	smb6	IER									; 亮屏打开LCD中断
 StartUp_WakeUp:
 	lda		#0
 	sta		P_Temp+4

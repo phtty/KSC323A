@@ -4,14 +4,22 @@ F_PowerManage:
 
 	bbr2	Clock_Flag,NoAlarm_WakeUp
 	rmb4	PD									; 响闹时5020开启
+	smb6	IER									; 亮屏开启LCD中断
 	rts
-NoAlarm_WakeUp:
 
+NoAlarm_WakeUp:
 	bbr6	PB,No_5VDC_PWR
+	bbr0	Backlight_Flag,No_First_DCWake
+	rmb0	Backlight_Flag
+	rmb4	PD									; 插入DC5V时进行一次亮屏
+No_First_DCWake:
 	rts
+
 No_5VDC_PWR:
+	smb0	Backlight_Flag
 	bbs3	Key_Flag,WakeUp_Event_Yes
 	smb4	PD									; 无唤醒事件，则拉高PD4关闭5020
+	rmb6	IER									; 熄屏后关闭LCD中断
 	rts
 WakeUp_Event_Yes:
 	lda		Backlight_Counter
@@ -26,12 +34,10 @@ L_ShutDown_Display:
 	lda		#$00
 	sta		Backlight_Counter
 	smb4	PD									; 屏幕唤醒结束，拉高PD4关闭5020
+	rmb6	IER									; 熄屏后关闭LCD中断
 	rmb3	Key_Flag
 	rts
 
-
-
-	rts
 
 
 L_HLightLevel_WithTime:

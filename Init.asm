@@ -32,7 +32,7 @@ F_Init_SystemRam:								; 系统内存初始化
 	lda		#00
 	sta		R_Time_Sec
 
-	lda		#00
+	lda		#12
 	sta		R_Alarm1_Hour
 	lda		#00
 	sta		R_Alarm1_Min

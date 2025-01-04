@@ -261,16 +261,14 @@ Status_NoDisMode_KeyU:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU_Short
-	jsr		AddNum_CS							; 时设模式增数
-	rts
+	jmp		AddNum_CS							; 时设模式增数
 StatusCS_No_KeyU_Short:
 	cmp		#1000B
-	bne		StatusAS_No_KeyU
-	jsr		AddNum_AS							; 闹设模式增数
-StatusAS_No_KeyU:
-	rts
+	bne		L_KeyUTrigger_Exit
+	jmp		AddNum_AS							; 闹设模式增数
 KeyU_NoQuikAdd:
 	smb3	SpecialKey_Flag
+L_KeyUTrigger_Exit:
 	rts
 
 
@@ -289,16 +287,14 @@ Status_NoDisMode_KeyD:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
-	jsr		SubNum_CS							; 时设模式减数
-	rts
+	jmp		SubNum_CS							; 时设模式减数
 StatusCS_No_KeyD:
 	cmp		#1000B
-	bne		StatusAS_No_KeyD
-	jsr		SubNum_AS							; 闹设模式减数
-StatusAS_No_KeyD:
-	rts
+	bne		L_KeyDTrigger_Exit
+	jmp		SubNum_AS							; 闹设模式减数
 KeyD_NoQuikAdd:
 	smb4	SpecialKey_Flag
+L_KeyDTrigger_Exit:
 	rts
 
 
@@ -331,21 +327,25 @@ L_Universal_TriggerHandle:
 ?Handle_Exit:
 	rts
 WakeUp_Event:
+	bbr3	PA_IO_Backup,No_KeyB_WakeUp
+	bbs2	Backlight_Flag,WakeUp_Event_Exit	; 是否需要松开唤醒判断
+No_KeyB_WakeUp:
 	lda		Backlight_Level
 	bne		No_Extinguish
 	lda		#2
-	sta		Backlight_Level						; 若是手动熄屏状态被唤醒，则直接变为高亮显示
+	sta		Backlight_Level						; 若是手动熄屏状态被非B键唤醒，则直接变为高亮显示
 	smb0	PC
 No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
+	smb6	IER									; 亮屏开启LCD中断
 	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
 	lda		#2
 	sta		Backlight_Level						; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
-
+WakeUp_Event_Exit:
 	rts
 
 
@@ -490,19 +490,30 @@ L_Ordinal_Exit_AS:
 ; 切换灯光亮度
 ; 0熄屏，1低亮，2高亮
 LightLevel_Change:
-	dec		Backlight_Level						; 递减亮度等级
-
-	lda		Backlight_Level						; 熄屏后亮度在唤醒里切换
-	bne		No_Level0
-	smb4	PD									; 熄屏
-	smb0	PC
-	rts
-No_Level0:
+	lda		Backlight_Level
+	cmp		#2
+	bne		NoLevel2
 	rmb4	PD									; 低亮
 	rmb0	PC
+	bra		Light_Exist
+NoLevel2:
+	beq		No_Level1
+	smb4	PD									; 熄屏
+	rmb0	PC
+	rmb6	IER									; 熄屏后关闭LCD中断
+	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
+	bra		Light_Exist
+No_Level1:
+	rmb4	PD									; 高亮
+	smb0	PC
+	rmb2	Backlight_Flag
+	lda		#2
+	sta		Backlight_Level
 	rts
 
-
+Light_Exist:
+	dec		Backlight_Level						; 递减亮度等级
+	rts
 
 
 
@@ -903,7 +914,7 @@ L_AlarmMin_Add:
 	bcs		AlarmMin_AddOverflow
 	clc
 	adc		#1
-	sta		Alarm_HourAddr,x
+	sta		Alarm_MinAddr,x
 	bra		AlarmMin_Add_Exit
 AlarmMin_AddOverflow:
 	lda		#0
@@ -921,7 +932,7 @@ L_AlarmMin_Sub:
 	beq		AlarmMin_SubOverflow
 	sec
 	sbc		#1
-	sta		Alarm_HourAddr,x
+	sta		Alarm_MinAddr,x
 	bra		AlarmMin_Sub_Exit
 AlarmMin_SubOverflow:
 	lda		#59
@@ -977,11 +988,13 @@ AlarmHour_Sub_Exit:
 L_DayOverflow_Juge:
 	bbs0	Calendar_Flag,L_LeapYear_Handle		; 平年闰年的表分开查
 	ldx		R_Date_Month						; 查平年每月份天数表
+	dex
 	lda		L_Table_Month_Common,x
 	sta		P_Temp
 	bra		Day_Overflow_Juge
 L_LeapYear_Handle:
 	ldx		R_Date_Month						; 查闰年每月份天数表
+	dex
 	lda		L_Table_Month_Leap,x
 	sta		P_Temp
 Day_Overflow_Juge:

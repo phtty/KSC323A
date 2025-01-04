@@ -44,9 +44,6 @@ L_Clear_Ram_Loop:
 	jsr		F_Port_Init								; 初始化用到的IO口
 	jsr		F_Beep_Init
 
-	lda		#$07									; 系统时钟和中断使能
-	sta		SYSCLK
-
 	jsr		F_Timer_Init
 	jsr		F_RFC_Init
 
