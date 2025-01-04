@@ -206,7 +206,9 @@ L_DisMode_KeyA_LongTri:
 
 
 L_KeyBTrigger:
+	smb3	Backlight_Flag
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	rmb3	Backlight_Flag
 
 	bbr2	Clock_Flag,StatusLM_No_KeyB
 	jsr		Alarm_Snooze						; 响闹时贪睡处理
@@ -327,7 +329,8 @@ L_Universal_TriggerHandle:
 ?Handle_Exit:
 	rts
 WakeUp_Event:
-	bbr3	PA_IO_Backup,No_KeyB_WakeUp
+	bbr3	Backlight_Flag,No_KeyB_WakeUp
+	rmb3	Backlight_Flag
 	bbs2	Backlight_Flag,WakeUp_Event_Exit	; 是否需要松开唤醒判断
 No_KeyB_WakeUp:
 	lda		Backlight_Level
@@ -338,7 +341,7 @@ No_KeyB_WakeUp:
 No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
-	bbr1	Sys_Status_Flag,DP_2Mode_Reset
+	bbr0	Sys_Status_Flag,DP_2Mode_Reset
 	bbr2	Key_Flag,DP_2Mode_Reset
 	lda		#0
 	sta		Return_Counter

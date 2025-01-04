@@ -68,6 +68,8 @@ Wait_RFC_MeasureOver:
 	lda		#0
 	sta		Sys_Status_Ordinal
 
+	bra		Global_Run
+
 
 ; 状态机
 MainLoop:

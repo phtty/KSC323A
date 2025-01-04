@@ -6,12 +6,16 @@ F_PowerManage:
 	rmb4	PD									; 响闹时5020开启
 	smb6	IER									; 亮屏开启LCD中断
 	rts
-
 NoAlarm_WakeUp:
+
 	bbr6	PB,No_5VDC_PWR
 	bbr0	Backlight_Flag,No_First_DCWake
 	rmb0	Backlight_Flag
 	rmb4	PD									; 插入DC5V时进行一次亮屏
+	smb6	IER									; 亮屏后打开LCD中断
+	lda		#0
+	sta		Backlight_Counter
+	smb3	Key_Flag							; 给屏幕唤醒事件，避免切回去的时候不开中断
 No_First_DCWake:
 	rts
 

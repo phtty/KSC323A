@@ -106,6 +106,7 @@ Backlight_Flag			DS		1
 ;bit0 = 1 DC5V接入时唤醒
 ;bit1 = 1 亮屏1S计时
 ;bit2 = 1 手动进入熄屏模式
+;bit3 = 1 B键进入的唤醒事件
 
 Backlight_Level			DS		1	; 亮度等级
 ;0 熄屏
