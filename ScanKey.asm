@@ -18,7 +18,7 @@ L_DelayTrigger:									; 消抖延时循环用标签
 	rts
 L_KeyYes:
 	sta		PA_IO_Backup
-	jsr		L_NoBeep_Serial_Mode				; 首次触发时，清除按键音，避免重复进入导致出错
+	;jsr		L_NoBeep_Serial_Mode				; 首次触发时，清除按键音，避免重复进入导致出错
 	bra		L_KeyHandle							; 首次触发处理结束
 
 L_Key4Hz:
@@ -338,6 +338,12 @@ No_KeyB_WakeUp:
 No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
+	bbr1	Sys_Status_Flag,DP_2Mode_Reset
+	bbr2	Key_Flag,DP_2Mode_Reset
+	lda		#0
+	sta		Return_Counter
+	sta		Sys_Status_Ordinal
+DP_2Mode_Reset:
 	smb6	IER									; 亮屏开启LCD中断
 	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
 	lda		#2
@@ -465,10 +471,21 @@ SwitchState_AlarmSet:
 	lda		Sys_Status_Flag
 	cmp		#1000B
 	beq		L_Change_Ordinal_AS					; 判断当前状态是否已经是闹钟设置
+	bbr1	Sys_Status_Flag,No_AlarmDis2Set
 	lda		#1000B
 	sta		Sys_Status_Flag						; 当前状态非闹设则切换至闹设
+	lda		Sys_Status_Ordinal					; 若当前处于闹显状态
+	clc
+	rol
+	clc
+	adc		Sys_Status_Ordinal					; 则对当前显示的闹组设置
+	sta		Sys_Status_Ordinal
+	bra		L_Ordinal_Exit_AS
+No_AlarmDis2Set:
 	lda		#0
 	sta		Sys_Status_Ordinal					; 清零子模式序号
+	lda		#1000B
+	sta		Sys_Status_Flag						; 当前状态非闹设则切换至闹设
 	bra		L_Ordinal_Exit_AS
 L_Change_Ordinal_AS:
 	inc		Sys_Status_Ordinal					; 当前状态为闹设，则递增子模式序号
@@ -491,28 +508,27 @@ L_Ordinal_Exit_AS:
 ; 0熄屏，1低亮，2高亮
 LightLevel_Change:
 	lda		Backlight_Level
-	cmp		#2
-	bne		NoLevel2
-	rmb4	PD									; 低亮
-	rmb0	PC
-	bra		Light_Exist
-NoLevel2:
-	beq		No_Level1
-	smb4	PD									; 熄屏
-	rmb0	PC
-	rmb6	IER									; 熄屏后关闭LCD中断
-	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
-	bra		Light_Exist
-No_Level1:
+	bne		Level_Dec
 	rmb4	PD									; 高亮
 	smb0	PC
-	rmb2	Backlight_Flag
+	rmb2	Backlight_Flag						; 复位手动亮度调节熄屏标志
+	smb6	IER									; 亮屏开启LCD中断
 	lda		#2
 	sta		Backlight_Level
 	rts
 
-Light_Exist:
-	dec		Backlight_Level						; 递减亮度等级
+Level_Dec:
+	dec		Backlight_Level
+	lda		Backlight_Level
+	beq		Level0
+	rmb4	PD									; 低亮
+	rmb0	PC
+	rts
+Level0:
+	smb4	PD									; 熄屏
+	rmb0	PC
+	rmb6	IER									; 熄屏后关闭LCD中断
+	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
 	rts
 
 

@@ -56,7 +56,6 @@ Loop_DisSymbol3:
 	bbr0	Timer_Flag,Loop_DisSymbol3
 	rmb0	Timer_Flag
 
-
 	lda		#4									; 上电蜂鸣器响2声
 	sta		Beep_Serial
 	smb0	TMRC
