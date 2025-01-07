@@ -98,7 +98,7 @@ Status_DisClock:
 	bra		MainLoop
 Status_DisAlarm:
 	jsr		F_Alarm_Display
-	jsr		F_Alarm_Handler							;显示状态有响闹判断
+	jsr		F_Alarm_Handler							; 显示状态有响闹判断
 	bra		MainLoop
 Status_SetClock:
 	jsr		F_Clock_Set

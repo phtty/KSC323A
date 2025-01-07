@@ -31,34 +31,19 @@ Alarm_Display_Exit:
 
 
 
+
 F_Alarm_Set:
 	lda		Sys_Status_Ordinal
+	jsr		L_A_Div_3
+	cmp		#0
+	bne		No_AlarmSwitch_Mode
+	jmp		F_Alarm_SwitchStatue				; 闹钟开关设置显示
+No_AlarmSwitch_Mode:
 	cmp		#1
-	bne		No_AL1_HourSet
-	jmp		F_AlarmHour_Set						; 闹钟1小时设置
-No_AL1_HourSet:
-	cmp		#2
-	bne		No_AL1_MinSet
-	jmp		F_AlarmMin_Set						; 闹钟1分钟设置
-No_AL1_MinSet:
-	cmp		#4
-	bne		No_AL2_HourSet
-	jmp		F_AlarmHour_Set						; 闹钟2小时设置
-No_AL2_HourSet:
-	cmp		#5
-	bne		No_AL2_MinSet
-	jmp		F_AlarmMin_Set						; 闹钟2分钟设置
-No_AL2_MinSet:
-	cmp		#7
-	bne		No_AL3_HourSet
-	jmp		F_AlarmHour_Set						; 闹钟3小时设置
-No_AL3_HourSet:
-	cmp		#8
-	bne		No_AL3_MinSet
-	jmp		F_AlarmMin_Set						; 闹钟3分钟设置
-No_AL3_MinSet:
-	jmp		F_Alarm_SwitchStatue				; 闹钟开关
-
+	bne		No_AlarmHourSet_Mode
+	jmp		F_AlarmHour_Set						; 闹钟小时设置显示
+No_AlarmHourSet_Mode:
+	jmp		F_AlarmMin_Set						; 闹钟分钟设置显示
 
 
 
@@ -323,7 +308,8 @@ L_Alarm1_HourMatch:
 	lda		R_Time_Min
 	cmp		R_Alarm1_Min
 	beq		L_Alarm1_MinMatch
-	bra		L_Alarm1_NoMatch					; 闹钟1分钟不匹配，判断闹钟2
+	rmb1	Clock_Flag							; 闹钟1分钟不匹配，闹钟未触发
+	rts
 
 L_Alarm2_HourMatch:
 	lda		R_Time_Min
@@ -335,8 +321,7 @@ L_Alarm3_HourMatch:
 	lda		R_Time_Min
 	cmp		R_Alarm3_Min
 	beq		L_Alarm3_MinMatch
-	rmb1	Clock_Flag							; 闹钟3分钟不匹配，闹钟未触发
-	rts
+	bra		L_Alarm3_NoMatch
 
 L_Alarm1_MinMatch:
 	lda		R_Time_Sec

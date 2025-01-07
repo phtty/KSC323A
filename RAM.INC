@@ -145,6 +145,7 @@ Beep_Serial				DS		1
 
 PA_IO_Backup			DS		1
 PC_IO_Backup			DS		1
+PD_IO_Backup			DS		1
 
 ;---------------------------------------
 Time_Str_Addr			EQU		$

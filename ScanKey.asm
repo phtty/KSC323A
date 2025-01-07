@@ -3,22 +3,17 @@ F_KeyHandler:
 	bbs3	Timer_Flag,L_Key4Hz					; 快加到来则4Hz扫一次，控制快加频率
 	bbr1	Key_Flag,L_KeyScan					; 首次按键触发
 	rmb1	Key_Flag							; 复位首次触发
-	lda		#$00
-	sta		P_Temp
-L_DelayTrigger:									; 消抖延时循环用标签
-	inc		P_Temp
-	lda		P_Temp
-	bne		L_DelayTrigger						; 软件消抖
+	jsr		L_KeyDelay
 	lda		PA
 	eor		#$1c								; 按键是反逻辑的，将指定的几位按键口取反
 	and		#$1c
-	cmp		#$00
 	bne		L_KeyYes							; 检测是否有按键触发
 	bra		L_KeyExit
-	rts
 L_KeyYes:
 	sta		PA_IO_Backup
-	;jsr		L_NoBeep_Serial_Mode				; 首次触发时，清除按键音，避免重复进入导致出错
+	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
+	jsr		F_RFC_Abort
+?RFC_Sample_Juge:
 	bra		L_KeyHandle							; 首次触发处理结束
 
 L_Key4Hz:
@@ -26,10 +21,6 @@ L_Key4Hz:
 	rmb5	Key_Flag
 L_KeyScan:										; 长按处理部分
 	bbr0	Key_Flag,L_KeyNoScanExit			; 没有扫键标志则为无按键处理了，判断是否取消禁用RFC采样
-
-	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
-	jsr		F_RFC_Abort
-?RFC_Sample_Juge:
 
 	jsr		F_QuikAdd_Scan						; 矩阵扫描，需要开启IO口
 	bbr4	Timer_Flag,L_KeyScanExit			; 没开始快加时，用16Hz扫描
@@ -146,6 +137,8 @@ L_KeyU_ShortHandle:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		KeyU_NoDisMode
+	lda		#0001B
+	sta		Sys_Status_Flag
 	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
 	rts
 KeyU_NoDisMode:
@@ -184,8 +177,8 @@ KeyD_ShortHandle_Exit:
 
 ; 按键触发函数，处理每个按键触发后的响应条件
 L_KeyATrigger:
-	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
@@ -223,8 +216,8 @@ L_DisMode_KeyB_LongTri:
 
 
 L_KeyMTrigger:
-	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
@@ -249,9 +242,9 @@ L_DisMode_KeyM_LongTri:
 
 
 L_KeyUTrigger:
-	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
-	
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
+
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		Status_NoDisMode_KeyU				; 时钟显和闹显U键切换12/24h
@@ -275,8 +268,8 @@ L_KeyUTrigger_Exit:
 
 
 L_KeyDTrigger:
-	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
+	jsr		L_Key_NoSnoozeLoud					; 按键处理贪睡和响闹
 
 	lda		Sys_Status_Flag
 	and		#0011B
@@ -347,7 +340,7 @@ No_Extinguish:
 	sta		Return_Counter
 	sta		Sys_Status_Ordinal
 DP_2Mode_Reset:
-	smb6	IER									; 亮屏开启LCD中断
+	jsr		L_Open_5020							; 亮屏开启LCD中断
 	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
 	lda		#2
 	sta		Backlight_Level						; 熄屏后有按键，则亮度等级设置为最高并亮屏
@@ -515,7 +508,7 @@ LightLevel_Change:
 	rmb4	PD									; 高亮
 	smb0	PC
 	rmb2	Backlight_Flag						; 复位手动亮度调节熄屏标志
-	smb6	IER									; 亮屏开启LCD中断
+	jsr		L_Open_5020							; 亮屏开启LCD中断
 	lda		#2
 	sta		Backlight_Level
 	rts
@@ -530,7 +523,8 @@ Level_Dec:
 Level0:
 	smb4	PD									; 熄屏
 	rmb0	PC
-	rmb6	IER									; 熄屏后关闭LCD中断
+	;rmb6	IER									; 熄屏后关闭LCD中断
+	jsr		L_Close_5020
 	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
 	rts
 
@@ -627,47 +621,18 @@ No_CS_MonthAdd:
 ; 闹设模式增数
 AddNum_AS:
 	lda		Sys_Status_Ordinal
-	bne		No_AS_Alarm1_Switch
-	lda		#001B
+	jsr		L_A_Div_3
+	cmp		#0
+	bne		No_AlarmSwitch_AddCHG
+	lda		#1
+	jsr		L_A_LeftShift_XBit
 	jmp		L_Alarm_Switch
-No_AS_Alarm1_Switch:
+No_AlarmSwitch_AddCHG:
 	cmp		#1
-	bne		No_AS_Alarm1_HourAdd
-	ldx		#0
-	jmp		L_AlarmHour_Add
-No_AS_Alarm1_HourAdd:
-	cmp		#2
-	bne		No_AS_Alarm1_MinAdd
-	ldx		#0
-	jmp		L_AlarmMin_Add
-No_AS_Alarm1_MinAdd:
-	cmp		#3
-	bne		No_AS_Alarm2_Switch
-	lda		#010B
-	jmp		L_Alarm_Switch
-No_AS_Alarm2_Switch:
-	cmp		#4
-	bne		No_AS_Alarm2_HourAdd
-	ldx		#1
-	jmp		L_AlarmHour_Add
-No_AS_Alarm2_HourAdd:
-	cmp		#5
-	bne		No_AS_Alarm2_MinAdd
-	ldx		#1
-	jmp		L_AlarmMin_Add
-No_AS_Alarm2_MinAdd:
-	cmp		#6
-	bne		No_AS_Alarm3_Switch
-	lda		#100B
-	jmp		L_Alarm_Switch
-No_AS_Alarm3_Switch:
-	cmp		#7
-	bne		No_AS_Alarm3_HourAdd
-	ldx		#2
-	jmp		L_AlarmHour_Add
-No_AS_Alarm3_HourAdd:
-	ldx		#2
-	jmp		L_AlarmMin_Add
+	bne		No_AlarmHourSet_Add
+	jmp		L_AlarmHour_Add						; 闹钟小时减数
+No_AlarmHourSet_Add:
+	jmp		L_AlarmMin_Add						; 闹钟分钟减数
 
 
 
@@ -702,48 +667,18 @@ No_CS_MonthSub:
 ; 闹设模式减数
 SubNum_AS:
 	lda		Sys_Status_Ordinal
-	bne		No_AS_Alarm1_Switch2
-	lda		#001B
+	jsr		L_A_Div_3
+	cmp		#0
+	bne		No_AlarmSwitch_SubCHG
+	lda		#1
+	jsr		L_A_LeftShift_XBit
 	jmp		L_Alarm_Switch
-No_AS_Alarm1_Switch2:
+No_AlarmSwitch_SubCHG:
 	cmp		#1
-	bne		No_AS_Alarm1_HourSub
-	ldx		#0
-	jmp		L_AlarmHour_Sub
-No_AS_Alarm1_HourSub:
-	cmp		#2
-	bne		No_AS_Alarm1_MinSub
-	ldx		#0
-	jmp		L_AlarmMin_Sub
-No_AS_Alarm1_MinSub:
-	cmp		#3
-	bne		No_AS_Alarm2_Switch2
-	lda		#010B
-	jmp		L_Alarm_Switch
-No_AS_Alarm2_Switch2:
-	cmp		#4
-	bne		No_AS_Alarm2_HourSub
-	ldx		#1
-	jmp		L_AlarmHour_Sub
-No_AS_Alarm2_HourSub:
-	cmp		#5
-	bne		No_AS_Alarm2_MinSub
-	ldx		#1
-	jmp		L_AlarmMin_Sub
-No_AS_Alarm2_MinSub:
-	cmp		#6
-	bne		No_AS_Alarm3_Switch2
-	lda		#100B
-	jmp		L_Alarm_Switch
-No_AS_Alarm3_Switch2:
-	cmp		#7
-	bne		No_AS_Alarm3_HourSub
-	ldx		#2
-	jmp		L_AlarmHour_Sub
-No_AS_Alarm3_HourSub:
-	ldx		#2
-	jmp		L_AlarmMin_Sub
-
+	bne		No_AlarmHourSet_Sub
+	jmp		L_AlarmHour_Sub						; 闹钟小时减数
+No_AlarmHourSet_Sub:
+	jmp		L_AlarmMin_Sub						; 闹钟分钟减数
 
 
 
@@ -827,6 +762,7 @@ DateYear_AddOverflow:
 	lda		#0
 	sta		R_Date_Year
 DateYear_Add_Exit:
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
@@ -841,6 +777,7 @@ DateYear_SubOverflow:
 	lda		#99
 	sta		R_Date_Year
 DateYear_Sub_Exit:
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
@@ -860,7 +797,7 @@ DateMonth_AddOverflow:
 	lda		#1
 	sta		R_Date_Month
 DateMonth_Add_Exit:
-	jsr		L_DisDate_Month
+	jsr		F_Date_Display
 	rts
 
 ; 月减少
@@ -869,12 +806,13 @@ L_DateMonth_Sub:
 	cmp		#1
 	beq		DateMonth_SubOverflow
 	dec		R_Date_Month
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
 	bra		DateMonth_Sub_Exit
 DateMonth_SubOverflow:
 	lda		#12
 	sta		R_Date_Month
 DateMonth_Sub_Exit:
-	jsr		L_DisDate_Month
+	jsr		F_Date_Display
 	rts
 
 
@@ -883,8 +821,8 @@ DateMonth_Sub_Exit:
 ; 日增加
 L_DateDay_Add:
 	inc		R_Date_Day
-	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
-	jsr		L_DisDate_Day
+	jsr		L_DayOverflow_To_1					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		F_Date_Display
 	rts
 
 ; 日减少
@@ -907,7 +845,7 @@ Common_Year_Get:
 	lda		L_Table_Month_Common,x
 	sta		R_Date_Day
 DateDay_Sub_Exit:
-	jsr		L_DisDate_Day
+	jsr		F_Date_Display
 	rts
 
 
@@ -1005,6 +943,7 @@ AlarmHour_Sub_Exit:
 
 ; 天数是否溢出的判断
 L_DayOverflow_Juge:
+	jsr		F_Is_Leap_Year
 	bbs0	Calendar_Flag,L_LeapYear_Handle		; 平年闰年的表分开查
 	ldx		R_Date_Month						; 查平年每月份天数表
 	dex
@@ -1020,7 +959,42 @@ Day_Overflow_Juge:
 	lda		P_Temp								; 当前日期和天数表的日期对比
 	cmp		R_Date_Day
 	bcs		DateDay_NoOverflow
-	lda		#1
+	lda		P_Temp
 	sta		R_Date_Day
 DateDay_NoOverflow:
 	rts
+
+; 天数是否溢出的判断
+L_DayOverflow_To_1:
+	jsr		F_Is_Leap_Year
+	bbs0	Calendar_Flag,L_LeapYear_Handle2		; 平年闰年的表分开查
+	ldx		R_Date_Month						; 查平年每月份天数表
+	dex
+	lda		L_Table_Month_Common,x
+	sta		P_Temp
+	bra		Day_Overflow_Juge2
+L_LeapYear_Handle2:
+	ldx		R_Date_Month						; 查闰年每月份天数表
+	dex
+	lda		L_Table_Month_Leap,x
+	sta		P_Temp
+Day_Overflow_Juge2:
+	lda		P_Temp								; 当前日期和天数表的日期对比
+	cmp		R_Date_Day
+	bcs		DateDay_NoOverflow2
+	lda		#1
+	sta		R_Date_Day
+DateDay_NoOverflow2:
+	rts
+
+
+L_KeyDelay:
+	lda		#0
+	sta		P_Temp
+DelayLoop:
+	inc		P_Temp
+	lda		P_Temp
+	bne		DelayLoop
+	
+	rts
+	

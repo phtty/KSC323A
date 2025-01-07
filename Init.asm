@@ -25,7 +25,7 @@ F_Init_SystemRam:								; 系统内存初始化
 	lda		#0001B
 	sta		Sys_Status_Flag
 
-	lda		#00
+	lda		#12
 	sta		R_Time_Hour
 	lda		#00
 	sta		R_Time_Min
@@ -105,11 +105,11 @@ F_Beep_Init:
 
 
 F_Port_Init:
-	lda		#$3c								; PA5不需要唤醒
+	lda		#$1c								; PA5不需要唤醒
 	sta		PA_WAKE
-	lda		#$3c
+	lda		#$1c
 	sta		PA_DIR
-	lda		#$3c
+	lda		#$1c
 	sta		PA
 	smb4	IER									; 打开PA口外部中断
 
@@ -168,7 +168,7 @@ F_Timer_Init:
 
 	lda		#C_COM_2_42_38+C_LCDIS_Rate
 	sta		LCD_COM								; 开LCD中断用于定时显示LED
-	lda		#$02
+	lda		#$03
 	sta		FRAME
 
 	rts
@@ -231,9 +231,7 @@ F_KeyMatrix_PC4Scan_Ready:
 	rmb4	PC
 	smb5	PC
 	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
-	nop											; 确保IO口翻转到位
-	nop
-	nop
+	jsr		L_KeyDelay
 	rts
 
 F_KeyMatrix_PC5Scan_Ready:
@@ -242,9 +240,7 @@ F_KeyMatrix_PC5Scan_Ready:
 	smb4	PC
 	rmb5	PC
 	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
-	nop
-	nop
-	nop
+	jsr		L_KeyDelay
 	rts
 
 F_KeyMatrix_Reset:
@@ -258,14 +254,4 @@ F_QuikAdd_Scan:
 L_QuikAdd_ScanReset:							; 有长按时PC4,PC5输出高，避免长按时漏电
 	smb4	PC
 	smb5	PC									; 快加下不需要开启中断，定时扫描IO口即可
-	rts
-
-
-F_Delay:
-	lda		#$f5
-	sta		P_Temp
-L_Delay_f5:										; 延时循环用标签
-	inc		P_Temp
-	lda		P_Temp
-	bne		L_Delay_f5
 	rts

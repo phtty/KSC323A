@@ -10,7 +10,7 @@ F_PowerManage:
 	bbs2	Backlight_Flag,No_First_DCWake		; 手动进入的熄屏模式不唤醒
 WakeUp_Trigger:
 	rmb4	PD
-	smb6	IER									; 亮屏后打开LCD中断
+	jsr		L_Open_5020							; 亮屏后打开LCD中断
 	lda		#0
 	sta		Backlight_Counter
 	smb3	Key_Flag							; 给屏幕唤醒事件，避免切回去的时候不开中断
@@ -21,11 +21,11 @@ No_5VDC_PWR:
 	smb0	Backlight_Flag
 	bbs3	Key_Flag,WakeUp_Event_Yes
 	smb4	PD									; 无唤醒事件，则拉高PD4关闭5020
-	rmb6	IER									; 熄屏后关闭LCD中断
+	jsr		L_Close_5020						; 熄屏后关闭LCD中断
 	rts
 WakeUp_Event_Yes:
 	lda		Backlight_Counter
-	cmp		#16
+	cmp		#17
 	bcs		L_ShutDown_Display					; 计满15S则断开5020供电，熄屏等待按键唤醒
 	bbr1	Backlight_Flag,BacklightCount_NoAdd
 	rmb1	Backlight_Flag
@@ -36,7 +36,7 @@ L_ShutDown_Display:
 	lda		#$00
 	sta		Backlight_Counter
 	smb4	PD									; 屏幕唤醒结束，拉高PD4关闭5020
-	rmb6	IER									; 熄屏后关闭LCD中断
+	jsr		L_Close_5020						; 熄屏后关闭LCD中断
 	rmb3	Key_Flag
 	rts
 
@@ -53,6 +53,8 @@ L_HLightLevel_WithTime:
 	cmp		#0
 	bne		?LightLevel_Exit
 	smb0	PC									; 设置为高亮
+	lda		#2
+	sta		Backlight_Level
 ?LightLevel_Exit:
 	rts
 
@@ -67,6 +69,8 @@ L_LLightLevel_WithTime:
 	cmp		#0
 	bne		?LightLevel_Exit
 	rmb0	PC									; 设置为低亮
+	lda		#1
+	sta		Backlight_Level
 ?LightLevel_Exit:
 	rts
 
@@ -81,9 +85,13 @@ L_LightLevel_WithKeyU:
 	rts
 KeyU_HighLight:
 	smb0	PC									; 设置为高亮
+	lda		#2
+	sta		Backlight_Level
 	rts
 KeyU_LowLight:
 	rmb0	PC									; 设置为低亮
+	lda		#1
+	sta		Backlight_Level
 	rts
 
 
@@ -96,7 +104,42 @@ L_LightLevel_WithKeyD:
 	rts
 KeyD_HighLight:
 	smb0	PC									; 设置为高亮
+	lda		#2
+	sta		Backlight_Level
 	rts
 KeyD_LowLight:
 	rmb0	PC									; 设置为低亮
+	lda		#1
+	sta		Backlight_Level
+	rts
+
+
+L_Close_5020:
+	rmb6	IER
+	lda		PC
+	and		#$0f
+	sta		PC_IO_Backup
+	lda		PC
+	and		#$f0
+	sta		PC
+
+	lda		PD
+	and		#$e0
+	sta		PD_IO_Backup
+	lda		PD
+	and		#$1f
+	sta		PD
+	rts
+
+L_Open_5020:
+	smb6	IER
+	lda		PC
+	and		#$f0
+	ora		PC_IO_Backup
+	sta		PC
+
+	lda		PD
+	and		#$1f
+	ora		PD_IO_Backup
+	sta		PD
 	rts
