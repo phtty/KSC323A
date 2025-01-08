@@ -243,7 +243,6 @@ L_PaIrq:
 	smb1	Key_Flag							; 首次触发
 	rmb3	Timer_Flag							; 如果有新的下降沿到来，清快加标志位
 	rmb4	Timer_Flag							; 16Hz计时
-
 	smb1	TMRC								; 打开快加定时
 
 	bra		L_EndIrq

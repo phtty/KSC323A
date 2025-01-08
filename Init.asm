@@ -248,8 +248,6 @@ F_KeyMatrix_Reset:
 F_QuikAdd_Scan:
 	rmb4	PC
 	rmb5	PC
-	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
-	smb4	IER									; 开启PA口中断
 	rts
 L_QuikAdd_ScanReset:							; 有长按时PC4,PC5输出高，避免长按时漏电
 	smb4	PC

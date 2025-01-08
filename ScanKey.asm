@@ -8,8 +8,9 @@ F_KeyHandler:
 	eor		#$1c								; 按键是反逻辑的，将指定的几位按键口取反
 	and		#$1c
 	bne		L_KeyYes							; 检测是否有按键触发
-	bra		L_KeyExit
+	jmp		L_KeyNoScanExit
 L_KeyYes:
+	rmb4	IER
 	sta		PA_IO_Backup
 	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
 	jsr		F_RFC_Abort
@@ -46,7 +47,7 @@ L_QuikAdd:
 NoQuikAdd_Beep:
 	smb3	Timer_Flag
 	rmb5	Key_Flag
-	
+
 
 L_KeyHandle:
 	jsr		F_KeyMatrix_PC5Scan_Ready			; 判断Down键和Backlight键
@@ -86,6 +87,8 @@ L_KeyExit:
 	sta		SpecialKey_Flag
 	sta		Counter_DP
 	jsr		F_KeyMatrix_Reset
+	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
+	smb4	IER									; 开启PA口中断
 L_KeyScanExit:
 	rts
 
@@ -104,11 +107,11 @@ SpecialKey_Handle:
 	bbs3	Timer_Flag,SpecialKey_NoBeep
 	jsr		L_Key_Beep
 SpecialKey_NoBeep:
-	bbs0	SpecialKey_Flag, L_KeyA_ShortHandle	; 短按的特殊功能处理
-	bbs1	SpecialKey_Flag, L_KeyB_ShortHandle
-	bbs2	SpecialKey_Flag, L_KeyM_ShortHandle
-	bbs3	SpecialKey_Flag, L_KeyU_ShortHandle
-	bbs4	SpecialKey_Flag, L_KeyD_ShortHandle
+	bbs0	SpecialKey_Flag,L_KeyA_ShortHandle	; 短按的特殊功能处理
+	bbs1	SpecialKey_Flag,L_KeyB_ShortHandle
+	bbs2	SpecialKey_Flag,L_KeyM_ShortHandle
+	bbs3	SpecialKey_Flag,L_KeyU_ShortHandle
+	bbs4	SpecialKey_Flag,L_KeyD_ShortHandle
 L_KeyA_ShortHandle:
 	lda		Sys_Status_Flag
 	cmp		#1000B
@@ -522,9 +525,8 @@ Level_Dec:
 	rts
 Level0:
 	smb4	PD									; 熄屏
-	rmb0	PC
-	;rmb6	IER									; 熄屏后关闭LCD中断
-	jsr		L_Close_5020
+	rmb0	PC	
+	jsr		L_Close_5020						; 熄屏后关闭LCD中断
 	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
 	rts
 
@@ -762,7 +764,7 @@ DateYear_AddOverflow:
 	lda		#0
 	sta		R_Date_Year
 DateYear_Add_Exit:
-	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为当前允许最大日
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
@@ -777,7 +779,7 @@ DateYear_SubOverflow:
 	lda		#99
 	sta		R_Date_Year
 DateYear_Sub_Exit:
-	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为当前允许最大日
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
@@ -791,7 +793,7 @@ L_DateMonth_Add:
 	cmp		#12
 	bcs		DateMonth_AddOverflow
 	inc		R_Date_Month
-	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为当前允许最大日
 	bra		DateMonth_Add_Exit
 DateMonth_AddOverflow:
 	lda		#1
@@ -806,7 +808,7 @@ L_DateMonth_Sub:
 	cmp		#1
 	beq		DateMonth_SubOverflow
 	dec		R_Date_Month
-	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为1日
+	jsr		L_DayOverflow_Juge					; 若当前日期超过当前月份允许的最大值，则日期变为当前允许最大日
 	bra		DateMonth_Sub_Exit
 DateMonth_SubOverflow:
 	lda		#12
@@ -994,7 +996,8 @@ L_KeyDelay:
 DelayLoop:
 	inc		P_Temp
 	lda		P_Temp
-	bne		DelayLoop
+	cmp		#129
+	bcc		DelayLoop
 	
 	rts
 	
