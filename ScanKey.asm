@@ -10,7 +10,7 @@ F_KeyHandler:
 	bne		L_KeyYes							; 检测是否有按键触发
 	jmp		L_KeyNoScanExit
 L_KeyYes:
-	rmb4	IER
+	rmb4	IER									; 按键确定触发后，关闭中断避免误触发
 	sta		PA_IO_Backup
 	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
 	jsr		F_RFC_Abort
@@ -88,7 +88,7 @@ L_KeyExit:
 	sta		Counter_DP
 	jsr		F_KeyMatrix_Reset
 	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
-	smb4	IER									; 开启PA口中断
+	smb4	IER									; 按键处理结束，重新开启PA口中断
 L_KeyScanExit:
 	rts
 
