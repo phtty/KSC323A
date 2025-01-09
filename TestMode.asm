@@ -63,9 +63,9 @@ Loop_DisSymbol3:
 	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电
 	smb3	Key_Flag							; 上电先给一个唤醒事件，免得上电不显示
 	rmb4	PD
+	bra		Loop_BeepTest
 StartUp_WakeUp:
-	lda		#0
-	sta		P_Temp+4
+	smb0	Backlight_Flag
 Loop_BeepTest:
 	jsr		F_Louding
 	lda		Beep_Serial

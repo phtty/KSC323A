@@ -168,7 +168,7 @@ F_Timer_Init:
 
 	lda		#C_COM_2_42_38+C_LCDIS_Rate
 	sta		LCD_COM								; 开LCD中断用于定时显示LED
-	lda		#$03
+	lda		#$02
 	sta		FRAME
 
 	rts

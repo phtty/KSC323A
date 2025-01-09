@@ -509,7 +509,7 @@ LightLevel_Change:
 	lda		Backlight_Level
 	bne		Level_Dec
 	rmb4	PD									; 高亮
-	smb0	PC
+	smb0	PC_IO_Backup
 	rmb2	Backlight_Flag						; 复位手动亮度调节熄屏标志
 	jsr		L_Open_5020							; 亮屏开启LCD中断
 	lda		#2
@@ -1000,4 +1000,3 @@ DelayLoop:
 	bcc		DelayLoop
 	
 	rts
-	

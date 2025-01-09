@@ -9,8 +9,10 @@ F_PowerManage:
 	rmb0	Backlight_Flag						; 插入DC5V时进行一次亮屏
 	bbs2	Backlight_Flag,No_First_DCWake		; 手动进入的熄屏模式不唤醒
 WakeUp_Trigger:
+	bbr4	PD,L_5020_NoWakeUp
 	rmb4	PD
 	jsr		L_Open_5020							; 亮屏后打开LCD中断
+L_5020_NoWakeUp:
 	lda		#0
 	sta		Backlight_Counter
 	smb3	Key_Flag							; 给屏幕唤醒事件，避免切回去的时候不开中断
