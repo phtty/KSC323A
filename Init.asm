@@ -180,6 +180,8 @@ F_Timer_NormalMode:
 	rmb1	IFR									; 清除TMR0、1中断标志位
 	rmb2	IER
 	rmb2	IFR
+	lda		TMRC
+	pha
 	rmb0	TMRC								; 关闭TMR0
 	rmb1	TMRC								; 关闭TMR1
 	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0时钟源T000
@@ -194,10 +196,12 @@ F_Timer_NormalMode:
 	lda		#256-32								; 配置TIM1频率为16Hz
 	sta		TMR1
 
+	pla
+	sta		TMRC
+
 	rmb0	IER									; 关闭DIV中断
-	lda		IER									; 开TIM0、1定时器中断
-	ora		#C_TMR0I+C_TMR1I
-	sta		IER
+	smb1	IER									; 开TIM0、1定时器中断
+	smb2	IER
 
 	rmb0	RFC_Flag							; 清除采样启用中标志位
 
@@ -226,7 +230,7 @@ F_RFC_Init:
 
 
 F_KeyMatrix_PC4Scan_Ready:
-	rmb4	IER									; 关闭PA口中断，避免误触发中断
+	;rmb4	IER									; 关闭PA口中断，避免误触发中断
 
 	rmb4	PC
 	smb5	PC
@@ -235,7 +239,7 @@ F_KeyMatrix_PC4Scan_Ready:
 	rts
 
 F_KeyMatrix_PC5Scan_Ready:
-	rmb4	IER									; 关闭PA口中断，避免误触发中断
+	;rmb4	IER									; 关闭PA口中断，避免误触发中断
 
 	smb4	PC
 	rmb5	PC

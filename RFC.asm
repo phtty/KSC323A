@@ -111,6 +111,7 @@ F_RFC_MeasureStop:
 	jsr		F_Display_Temper					; 数据处理后，显示温度和湿度
 	jsr		F_Display_Humid
 
+L_CLR_RFC:
 	lda		#0
 	sta		RFC_TempCount_H						; 清理相关变量
 	sta		RFC_TempCount_M
@@ -132,18 +133,9 @@ F_RFC_Abort:
 	smb1	RFC_Flag							; 禁用RFC采样
 	jsr		F_Timer_NormalMode					; 定时器配置为响铃和长按状态,关闭定时器同步
 
-	lda		#0
-	sta		RFC_TempCount_H						; 清理三通道的采样值
-	sta		RFC_TempCount_M
-	sta		RFC_TempCount_L
-	sta		RFC_HumiCount_H
-	sta		RFC_HumiCount_M
-	sta		RFC_HumiCount_L
-	sta		RFC_StanderCount_H
-	sta		RFC_StanderCount_M
-	sta		RFC_StanderCount_L
-
+	jsr		L_CLR_RFC
 	sta		RFC_ChannelCount					; 重置通道计数
+
 	rts
 
 

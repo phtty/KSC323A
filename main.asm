@@ -3,17 +3,14 @@
 
 CODE_BEG	EQU		E000H							; 起始地址
 
-PROG	SECTION	OFFSET	CODE_BEG					; 定义代码段的偏移量从CODE_BEG开始，用于组织程序代码。
-
+PROG		SECTION OFFSET CODE_BEG					; 定义代码段的偏移量从CODE_BEG开始，用于组织程序代码。
 .include	50Px1x.h								; 头文件
 .include	RAM.INC	
 .include	MACRO.mac
 
 STACK_BOT		EQU		FFH							; 堆栈底部
+.PROG												; 程序开始
 
-
-
-	.PROG											; 程序开始
 V_RESET:
 	nop
 	nop
@@ -49,19 +46,30 @@ L_Clear_Ram_Loop:
 
 	cli												; 开总中断
 
-; Test Code
+; 上电处理
 	lda		#2
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
 
 	jsr		F_Test_Mode								; 上电显示部分
 
-	jsr		F_RFC_MeasureStart						; 上电先进行一次温湿度测量
+	jsr		F_RFC_MeasureStart						; 上电温湿度测量
 Wait_RFC_MeasureOver:
 	jsr		F_RFC_MeasureManage
 	bbs0	RFC_Flag,Wait_RFC_MeasureOver
+
+	jsr		F_SymbolRegulate
 	jsr		F_Display_Time
 	jsr		F_Display_Week
+
+	lda		#4										; 上电蜂鸣器响2声
+	sta		Beep_Serial
+	smb0	TMRC
+Loop_BeepTest:										; 响铃两声
+	jsr		F_Louding
+	lda		Beep_Serial
+	bne		Loop_BeepTest
+	rmb0	TMRC
 
 	lda		#0001B
 	sta		Sys_Status_Flag

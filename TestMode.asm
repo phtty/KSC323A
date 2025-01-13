@@ -52,28 +52,12 @@ Loop_DisSymbol2:
 	sta		P_Temp+4
 	ldx		#led_TMP
 	jsr		F_DisSymbol
-Loop_DisSymbol3:
-	bbr0	Timer_Flag,Loop_DisSymbol3
-	rmb0	Timer_Flag
 
-	lda		#4									; 上电蜂鸣器响2声
-	sta		Beep_Serial
-	smb0	TMRC
-
-	bbs6	PB,StartUp_WakeUp					; 如果没有5V供电
+	bbr6	PB,StartUp_WakeUp
+	smb0	Backlight_Flag						; 有5V供电则置位DC标志
+StartUp_WakeUp:
 	smb3	Key_Flag							; 上电先给一个唤醒事件，免得上电不显示
 	rmb4	PD
-	bra		Loop_BeepTest
-StartUp_WakeUp:
-	smb0	Backlight_Flag
-Loop_BeepTest:
-	jsr		F_Louding
-	lda		Beep_Serial
-	bne		Loop_BeepTest
-
-	rmb0	TMRC
-	rmb0	SYSCLK								; 弱模式
-	jsr		F_ClearScreen
 	rts
 
 

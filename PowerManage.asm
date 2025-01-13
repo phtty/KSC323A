@@ -134,7 +134,6 @@ L_Close_5020:
 	rts
 
 L_Open_5020:
-	smb6	IER
 	lda		PC
 	and		#$f0
 	ora		PC_IO_Backup
@@ -144,4 +143,5 @@ L_Open_5020:
 	and		#$1f
 	ora		PD_IO_Backup
 	sta		PD
+	smb6	IER
 	rts

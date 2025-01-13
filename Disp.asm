@@ -280,16 +280,16 @@ Table_Word_7bit:
 	.byte	$40	; - 9
 
 Table_Week_7bit:
-	.byte	$01		; SUN
-	.byte	$02		; MON
-	.byte	$04		; TUE
-	.byte	$08		; WED
-	.byte	$10		; THU
-	.byte	$20		; FRI
-	.byte	$40		; SAT
-	.byte	$00		; undisplay
+	.byte	$01	; SUN
+	.byte	$02	; MON
+	.byte	$04	; TUE
+	.byte	$08	; WED
+	.byte	$10	; THU
+	.byte	$20	; FRI
+	.byte	$40	; SAT
+	.byte	$00	; undisplay
 
 Table_COMx_SEL:
-	.byte	$f7		; COM0_SEL
-	.byte	$fb		; COM1_SEL
-	.byte	$fd		; COM2_SEL
+	.byte	$f7	; COM0_SEL
+	.byte	$fb	; COM1_SEL
+	.byte	$fd	; COM2_SEL

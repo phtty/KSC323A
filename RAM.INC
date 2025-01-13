@@ -86,7 +86,8 @@ Key_Flag				DS		1
 ;bit6 = 1 DP显示标志位
 ;bit7 = 1 DP显示1S标志
 
-SpecialKey_Flag			DS		1	; 长短按功能不同的按键
+; 长短按功能不同的按键
+SpecialKey_Flag			DS		1
 ;bit0 = 1 Alarm键待处理				|特殊按键
 ;bit1 = 1 SNZ/Backlight键待处理		|特殊按键
 ;bit2 = 1 Mode键待处理				|特殊按键

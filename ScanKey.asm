@@ -93,10 +93,10 @@ L_KeyScanExit:
 	rts
 
 L_KeyNoScanExit:								; 没有扫键的情况下是空闲状态，此时判断是否取消禁用RFC采样
-	bbs4	Key_Flag,L_KeyScanExit				; 按键音和响闹模式下，则不取消禁用
-	bbs2	Clock_Flag,L_KeyScanExit
+	bbs4	Key_Flag,L_KeyExit				; 按键音和响闹模式下，则不取消禁用
+	bbs2	Clock_Flag,L_KeyExit
 	rmb1	RFC_Flag							; 取消禁用RFC采样						
-	rts
+	bra		L_KeyExit
 
 
 F_SpecialKey_Handle:							; 特殊按键的处理
@@ -142,7 +142,7 @@ L_KeyU_ShortHandle:
 	beq		KeyU_NoDisMode
 	lda		#0001B
 	sta		Sys_Status_Flag
-	jsr		Switch_TimeMode						; 显示模式下切换12/24h模式
+	jsr		DM_SW_TimeMode						; 显示模式下切换12/24h模式
 	rts
 KeyU_NoDisMode:
 	lda		Sys_Status_Flag
@@ -562,20 +562,27 @@ L_Snooze_Exit:
 
 
 
-; 12、24h模式切换
-Switch_TimeMode:
+; 时钟设置下的12、24h模式切换
+ClockSet_SW_TimeMode:
+	lda		Clock_Flag
+	eor		#01									; 翻转12/24h模式的状态
+	sta		Clock_Flag
+
+	smb0	Timer_Flag							; 退出后立即进行一次显示
+	rmb1	Timer_Flag
+	rts
+
+; 显示模式下12、24h模式切换
+DM_SW_TimeMode:
 	lda		Clock_Flag
 	eor		#01									; 翻转12/24h模式的状态
 	sta		Clock_Flag
 
 	rmb6	Key_Flag							; 清除DP显示
-
-	bbr2	Key_Flag,SW_TimeMode_Exit
 	lda		#0
 	sta		Sys_Status_Ordinal					; 如果是轮显模式，切换小时制会回到时显
-SW_TimeMode_Exit:
-	smb0	Timer_Flag							; 退出后立即进行一次显示
-	rmb1	Timer_Flag
+
+	jsr		F_Display_Time
 	rts
 
 
@@ -597,7 +604,7 @@ TemperMode_Change:
 AddNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch
-	jmp		Switch_TimeMode
+	jmp		ClockSet_SW_TimeMode
 No_CS_TMSwitch:
 	cmp		#1
 	bne		No_CS_HourAdd
@@ -643,7 +650,7 @@ No_AlarmHourSet_Add:
 SubNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch2
-	jmp		Switch_TimeMode
+	jmp		ClockSet_SW_TimeMode
 No_CS_TMSwitch2:
 	cmp		#1
 	bne		No_CS_HourSub
@@ -996,7 +1003,7 @@ L_KeyDelay:
 DelayLoop:
 	inc		P_Temp
 	lda		P_Temp
-	cmp		#129
+	cmp		#65
 	bcc		DelayLoop
 	
 	rts
