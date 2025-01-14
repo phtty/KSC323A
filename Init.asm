@@ -204,6 +204,8 @@ F_Timer_NormalMode:
 	smb2	IER
 
 	rmb0	RFC_Flag							; 清除采样启用中标志位
+	rmb3	RFC_Flag
+	rmb6	RFC_Flag
 
 	rts
 

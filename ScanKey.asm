@@ -12,9 +12,6 @@ F_KeyHandler:
 L_KeyYes:
 	rmb4	IER									; 按键确定触发后，关闭中断避免误触发
 	sta		PA_IO_Backup
-	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
-	jsr		F_RFC_Abort
-?RFC_Sample_Juge:
 	bra		L_KeyHandle							; 首次触发处理结束
 
 L_Key4Hz:
@@ -93,10 +90,10 @@ L_KeyScanExit:
 	rts
 
 L_KeyNoScanExit:								; 没有扫键的情况下是空闲状态，此时判断是否取消禁用RFC采样
-	bbs4	Key_Flag,L_KeyExit				; 按键音和响闹模式下，则不取消禁用
-	bbs2	Clock_Flag,L_KeyExit
+	bbs4	Key_Flag,L_KeyScanExit				; 按键音和响闹模式下，则不取消禁用
+	bbs2	Clock_Flag,L_KeyScanExit
 	rmb1	RFC_Flag							; 取消禁用RFC采样						
-	bra		L_KeyExit
+	rts
 
 
 F_SpecialKey_Handle:							; 特殊按键的处理
@@ -344,7 +341,10 @@ No_Extinguish:
 	sta		Sys_Status_Ordinal
 DP_2Mode_Reset:
 	jsr		L_Open_5020							; 亮屏开启LCD中断
-	jsr		F_RFC_MeasureStart					; 唤醒后立刻进行一次温湿度测量
+	bbs2	Backlight_Flag,WakeUp_WithNoRFC
+	rmb2	Backlight_Flag
+	jsr		F_RFC_MeasureStart					; 非手动熄屏唤醒后立刻进行一次温湿度测量
+WakeUp_WithNoRFC:
 	lda		#2
 	sta		Backlight_Level						; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
@@ -379,7 +379,10 @@ SwitchState_ClockDis:
 	bbr0	Sys_Status_Ordinal,?SWState_ClockDis_Eixt
 	lda		#5
 	sta		Return_MaxTime						; 日显示模式，返回时间设为5S
+	jsr		F_Date_Display
+	rts
 ?SWState_ClockDis_Eixt:
+	jsr		F_Display_Time
 	rts
 
 
@@ -528,6 +531,7 @@ Level0:
 	rmb0	PC	
 	jsr		L_Close_5020						; 熄屏后关闭LCD中断
 	smb2	Backlight_Flag						; 手动亮度调节熄屏标志
+	smb0	PC_IO_Backup
 	rts
 
 
@@ -1003,7 +1007,7 @@ L_KeyDelay:
 DelayLoop:
 	inc		P_Temp
 	lda		P_Temp
-	cmp		#65
+	cmp		#129
 	bcc		DelayLoop
 	
 	rts

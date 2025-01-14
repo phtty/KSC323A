@@ -17,9 +17,9 @@ V_RESET:
 	nop
 	ldx		#STACK_BOT
 	txs												; 使用这个值初始化堆栈指针，这通常是为了设置堆栈的底部地址，确保程序运行中堆栈的正确使用。
-	lda		#$17									; #$97
+	lda		#$07									; #$97
 	sta		SYSCLK									; 设置系统时钟
-	
+
 	lda		#00										; 清整个RAM
 	ldx		#$ff
 	sta		$1800
@@ -33,7 +33,6 @@ L_Clear_Ram_Loop:
 	lda		#$0
 	sta		DIVC									; 分频控制器，定时器与DIV异步
 	sta		IER										; 除能中断
-	sta		IFR										; 初始化中断标志位
 	lda		FUSE
 	sta		MF0										; 为内部RC振荡器提供校准数据	
 
@@ -81,8 +80,9 @@ Loop_BeepTest:										; 响铃两声
 
 ; 状态机
 MainLoop:
+	smb4	SYSCLK
 	sta		HALT									; 休眠
-	nop
+	rmb4	SYSCLK
 Global_Run:											; 全局生效的功能处理
 	jsr		F_KeyHandler
 	jsr		F_PowerManage
@@ -223,30 +223,14 @@ L_4Hz_Out:
 
 L_Timer2Irq:
 	rmb3	IFR									; 清中断标志位
-	smb0	Timer_Flag							; 半秒标志
-	smb0	Symbol_Flag
-	lda		Counter_1Hz
-	cmp		#01
-	bcs		L_1Hz_Out
-	inc		Counter_1Hz
-	bra		L_EndIrq
-L_1Hz_Out:
-	lda		#$0
-	sta		Counter_1Hz
-	lda		Timer_Flag
-	ora		#10100110B							; 1S、增S、熄屏的1S、响铃1S标志位
-	sta		Timer_Flag
-	smb1	Backlight_Flag						; 亮屏1S计时
-	smb7	Key_Flag							; DP显示1S计时
-	smb1	Symbol_Flag
-	smb7	Clock_Flag							; 返回时显1S计时
-	smb5	RFC_Flag							; 30S采样计时
-	rmb4	Clock_Flag							; 清除响闹阻塞标志
-	bra		L_EndIrq
+	jmp		I_Timer2IRQ_Handler
 
 L_PaIrq:
 	rmb4	IFR									; 清中断标志位
-
+	rmb4	SYSCLK
+	bbr0	RFC_Flag,?RFC_Sample_Juge			; 按键会打断RFC采样
+	jsr		F_RFC_Abort
+?RFC_Sample_Juge:
 	smb0	Key_Flag
 	smb1	Key_Flag							; 首次触发
 	rmb3	Timer_Flag							; 如果有新的下降沿到来，清快加标志位
@@ -283,29 +267,28 @@ L_EndIrq:
 ;
 ;	smb1	TMRC								; 打开快加定时
 ;	bra		L_EndIrq
-;
-;
-;I_Timer2IRQ_Handler:
-;	smb0	Timer_Flag							; 半秒标志
-;	smb0	Symbol_Flag
-;	lda		Counter_1Hz
-;	cmp		#01
-;	bcs		L_1Hz_Out
-;	inc		Counter_1Hz
-;	bra		L_EndIrq
-;L_1Hz_Out:
-;	lda		#$0
-;	sta		Counter_1Hz
-;	lda		Timer_Flag
-;	ora		#10100110B							; 1S、增S、熄屏的1S、响铃1S标志位
-;	sta		Timer_Flag
-;	smb1	Backlight_Flag						; 亮屏1S计时
-;	smb7	Key_Flag							; DP显示1S计时
-;	smb1	Symbol_Flag
-;	smb7	Clock_Flag							; 返回时显1S计时
-;	smb5	RFC_Flag							; 30S采样计时
-;	rmb4	Clock_Flag							; 清除响闹阻塞标志
-;	bra		L_EndIrq
+
+I_Timer2IRQ_Handler:
+	smb0	Timer_Flag							; 半秒标志
+	smb0	Symbol_Flag
+	lda		Counter_1Hz
+	cmp		#01
+	bcs		L_1Hz_Out
+	inc		Counter_1Hz
+	bra		L_EndIrq
+L_1Hz_Out:
+	lda		#$0
+	sta		Counter_1Hz
+	lda		Timer_Flag
+	ora		#10100110B							; 1S、增S、熄屏的1S、响铃1S标志位
+	sta		Timer_Flag
+	smb1	Backlight_Flag						; 亮屏1S计时
+	smb7	Key_Flag							; DP显示1S计时
+	smb1	Symbol_Flag
+	smb7	Clock_Flag							; 返回时显1S计时
+	smb5	RFC_Flag							; 30S采样计时
+	rmb4	Clock_Flag							; 清除响闹阻塞标志
+	bra		L_EndIrq
 
 
 .include	ScanKey.asm
