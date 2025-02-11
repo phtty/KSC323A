@@ -187,6 +187,10 @@ L_KeyATrigger:
 StatusCS_No_KeyA:
 	cmp		#1000B
 	bne		StatusAS_No_KeyA
+	bbr3	Timer_Flag,L_ASMode_KeyA_ShortTri
+	jsr		L_Key_NoBeep
+	jmp		L_KeyExit							; 闹钟设置模式A键长按无效
+L_ASMode_KeyA_ShortTri:
 	smb0	SpecialKey_Flag						; 闹设模式下，A键为特殊功能按键
 	rts
 StatusAS_No_KeyA:
@@ -222,6 +226,10 @@ L_KeyMTrigger:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyM
+	bbr3	Timer_Flag,L_CSMode_KeyM_ShortTri
+	jsr		L_Key_NoBeep
+	jmp		L_KeyExit							; 时设模式M键长按无效
+L_CSMode_KeyM_ShortTri:
 	smb2	SpecialKey_Flag
 	rts
 StatusCS_No_KeyM:
@@ -248,6 +256,10 @@ L_KeyUTrigger:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		Status_NoDisMode_KeyU				; 时钟显和闹显U键切换12/24h
+	bbr3	Timer_Flag,L_DMode_KeyU_ShortTri
+	jsr		L_Key_NoBeep
+	jmp		L_KeyExit							; 显示模式U键长按无效
+L_DMode_KeyU_ShortTri:
 	smb3	SpecialKey_Flag
 	rts
 Status_NoDisMode_KeyU:
@@ -274,6 +286,10 @@ L_KeyDTrigger:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		Status_NoDisMode_KeyD				; 判断是否为显示模式
+	bbr3	Timer_Flag,L_DMode_KeyD_ShortTri
+	jsr		L_Key_NoBeep
+	jmp		L_KeyExit							; 显示模式D键长按无效
+L_DMode_KeyD_ShortTri:
 	smb4	SpecialKey_Flag
 	rts
 Status_NoDisMode_KeyD:
@@ -337,16 +353,13 @@ No_Extinguish:
 	bbr0	Sys_Status_Flag,DP_2Mode_Reset
 	bbr2	Key_Flag,DP_2Mode_Reset
 	lda		#0
-	sta		Return_Counter
-	sta		Sys_Status_Ordinal
+	sta		Sys_Status_Ordinal					; 时钟显示模式下熄屏亮屏会回到时显
 DP_2Mode_Reset:
 	jsr		L_Open_5020							; 亮屏开启LCD中断
 	bbs2	Backlight_Flag,WakeUp_WithNoRFC
 	rmb2	Backlight_Flag
 	jsr		F_RFC_MeasureStart					; 非手动熄屏唤醒后立刻进行一次温湿度测量
 WakeUp_WithNoRFC:
-	lda		#2
-	sta		Backlight_Level						; 熄屏后有按键，则亮度等级设置为最高并亮屏
 	pla
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
@@ -359,7 +372,13 @@ L_Key_Beep:
 	sta		Beep_Serial
 	smb0	TMRC								; 开TIM0蜂鸣器时钟
 	smb4	Key_Flag							; 置位按键提示音标志
-	jsr		L_Beeping
+	rts
+
+L_Key_NoBeep:
+	lda		#0									; 设置按键提示音的响铃序列
+	sta		Beep_Serial
+	rmb0	TMRC								; 关TIM0蜂鸣器时钟
+	rmb4	Key_Flag							; 复位按键提示音标志
 	rts
 
 
@@ -382,7 +401,7 @@ SwitchState_ClockDis:
 	jsr		F_Date_Display
 	rts
 ?SWState_ClockDis_Eixt:
-	jsr		F_Display_Time
+	jsr		L_TimeDot_Out
 	rts
 
 
@@ -468,7 +487,6 @@ L_Ordinal_Exit_CS:
 SwitchState_AlarmSet:
 	lda		#15
 	sta		Return_MaxTime						; 设置模式，15S返回时显
-	smb0	Timer_Flag							; 切换时给一个半S标志，立刻更新显示
 
 	lda		Sys_Status_Flag
 	cmp		#1000B
@@ -572,8 +590,7 @@ ClockSet_SW_TimeMode:
 	eor		#01									; 翻转12/24h模式的状态
 	sta		Clock_Flag
 
-	smb0	Timer_Flag							; 退出后立即进行一次显示
-	rmb1	Timer_Flag
+	jsr		L_Dis_xxHr
 	rts
 
 ; 显示模式下12、24h模式切换

@@ -403,43 +403,15 @@ L_50Degree_Humid_NoOverFlow:
 
 ; 标准电阻采样值乘以512
 L_RR_Multi_512:
+	lda		#9
+	sta		P_Temp
+RR_Multi_512_Loop:
 	clc
 	rol		RFC_StanderCount_L
 	rol		RFC_StanderCount_M
 	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-	clc
-	rol		RFC_StanderCount_L
-	rol		RFC_StanderCount_M
-	rol		RFC_StanderCount_H
-
+	dec		P_Temp
+	bne		RR_Multi_512_Loop
 	rts
 
 

@@ -22,8 +22,6 @@ No_First_DCWake:
 No_5VDC_PWR:
 	smb0	Backlight_Flag
 	bbs3	Key_Flag,WakeUp_Event_Yes
-	; smb4	PD									; 无唤醒事件，则拉高PD4关闭5020
-	; jsr		L_Close_5020						; 熄屏后关闭LCD中断
 	rts
 WakeUp_Event_Yes:
 	lda		Backlight_Counter
@@ -117,7 +115,6 @@ KeyD_LowLight:
 
 
 L_Close_5020:
-	; bbs4	PD,Close_5020_Over					; 已经熄屏的情况下不再重复关闭5020
 	rmb6	IER
 	lda		PC
 	and		#$0f
@@ -132,7 +129,6 @@ L_Close_5020:
 	lda		PD
 	and		#$1f
 	sta		PD
-; Close_5020_Over:
 	rts
 
 L_Open_5020:

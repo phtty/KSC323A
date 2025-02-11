@@ -50,7 +50,7 @@ No_AlarmHourSet_Mode:
 
 ; 闹钟开关显示
 F_Alarm_SwitchStatue:
-	jsr		F_ClrCol
+	jsr		F_DisCol
 
 	bbs0	Timer_Flag,?AlarmSW_BlinkStart
 	rts

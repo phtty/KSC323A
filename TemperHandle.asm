@@ -89,38 +89,15 @@ L_RT_Div_RR:
 
 ; 热敏电阻乘以256
 L_RT_Multi_256:
+	lda		#8
+	sta		P_Temp
+RT_Multi_256_Loop:
 	clc
 	rol		RFC_TempCount_L
 	rol		RFC_TempCount_M
 	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
-	clc
-	rol		RFC_TempCount_L
-	rol		RFC_TempCount_M
-	rol		RFC_TempCount_H
+	dec		P_Temp
+	bne		RT_Multi_256_Loop
 	rts
 
 

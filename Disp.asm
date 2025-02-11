@@ -48,7 +48,7 @@ L_Judge_Dis_7Bit_DigitDot:				; 显示循环的开始
 	bcc		L_CLR_7bit					; 当前段的值若是0则进清点子程序
 	lda		LED_RamAddr,x				; 将目标段的显存的特定bit位置1来打亮
 	ora		P_Temp+3					; 将COM和SEG信息与LED RAM地址进行逻辑或操作
-	
+
 	sta		LED_RamAddr,x
 	bra		L_Inc_Dis_Index_Prog_7bit	; 跳转到显示索引增加的子程序。
 L_CLR_7bit:	
@@ -80,7 +80,7 @@ Now_Week:
 L_Judge_Dis_7Bit_WeekDot:				; 显示循环的开始
 	ldx		P_Temp+1					; 取回偏移量作为索引
 	lda		Led_bit,x					; 查表定位目标段的bit位
-	sta		P_Temp+3	
+	sta		P_Temp+3
 	lda		Led_byte,x					; 查表定位目标段的显存地址
 	tax
 	ror		P_Temp						; 循环右移取得目标段是亮或者灭

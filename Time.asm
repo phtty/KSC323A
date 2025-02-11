@@ -61,6 +61,7 @@ L_Dot_Clear:
 
 
 
+; 时钟设置模式
 F_Clock_Set:
 	lda		Sys_Status_Ordinal
 	bne		No_TMSwitch_Display
@@ -95,12 +96,10 @@ No_MonthSet_Display:
 
 	jmp		F_DisDay_Set
 
-	rts
 
 
 
-
-; 时间模式切换显示
+; 时间设置模式切换显示
 F_TimeMode_Switch:
 	bbs0	Timer_Flag,L_TimeMode_Out
 	rts

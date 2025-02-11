@@ -46,6 +46,7 @@ L_Clear_Ram_Loop:
 	cli												; 开总中断
 
 ; 上电处理
+	rmb4	IER										;  关闭按键中断避免上电过程被打扰
 	lda		#2
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
@@ -57,8 +58,10 @@ Wait_RFC_MeasureOver:
 	jsr		F_RFC_MeasureManage
 	bbs0	RFC_Flag,Wait_RFC_MeasureOver
 
+	smb0	Timer_Flag
+	rmb1	Timer_Flag
 	jsr		F_SymbolRegulate
-	jsr		F_Display_Time
+	jsr		F_Time_Display
 	jsr		F_Display_Week
 
 	lda		#4										; 上电蜂鸣器响2声
@@ -75,6 +78,8 @@ Loop_BeepTest:										; 响铃两声
 	lda		#0
 	sta		Sys_Status_Ordinal
 
+	smb4	IER										;  上电显示完成，重新开启按键中断
+
 	bra		Global_Run
 
 
@@ -85,9 +90,9 @@ MainLoop:
 	rmb4	SYSCLK
 Global_Run:											; 全局生效的功能处理
 	jsr		F_KeyHandler
+	jsr		F_Louding
 	jsr		F_PowerManage
 	jsr		F_Time_Run								; 走时
-	jsr		F_Louding
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
 	jsr		F_RFC_MeasureManage
@@ -321,4 +326,3 @@ L_1Hz_Out:
 
 .ENDS
 .END
-	
