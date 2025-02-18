@@ -50,13 +50,13 @@ L_Judge_Dis_7Bit_DigitDot:				; 显示循环的开始
 	ora		P_Temp+3					; 将COM和SEG信息与LED RAM地址进行逻辑或操作
 
 	sta		LED_RamAddr,x
-	bra		L_Inc_Dis_Index_Prog_7bit	; 跳转到显示索引增加的子程序。
+	bra		L_Inc_Dis_Index_Digit_7bit	; 跳转到显示索引增加的子程序。
 L_CLR_7bit:	
 	lda		LED_RamAddr,x				; 加载LED RAM的地址
 	ora		P_Temp+3					; 先置1确定状态再异或翻转成0
 	eor		P_Temp+3
 	sta		LED_RamAddr,x				; 将结果写回LED RAM，清除对应位置。
-L_Inc_Dis_Index_Prog_7bit:
+L_Inc_Dis_Index_Digit_7bit:
 	inc		P_Temp+1					; 递增偏移量，处理下一个段
 	dec		P_Temp+2					; 递减剩余要显示的段数
 	bne		L_Judge_Dis_7Bit_DigitDot	; 剩余段数为0则返回
@@ -175,7 +175,7 @@ L_Send_Buffer_COM:
 	rol
 	rol
 	tax
-	lda		LED_RamAddr,x				; 32个Seg的状态依次送进P_Temp
+	lda		LED_RamAddr,x				; 32个Seg的状态依次送进LED_Temp
 	sta		LED_Temp
 	inx
 	lda		LED_RamAddr,x

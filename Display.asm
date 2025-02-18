@@ -64,13 +64,13 @@ L_Hour_Tens_NoZero:
 
 
 ; Sys_Status_Ordinal = 闹钟序号
-F_Display_Alarm:									; 调用显示函数显示当前闹钟
+F_Display_Alarm:								; 调用显示函数显示当前闹钟
 	jsr		L_DisAlarm_Min
 	jsr		L_DisAlarm_Hour
 	rts
 
 L_DisAlarm_Min:
-	lda		Sys_Status_Ordinal						; 判断要显示三组闹钟的哪一个
+	lda		Sys_Status_Ordinal					; 判断要显示三组闹钟的哪一个
 	bne		No_Alarm1Min_Display
 	lda		R_Alarm1_Min
 	bra		AlarmMin_Display_Start
