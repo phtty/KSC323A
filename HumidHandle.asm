@@ -183,11 +183,9 @@ L_5Degree_Humid:
 	lda		Humid_5Degree_Table,x
 	sec
 	sbc		RR_Div_RH_L
-	sta		RR_Div_RH_L
 	inx
 	lda		Humid_5Degree_Table,x
 	sbc		RR_Div_RH_H
-	sta		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
 	smb3	RFC_Flag							; 如果不够减，则说明循环完成
 	dex

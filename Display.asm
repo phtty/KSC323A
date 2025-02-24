@@ -278,24 +278,36 @@ Dis_CDegree:
 Display_CelsiusDegree:
 	lda		R_Temperature
 	jsr		L_A_DecToHex
-	pha
+	sta		P_Temp+7
 	and		#$0f
 	ldx		#led_d6
 	jsr		L_Dis_7Bit_DigitDot
-	pla
+	lda		P_Temp+7
 	and		#$f0
+	beq		Degree_NoTens						; 高4位为0，则d5不显示
 	jsr		L_LSR_4Bit
 	ldx		#led_d5
 	jsr		L_Dis_7Bit_DigitDot
+	bra		Dis_CelSymbol
+Degree_NoTens:
+	lda		#10
+	ldx		#led_d5
+	jsr		L_Dis_7Bit_DigitDot
+	bbr2	RFC_Flag,NoMinusTemper				; 温度是个位负数时，d5显示负号
 
+	ldx		#led_d5+6
+	jsr		F_DisSymbol
+	bra		NoMinusTemper
+
+Dis_CelSymbol:
+	bbr2	RFC_Flag,NoMinusTemper				; 温度为十位负数时，d4显示负号
+	ldx		#led_minus
+	jsr		F_DisSymbol
+
+NoMinusTemper:
 	lda		#0									; 显示摄氏度C
 	ldx		#led_d7
 	jsr		L_Dis_7Bit_WordDot
-
-	bbr2	RFC_Flag,?NoMinusTemper				; 温度为负时，显示负号
-	ldx		#led_minus
-	jsr		F_DisSymbol
-?NoMinusTemper:
 	rts
 
 
@@ -329,7 +341,7 @@ Display_FahrenheitDegree:
 ; 显示湿度函数
 F_Display_Humid:
 	lda		R_Humidity
-	beq		?Minus_Temper						; 温度为负时，没有湿度
+	beq		DisHumid_MinusTemper				; 温度为负时，不显示湿度
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
@@ -341,7 +353,7 @@ F_Display_Humid:
 	ldx		#led_d8
 	jsr		L_Dis_7Bit_DigitDot
 	rts
-?Minus_Temper:
+DisHumid_MinusTemper:
 	lda		#9
 	ldx		#led_d8
 	jsr		L_Dis_7Bit_WordDot
