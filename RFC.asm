@@ -18,7 +18,7 @@ F_RFC_MeasureStart:
 	lda		#0
 	sta		Count_RFC							; 满30S后，不再计数，开始采样
 	sta		RFC_ChannelCount					; 采样开始，清除通道计数
-	
+
 	smb0	RFC_Flag
 	rmb0	IFR									; 清除DIV中断标志位
 	smb0	IER									; 打开DIV中断

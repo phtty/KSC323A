@@ -141,7 +141,7 @@ L_RR_Div_RH:
 	sbc		RFC_HumiCount_M
 	sta		RFC_StanderCount_M
 	lda		RFC_StanderCount_H
-	sbc		RFC_HumiCount_M
+	sbc		RFC_HumiCount_H
 	sta		RFC_StanderCount_H
 
 	lda		RR_Div_RH_L
