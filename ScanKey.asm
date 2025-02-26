@@ -997,7 +997,7 @@ DateDay_NoOverflow:
 ; 天数是否溢出的判断
 L_DayOverflow_To_1:
 	jsr		F_Is_Leap_Year
-	bbs0	Calendar_Flag,L_LeapYear_Handle2		; 平年闰年的表分开查
+	bbs0	Calendar_Flag,L_LeapYear_Handle2	; 平年闰年的表分开查
 	ldx		R_Date_Month						; 查平年每月份天数表
 	dex
 	lda		L_Table_Month_Common,x

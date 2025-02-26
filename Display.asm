@@ -115,7 +115,6 @@ AlarmHour_Display_Start:
 	bbr0	Clock_Flag,L_24hMode_Alarm
 
 	lda		R_Alarm_Hour
-	jsr		L_A_DecToHex
 	cmp		#12
 	bcs		L_Alarm12h_PM
 	ldx		#led_PM								; 12h模式AM需要灭PM点

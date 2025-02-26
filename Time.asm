@@ -106,6 +106,8 @@ F_TimeMode_Switch:
 L_TimeMode_Out:
 	rmb0	Timer_Flag
 	jsr		F_ClrCol
+	ldx		#led_PM
+	jsr		F_ClrSymbol
 	bbs3	Timer_Flag,L_TimeMode_Display
 	bbs1	Timer_Flag,L_Mode_Clear
 L_TimeMode_Display:
