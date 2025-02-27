@@ -53,6 +53,7 @@ Clock_Flag				DS		1
 ;bit6 = 1 贪睡按键触发导致的响闹结束
 ;bit7 = 1 返回时显模式1S计时
 
+
 Timer_Flag				DS		1
 ;bit0 = 1 Timer2 半S计时
 ;bit1 = 1 Timer2 1S计时

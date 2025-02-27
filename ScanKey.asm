@@ -431,6 +431,7 @@ SwitchState_DisMode:
 SwitchState_AlarmDis:
 	lda		#5
 	sta		Return_MaxTime						; 显示模式，5S返回时显
+	jsr		DP_Display_Over						; 清空DP模式和计时，防止回去继续显示DP
 
 	lda		Sys_Status_Flag
 	cmp		#0010B
@@ -457,6 +458,7 @@ L_Ordinal_Exit_AD:
 SwitchState_ClockSet:
 	lda		#15
 	sta		Return_MaxTime						; 设置模式，15S返回时显
+	jsr		DP_Display_Over						; 清空DP模式和计时，防止回去继续显示DP
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
@@ -487,6 +489,7 @@ L_Ordinal_Exit_CS:
 SwitchState_AlarmSet:
 	lda		#15
 	sta		Return_MaxTime						; 设置模式，15S返回时显
+	jsr		DP_Display_Over						; 清空DP模式和计时，防止回去继续显示DP
 
 	lda		Sys_Status_Flag
 	cmp		#1000B
