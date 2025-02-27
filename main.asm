@@ -80,6 +80,8 @@ Loop_BeepTest:										; 响铃两声
 
 	smb4	IER										;  上电显示完成，重新开启按键中断
 
+	smb0	Alarm_Switch
+
 	bra		Global_Run
 
 

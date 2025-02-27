@@ -105,7 +105,7 @@ RFC_Flag				DS		1
 ;bit6 = 1 温湿度测量完成标志
 
 Backlight_Flag			DS		1
-;bit0 = 1 DC5V接入时唤醒
+;bit0 = 1 非DC5V接入时唤醒
 ;bit1 = 1 亮屏1S计时
 ;bit2 = 1 手动进入熄屏模式
 ;bit3 = 1 B键进入的唤醒事件

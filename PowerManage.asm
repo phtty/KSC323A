@@ -2,21 +2,24 @@ F_PowerManage:
 	jsr		L_HLightLevel_WithTime				; 7点后设为高亮
 	jsr		L_LLightLevel_WithTime				; 18点后设为低亮
 
-	bbs2	Clock_Flag,WakeUp_Trigger			; 响闹时5020开启
+	bbs2	Clock_Flag,WakeUp_Trigger			; 响闹时5020开启并刷新亮屏时间
 
 	bbr6	PB,No_5VDC_PWR
-	bbr0	Backlight_Flag,No_First_DCWake
+	bbr0	Backlight_Flag,L_5020_NoWakeUp
 	rmb0	Backlight_Flag						; 插入DC5V时进行一次亮屏
-	bbs2	Backlight_Flag,No_First_DCWake		; 手动进入的熄屏模式不唤醒
 WakeUp_Trigger:
 	bbr4	PD,L_5020_NoWakeUp
+	bbs2	Clock_Flag,Louding_WakeUp			; 响闹亮屏会进入记忆亮度
+	lda		#2
+	sta		Backlight_Level						; DC5V亮屏会将亮度设置为最高
+	smb0	PC_IO_Backup						; 修改记忆亮度为高亮
+Louding_WakeUp:
 	rmb4	PD
 	jsr		L_Open_5020							; 亮屏后打开LCD中断
 L_5020_NoWakeUp:
 	lda		#0
 	sta		Backlight_Counter
 	smb3	Key_Flag							; 给屏幕唤醒事件，避免切回去的时候不开中断
-No_First_DCWake:
 	rts
 
 No_5VDC_PWR:
@@ -52,6 +55,7 @@ L_HLightLevel_WithTime:
 	lda		R_Time_Sec
 	cmp		#0
 	bne		?LightLevel_Exit
+	smb0	PC_IO_Backup						; 修改记忆亮度为高亮
 	smb0	PC									; 设置为高亮
 	lda		#2
 	sta		Backlight_Level
@@ -69,6 +73,7 @@ L_LLightLevel_WithTime:
 	cmp		#0
 	bne		?LightLevel_Exit
 	rmb0	PC									; 设置为低亮
+	rmb0	PC_IO_Backup						; 修改记忆亮度为低亮
 	lda		#1
 	sta		Backlight_Level
 ?LightLevel_Exit:
