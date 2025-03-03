@@ -93,8 +93,7 @@ L_Get_Weak_YearFirstDay:
 ; 日期显示
 F_Date_Display:
 	jsr		F_ClrCol								; 日期不显示COL和PM
-	ldx		#led_PM
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM
 
 	jsr		F_Display_Date							; 显示月日
 

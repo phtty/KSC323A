@@ -8,19 +8,19 @@ L_Beeping:
 	beq		L_NoBeep_Serial_Mode
 	dec		Beep_Serial
 	bbr0	Beep_Serial,L_NoBeep_Serial_Mode
-	smb4	PADF0								; PB3ÅäÖÃÎªIO¿Ú
-	smb3	PB_TYPE								; PB3 ÉèÖÃCMOSÊä³ö
-	smb1	PADF0								; PB3 PWMÊä³ö¿ØÖÆ
+	smb4	PADF0								; PB3é…ç½®ä¸ºIOå£
+	smb3	PB_TYPE								; PB3 è®¾ç½®CMOSè¾“å‡º
+	smb1	PADF0								; PB3 PWMè¾“å‡ºæ§åˆ¶
 	rts
 L_NoBeep_Serial_Mode:
-	rmb1	PADF0								; PB3 PWMÊä³ö¿ØÖÆ
-	rmb4	PADF0								; PB3ÅäÖÃÎªIO¿Ú
-	rmb3	PB_TYPE								; PB3Ñ¡ÔñNMOSÊä³ö1±ÜÃâÂ©µç
+	rmb1	PADF0								; PB3 PWMè¾“å‡ºæ§åˆ¶
+	rmb4	PADF0								; PB3é…ç½®ä¸ºIOå£
+	rmb3	PB_TYPE								; PB3é€‰æ‹©NMOSè¾“å‡º1é¿å…æ¼ç”µ
 	smb3	PB
 
-	bbr4	Key_Flag,No_KeyBeep_Over			; Èç¹ûÊÇ°´¼üÒôÔòĞèÒªÔÚÏìÁå½áÊøºó¹Ø±Õ·äÃù¶¨Ê±Æ÷
+	bbr4	Key_Flag,No_KeyBeep_Over			; å¦‚æœæ˜¯æŒ‰é”®éŸ³åˆ™éœ€è¦åœ¨å“é“ƒç»“æŸåå…³é—­èœ‚é¸£å®šæ—¶å™¨
 	rmb4	Key_Flag
-	rmb1	RFC_Flag							; °´¼üÒôµÄÏìÁåÍê±ÏÖØĞÂÈ¡Ïû½ûÓÃRFC²ÉÑù
+	rmb1	RFC_Flag							; æŒ‰é”®éŸ³çš„å“é“ƒå®Œæ¯•é‡æ–°å–æ¶ˆç¦ç”¨RFCé‡‡æ ·
 	rmb0	TMRC
 No_KeyBeep_Over:
 	rts

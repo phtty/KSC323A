@@ -65,8 +65,8 @@ Timer_Flag				DS		1
 ;bit7 = 1 Timer2 响铃1S计时
 
 Symbol_Flag				DS		1	; 符号操作
-; bit0 = 1 ALM点半S标志
-; bit1 = 1 ALM点1S标志
+;bit0 = 1 ALM点半S标志
+;bit1 = 1 ALM点1S标志
 
 Sys_Status_Flag			DS		1
 ;bit0 = 1 时钟显示
@@ -105,15 +105,13 @@ RFC_Flag				DS		1
 ;bit6 = 1 温湿度测量完成标志
 
 Backlight_Flag			DS		1
-;bit0 = 1 非DC5V接入时唤醒
+;bit0 = 1 DC5V接入时唤醒
 ;bit1 = 1 亮屏1S计时
 ;bit2 = 1 手动进入熄屏模式
-;bit3 = 1 B键进入的唤醒事件
 
 Backlight_Level			DS		1	; 亮度等级
-;0 熄屏
-;1 低亮
-;2 高亮
+;0 低亮
+;1 高亮
 
 Alarm_Switch			DS		1	; 各个闹钟开关
 ;bit0 = 1 闹钟1开启

@@ -203,9 +203,7 @@ L_DisMode_KeyA_LongTri:
 
 
 L_KeyBTrigger:
-	; smb3	Backlight_Flag
 	jsr		L_Universal_TriggerHandle			; 通用按键处理
-	; rmb3	Backlight_Flag
 
 	bbr2	Clock_Flag,StatusLM_No_KeyB
 	jsr		Alarm_Snooze						; 响闹时贪睡处理
@@ -330,7 +328,7 @@ L_Universal_TriggerHandle:
 	lda		#0
 	sta		Return_Counter						; 重置返回时显模式计时
 
-	bbs4	PD,WakeUp_Event
+	bbs4	PD,WakeUp_Event						; 若此时熄屏，按键会导致亮屏
 	bbs3	Timer_Flag,?Handle_Exit
 	rmb1	Backlight_Flag
 	lda		#0
@@ -338,12 +336,6 @@ L_Universal_TriggerHandle:
 ?Handle_Exit:
 	rts
 WakeUp_Event:
-	lda		Backlight_Level
-	bne		No_Extinguish
-	lda		#2
-	sta		Backlight_Level						; 亮度为熄屏时被唤醒，则直接变为高亮显示
-	smb0	PC_IO_Backup
-No_Extinguish:
 	rmb4	PD
 	smb3	Key_Flag							; 熄屏状态有按键，则触发唤醒事件
 	bbr0	Sys_Status_Flag,DP_2Mode_Reset
@@ -352,7 +344,10 @@ No_Extinguish:
 	sta		Sys_Status_Ordinal					; 时钟显示模式下熄屏亮屏会回到时显
 DP_2Mode_Reset:
 	jsr		L_Open_5020							; 亮屏开启LCD中断
-	jsr		F_RFC_MeasureStart					; 熄屏唤醒后立刻进行一次温湿度测量
+	bbr2	Backlight_Flag,No_RFCMesure_KeyBeep	; 手动熄屏不会测量温湿度
+	rmb2	Backlight_Flag
+	jsr		F_RFC_MeasureStart					; 自动熄屏唤醒后立刻进行一次温湿度测量
+No_RFCMesure_KeyBeep:
 	pla
 	pla
 	jmp		L_KeyExit							; 唤醒触发的那次按键，没有按键功能
@@ -368,7 +363,7 @@ L_Key_Beep:
 	rts
 
 L_Key_NoBeep:
-	lda		#0									; 设置按键提示音的响铃序列
+	lda		#0									; 清除按键提示音的响铃序列
 	sta		Beep_Serial
 	rmb0	TMRC								; 关TIM0蜂鸣器时钟
 	rmb4	Key_Flag							; 复位按键提示音标志
@@ -524,25 +519,24 @@ L_Ordinal_Exit_AS:
 ; 0熄屏，1低亮
 LightLevel_Change:
 	lda		Backlight_Level
-	cmp		#2
-	bne		Level1
+	beq		Level0
 
-	lda		#1
+	lda		#0
 	sta		Backlight_Level
 	rmb4	PD									; 低亮
 	rmb0	PC
 	rmb0	PC_IO_Backup
 	rts
 
-Level1:
-	lda		#0
-	sta		Backlight_Level
-	smb4	PD									; 熄屏
+Level0:
 	rmb0	PC
 	jsr		L_Close_5020						; 熄屏后关闭LCD中断
+	lda		#1
+	sta		Backlight_Level
+	smb4	PD									; 下一次亮屏是高亮
 	smb0	PC_IO_Backup						; 设置记忆亮度为高亮，下次唤醒为高亮
 	rmb3	Key_Flag							; 置零屏幕唤醒标志
-
+	rmb2	Backlight_Flag						; 手动熄屏，按键唤醒不进行温湿度测量
 	rts
 
 

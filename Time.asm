@@ -78,21 +78,18 @@ No_MinSet_Display:
 	cmp		#3
 	bne		No_YearSet_Display
 	jsr		F_ClrCol								; 日期不显示COL和PM
-	ldx		#led_PM
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM
 	jmp		F_DisYear_Set
 No_YearSet_Display:
 	cmp		#4
 	bne		No_MonthSet_Display
 	jsr		F_ClrCol								; 日期不显示COL和PM
-	ldx		#led_PM
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM
 
 	jmp		F_DisMonth_Set
 No_MonthSet_Display:
 	jsr		F_ClrCol								; 日期不显示COL和PM
-	ldx		#led_PM
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM
 
 	jmp		F_DisDay_Set
 
@@ -106,8 +103,7 @@ F_TimeMode_Switch:
 L_TimeMode_Out:
 	rmb0	Timer_Flag
 	jsr		F_ClrCol
-	ldx		#led_PM
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM
 	bbs3	Timer_Flag,L_TimeMode_Display
 	bbs1	Timer_Flag,L_Mode_Clear
 L_TimeMode_Display:

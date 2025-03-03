@@ -22,15 +22,13 @@ L_DisTime_Hour:									; 显示小时
 	lda		R_Time_Hour
 	cmp		#12
 	bcs		L_Time12h_PM
-	ldx		#led_PM								; 12h模式AM需要灭PM点
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM								; 12h模式AM需要灭PM点
 	lda		R_Time_Hour							; 改显存函数会改A值，重新取变量
 	cmp		#0
 	beq		L_Time_0Hour
 	bra		L_Start_DisTime_Hour
 L_Time12h_PM:
-	ldx		#led_PM								; 12h模式PM需要亮PM点
-	jsr		F_DisSymbol
+	jsr		F_DisPM								; 12h模式PM需要亮PM点
 	lda		R_Time_Hour							; 改显存函数会改A值，重新取变量
 	sec
 	sbc		#12
@@ -41,8 +39,7 @@ L_Time_0Hour:									; 12h模式0点需要变成12点
 	bra		L_Start_DisTime_Hour
 
 L_24hMode_Time:
-	ldx		#led_PM								; 24h模式下需要灭PM点
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM								; 24h模式下需要灭PM点
 	lda		R_Time_Hour
 L_Start_DisTime_Hour:
 	jsr		L_A_DecToHex
@@ -117,15 +114,13 @@ AlarmHour_Display_Start:
 	lda		R_Alarm_Hour
 	cmp		#12
 	bcs		L_Alarm12h_PM
-	ldx		#led_PM								; 12h模式AM需要灭PM点
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM								; 12h模式AM需要灭PM点
 	lda		R_Alarm_Hour						; 改显存函数会改A值，重新取变量
 	cmp		#0
 	beq		L_Alarm_0Hour
 	bra		L_Start_DisAlarm_Hour
 L_Alarm12h_PM:
-	ldx		#led_PM								; 12h模式PM需要亮PM点
-	jsr		F_DisSymbol
+	jsr		F_DisPM								; 12h模式PM需要亮PM点
 	lda		R_Alarm_Hour						; 改显存函数会改A值，重新取变量
 	sec
 	sbc		#12
@@ -136,8 +131,7 @@ L_Alarm_0Hour:									; 12h模式0点需要变成12点
 	bra		L_Start_DisAlarm_Hour
 
 L_24hMode_Alarm:
-	ldx		#led_PM								; 24h模式下需要灭PM点
-	jsr		F_ClrSymbol
+	jsr		F_ClrPM								; 24h模式下需要灭PM点
 	lda		R_Alarm_Hour
 L_Start_DisAlarm_Hour:
 	jsr		L_A_DecToHex
@@ -390,16 +384,13 @@ L_ALM_Dot_Dis:
 	bbs1	Triggered_AlarmGroup,Group2_Bright
 	bbs2	Triggered_AlarmGroup,Group3_Bright
 Group1_Bright:
-	ldx		#led_AL1
-	jsr		F_DisSymbol
+	jsr		F_DisAL1
 	rts
 Group2_Bright:
-	ldx		#led_AL2
-	jsr		F_DisSymbol
+	jsr		F_DisAL2
 	rts
 Group3_Bright:
-	ldx		#led_AL3
-	jsr		F_DisSymbol
+	jsr		F_DisAL3
 	rts
 	
 L_ALM_Dot_Clr:
@@ -408,16 +399,13 @@ L_ALM_Dot_Clr:
 	bbs1	Triggered_AlarmGroup,Group2_Extinguish
 	bbs2	Triggered_AlarmGroup,Group3_Extinguish
 Group1_Extinguish:
-	ldx		#led_AL1
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL1
 	rts
 Group2_Extinguish:
-	ldx		#led_AL2
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL2
 	rts
 Group3_Extinguish:
-	ldx		#led_AL3
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL3
 	rts
 
 
@@ -435,34 +423,28 @@ Alarm1_Switch:
 	lda		Alarm_Switch
 	and		#001B
 	beq		Alarm1_Switch_Off
-	ldx		#led_AL1
-	jsr		F_DisSymbol
+	jsr		F_DisAL1
 	bra		Alarm2_Switch
 Alarm1_Switch_Off:
-	ldx		#led_AL1
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL1
 
 Alarm2_Switch:
 	lda		Alarm_Switch
 	and		#010B
 	beq		Alarm2_Switch_Off
-	ldx		#led_AL2
-	jsr		F_DisSymbol
+	jsr		F_DisAL2
 	bra		Alarm3_Switch
 Alarm2_Switch_Off:
-	ldx		#led_AL2
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL2
 
 Alarm3_Switch:
 	lda		Alarm_Switch
 	and		#100B
 	beq		Alarm3_Switch_Off
-	ldx		#led_AL3
-	jsr		F_DisSymbol
+	jsr		F_DisAL3
 	rts
 Alarm3_Switch_Off:
-	ldx		#led_AL3
-	jsr		F_ClrSymbol
+	jsr		F_ClrAL3
 	rts
 
 
@@ -472,7 +454,8 @@ F_DP_Display:
 	bbs6	Key_Flag,DP_Display				; 没有DP显示标志则显示时钟
 	rts
 DP_Display:
-	jsr		F_ClrCol						; DP显示需要灭秒点
+	jsr		F_ClrCol						; DP显示需要灭秒点和PM点
+	jsr		F_ClrPM
 	bbs7	Key_Flag,DP_Display_Juge		; 在DP显示里，如果没1S则不继续显示时钟，直接退出
 	pla
 	pla
@@ -579,6 +562,54 @@ F_ClrCol:
 	ldx		#led_COL1
 	jsr		F_ClrSymbol
 	ldx		#led_COL2
+	jsr		F_ClrSymbol
+	rts
+
+; 亮PM点
+F_DisPM:
+	ldx		#led_PM
+	jsr		F_DisSymbol
+	rts
+
+; 灭PM点
+F_ClrPM:
+	ldx		#led_PM
+	jsr		F_ClrSymbol
+	rts
+
+; 亮AL1点
+F_DisAL1:
+	ldx		#led_AL1
+	jsr		F_DisSymbol
+	rts
+
+; 灭AL1点
+F_ClrAL1:
+	ldx		#led_AL1
+	jsr		F_ClrSymbol
+	rts
+
+; 亮AL2点
+F_DisAL2:
+	ldx		#led_AL2
+	jsr		F_DisSymbol
+	rts
+
+; 灭AL2点
+F_ClrAL2:
+	ldx		#led_AL2
+	jsr		F_ClrSymbol
+	rts
+
+; 亮AL3点
+F_DisAL3:
+	ldx		#led_AL3
+	jsr		F_DisSymbol
+	rts
+
+; 灭AL3点
+F_ClrAL3:
+	ldx		#led_AL3
 	jsr		F_ClrSymbol
 	rts
 

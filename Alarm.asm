@@ -4,28 +4,21 @@ F_Alarm_Display:
 
 	lda		Sys_Status_Ordinal
 	bne		No_Alarm1_Display
-	ldx		#led_AL1
-	jsr		F_DisSymbol
-	ldx		#led_AL2
-	jsr		F_ClrSymbol
-	ldx		#led_AL3
-	jsr		F_ClrSymbol
+	jsr		F_DisAL1
+	jsr		F_ClrAL2
+	jsr		F_ClrAL3
 	bra		Alarm_Display_Exit
 No_Alarm1_Display:
 	cmp		#1
 	bne		No_Alarm2_Display
-	ldx		#led_AL1
-	jsr		F_ClrSymbol
-	ldx		#led_AL2
-	jsr		F_DisSymbol
+	jsr		F_ClrAL1
+	jsr		F_DisAL2
 	bra		Alarm_Display_Exit
 No_Alarm2_Display:
 	cmp		#2
 	bne		Alarm_Display_Exit
-	ldx		#led_AL2
-	jsr		F_ClrSymbol
-	ldx		#led_AL3
-	jsr		F_DisSymbol
+	jsr		F_ClrAL2
+	jsr		F_DisAL3
 Alarm_Display_Exit:
 	rts
 

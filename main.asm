@@ -47,7 +47,7 @@ L_Clear_Ram_Loop:
 
 ; 上电处理
 	rmb4	IER										;  关闭按键中断避免上电过程被打扰
-	lda		#2
+	lda		#1
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
 
@@ -79,8 +79,6 @@ Loop_BeepTest:										; 响铃两声
 	sta		Sys_Status_Ordinal
 
 	smb4	IER										;  上电显示完成，重新开启按键中断
-
-	smb0	Alarm_Switch
 
 	bra		Global_Run
 
@@ -208,9 +206,12 @@ L_Timer0Irq:									; 用于蜂鸣器
 
 	inc		Counter_16Hz
 	lda		Counter_16Hz						; 16Hz计数
-	beq		L_16Hz_Out
+	cmp		#192
+	bcs		L_16Hz_Out
 	bra		L_EndIrq
 L_16Hz_Out:
+	lda		#0
+	sta		Counter_16Hz
 	smb6	Timer_Flag							; 16Hz标志
 	bra		L_EndIrq
 

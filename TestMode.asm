@@ -27,14 +27,10 @@ Loop_DisDigit:
 	jsr		F_ClearScreen						; 显示PM、AL点
 	lda		#0
 	sta		P_Temp+4
-	ldx		#led_PM
-	jsr		F_DisSymbol
-	ldx		#led_AL1
-	jsr		F_DisSymbol
-	ldx		#led_AL2
-	jsr		F_DisSymbol
-	ldx		#led_AL3
-	jsr		F_DisSymbol
+	jsr		F_DisPM
+	jsr		F_DisAL1
+	jsr		F_DisAL2
+	jsr		F_DisAL3
 Loop_DisSymbol1:
 	bbr0	Timer_Flag,Loop_DisSymbol1
 	rmb0	Timer_Flag

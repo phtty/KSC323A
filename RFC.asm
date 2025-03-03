@@ -83,12 +83,8 @@ L_Sample_Over:
 	lda		#0
 	sta		RFCC1								; 当前通道采样完成，关闭RFC
 	inc		RFC_ChannelCount
-	jmp		F_RFC_TimerReset					; 等待下一通道采样开始，重置定时器状态
 
-
-
-
-F_RFC_TimerReset:
+F_RFC_TimerReset:								; 等待下一通道采样开始，重置定时器状态
 	rmb1	IER									; 关TMR0、1定时器中断
 	rmb1	IFR									; 清除TMR0、1中断标志位
 	rmb2	IER
