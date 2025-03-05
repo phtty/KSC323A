@@ -2,6 +2,11 @@ L_Temper_Handle:
 	jsr		L_RT_Multi_256
 	jsr		L_RT_Div_RR
 	jsr		L_Search_TemperTable
+	jsr		Temper_Compen
+	sec
+	lda		R_Temperature
+	sbc		R_Temper_Comp
+	sta		R_Temperature
 	rts
 
 ; 通过Qt查表确定当前温度
@@ -161,4 +166,63 @@ Minus_Temper:								; 处理负温度的情况
 	sec
 	sbc		P_Temp							; 负数温度则是32-计算值
 	sta		R_Temperature_F
+	rts
+
+
+; 温度补偿，补偿区间3℃~46℃
+Temper_Compen:
+	lda		R_Temperature
+	cmp		#3
+	bcc		No_Compensation
+	lda		R_Temperature
+	cmp		#46
+	bcc		Compensation_Trigger
+
+No_Compensation:
+	lda		#0
+	sta		R_Temper_Comp					; 清空补偿值和补偿时间
+	sta		R_Temper_Comp_Time
+	rts
+
+Compensation_Trigger:
+	lda		R_Temper_Comp_Time				; 通过补偿时间计算补偿值
+	jsr		L_A_Mod_5
+	stx		R_Temper_Comp
+	rts
+
+
+
+CompensationTime_CHG:
+	bbs4	PD,DecCompensation
+	lda		R_Temper_Comp_Time
+	cmp		Compensation_MaxTime	
+	bcs		CompensationTime_Overflow		; 补偿计时若超过最大值则不自增
+	inc		R_Temper_Comp_Time
+CompensationTime_Overflow:
+	rts
+
+DecCompensation:
+	lda		R_Temper_Comp_Time
+	beq		CompensationTime_Overflow
+	dec		R_Temper_Comp_Time
+	rts
+
+
+
+; 低亮时温补调整
+L_LowLight_Comp:
+	lda		R_Temper_Comp_Time					; 低亮时重置温补时间
+	cmp		#8
+	bcc		?No_OverFlow
+	lda		#8
+	sta		R_Temper_Comp_Time
+?No_OverFlow:
+	lda		#8
+	sta		Compensation_MaxTime				; 低亮时最大计时改为8
+	rts
+
+; 高亮时温补调整
+L_HighLight_Comp:
+	lda		#18
+	sta		Compensation_MaxTime				; 高亮时最大计时改为18
 	rts

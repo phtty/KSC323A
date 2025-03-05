@@ -374,6 +374,10 @@ L_Key_NoBeep:
 
 ; 时钟模式的时显和日显切换
 SwitchState_ClockDis:
+	bbs0	Sys_Status_Flag,CD_ModeCHG
+	lda		#0
+	sta		Sys_Status_Ordinal					; 从别的模式切换到时显时，需要清空一次子模式
+CD_ModeCHG:
 	lda		Sys_Status_Ordinal					; 对第一位取反，在日期显示和时间显示之间切换
 	eor		#1
 	sta		Sys_Status_Ordinal
@@ -526,6 +530,8 @@ LightLevel_Change:
 	rmb4	PD									; 低亮
 	rmb0	PC
 	rmb0	PC_IO_Backup
+
+	jsr		L_LowLight_Comp						; 低亮温补调整
 	rts
 
 Level0:

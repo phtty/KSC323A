@@ -140,6 +140,10 @@ R_Temperature			DS		1
 R_Temperature_F			DS		1
 R_Humidity				DS		1
 
+R_Temper_Comp			DS		1
+R_Temper_Comp_Time		DS		1
+Compensation_MaxTime	DS		1
+
 Beep_Serial				DS		1
 ;响铃序列
 

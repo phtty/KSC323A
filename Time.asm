@@ -11,6 +11,7 @@ L_TimeRun_Add:
 	lda		#0
 	sta		R_Time_Sec
 	inc		R_Time_Min
+	jsr		CompensationTime_CHG					; 每次加分钟的时候都要增减温补时间
 	lda		R_Time_Min
 	cmp		#60
 	bcc		L_Time_SecRun_Exit						; 未发生小时进位

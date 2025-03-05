@@ -1,51 +1,28 @@
 F_Init_SystemRam:								; 系统内存初始化
-	lda		#0
-	sta		CC0
-	sta		Counter_1Hz
-	sta		Counter_4Hz
-	sta		Counter_16Hz
-	sta		Counter_20ms
-	sta		Counter_DP
-	sta		Count_RFC
-	sta		Key_Flag
-	sta		Timer_Flag
-	sta		Clock_Flag
-	sta		Calendar_Flag
-	sta		Backlight_Flag
-	sta		Symbol_Flag
-	sta		Triggered_AlarmGroup
-	sta		QuickAdd_Counter					; 快加标志的计数
-	sta		Backlight_Counter
-	sta		Return_Counter
-	sta		AlarmLoud_Counter
-	sta		COM_Counter
-	sta		Alarm_Switch
-	sta		Sys_Status_Ordinal
-
 	lda		#0001B
 	sta		Sys_Status_Flag
 
 	lda		#12
 	sta		R_Time_Hour
-	lda		#00
-	sta		R_Time_Min
-	lda		#00
-	sta		R_Time_Sec
+	;lda		#00
+	;sta		R_Time_Min
+	;lda		#00
+	;sta		R_Time_Sec
 
 	lda		#12
 	sta		R_Alarm1_Hour
-	lda		#00
-	sta		R_Alarm1_Min
+	;lda		#00
+	;sta		R_Alarm1_Min
 
 	lda		#12
 	sta		R_Alarm2_Hour
-	lda		#00
-	sta		R_Alarm2_Min
+	;lda		#00
+	;sta		R_Alarm2_Min
 
 	lda		#12
 	sta		R_Alarm3_Hour
-	lda		#00
-	sta		R_Alarm3_Min
+	;lda		#00
+	;sta		R_Alarm3_Min
 
 	lda		#01
 	sta		R_Date_Day
@@ -53,8 +30,8 @@ F_Init_SystemRam:								; 系统内存初始化
 	sta		R_Date_Month
 	lda		#24
 	sta		R_Date_Year
-	lda		#00
-	sta		R_Date_Week
+	;lda		#00
+	;sta		R_Date_Week
 
 	lda		#29
 	sta		Count_RFC

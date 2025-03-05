@@ -50,6 +50,7 @@ L_Clear_Ram_Loop:
 	lda		#1
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
+	jsr		L_HighLight_Comp
 
 	jsr		F_Test_Mode								; 上电显示部分
 
@@ -79,6 +80,13 @@ Loop_BeepTest:										; 响铃两声
 	sta		Sys_Status_Ordinal
 
 	smb4	IER										;  上电显示完成，重新开启按键中断
+
+	; lda		#25
+	; sta		R_Temperature
+	; lda		#16
+	; sta		R_Temper_Comp_Time
+	; jsr		CompensationTime_CHG
+	; lda		R_Temper_Comp_Time
 
 	bra		Global_Run
 
