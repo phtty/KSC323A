@@ -54,7 +54,6 @@ L_HLightLevel_WithTime:
 	smb0	PC									; 设置为高亮
 	lda		#1
 	sta		Backlight_Level
-	jsr		L_HighLight_Comp					; 高亮温补调整
 ?LightLevel_Exit:
 	rts
 
@@ -72,7 +71,6 @@ L_LLightLevel_WithTime:
 	rmb0	PC_IO_Backup						; 修改记忆亮度为低亮
 	lda		#0
 	sta		Backlight_Level
-	jsr		L_LowLight_Comp						; 低亮温补调整
 ?LightLevel_Exit:
 	rts
 
@@ -87,15 +85,15 @@ L_LightLevel_WithKeyU:
 	rts
 KeyU_HighLight:
 	smb0	PC									; 设置为高亮
+	smb0	PC_IO_Backup						; 修改记忆亮度为高亮
 	lda		#1
 	sta		Backlight_Level
-	jsr		L_HighLight_Comp					; 高亮温补调整
 	rts
 KeyU_LowLight:
 	rmb0	PC									; 设置为低亮
+	rmb0	PC_IO_Backup						; 修改记忆亮度为低亮
 	lda		#0
 	sta		Backlight_Level
-	jsr		L_LowLight_Comp						; 低亮温补调整
 	rts
 
 
@@ -110,13 +108,11 @@ KeyD_HighLight:
 	smb0	PC									; 设置为高亮
 	lda		#1
 	sta		Backlight_Level
-	jsr		L_HighLight_Comp					; 高亮温补调整
 	rts
 KeyD_LowLight:
 	rmb0	PC									; 设置为低亮
 	lda		#0
 	sta		Backlight_Level
-	jsr		L_LowLight_Comp						; 低亮温补调整
 	rts
 
 

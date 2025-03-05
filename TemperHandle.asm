@@ -169,13 +169,13 @@ Minus_Temper:								; 处理负温度的情况
 	rts
 
 
-; 温度补偿，补偿区间3℃~46℃
+; 温度补偿，补偿区间7℃~43℃
 Temper_Compen:
 	lda		R_Temperature
-	cmp		#3
+	cmp		#7
 	bcc		No_Compensation
 	lda		R_Temperature
-	cmp		#46
+	cmp		#43
 	bcc		Compensation_Trigger
 
 No_Compensation:
@@ -184,45 +184,57 @@ No_Compensation:
 	sta		R_Temper_Comp_Time
 	rts
 
+; 通过补偿时间计算补偿值
 Compensation_Trigger:
-	lda		R_Temper_Comp_Time				; 通过补偿时间计算补偿值
-	jsr		L_A_Mod_5
-	stx		R_Temper_Comp
+	ldx		#0
+?Loop_Start:
+	lda		R_Temper_Comp_Time
+	sec
+	sbc		CompensationLevel_Table,x		; 当前补偿时间循环查表得出补偿等级
+	bcc		?Loop_Over
+	inx
+	bra		?Loop_Start
+?Loop_Over
+	txa
+	beq		Compensation_Juge
+	clc
+	adc		#1
+Compensation_Juge:
+	bbr0	PC_IO_Backup,LowLight_ADJ
+	sta		R_Temper_Comp
+	rts
+LowLight_ADJ:
+	clc
+	ror
+	sta		R_Temper_Comp
 	rts
 
 
-
+; 根据高亮低亮熄屏增减补偿时间
 CompensationTime_CHG:
-	bbs4	PD,DecCompensation
+	lda		#18
+	cmp		R_Temper_Comp_Time
+	bcc		DecCompensation					; 补偿时间若大于最大补偿时间则直接转入补偿时间递减
+
+	bbs4	PD,DecCompensation				; 熄屏状态也转入补偿时间递减
 	lda		R_Temper_Comp_Time
-	cmp		Compensation_MaxTime	
-	bcs		CompensationTime_Overflow		; 补偿计时若超过最大值则不自增
+	cmp		#18	
+	bcs		CompensationTime_Overflow		; 补偿计时若大于等于最大补偿时间则溢出不处理
 	inc		R_Temper_Comp_Time
 CompensationTime_Overflow:
 	rts
 
 DecCompensation:
 	lda		R_Temper_Comp_Time
-	beq		CompensationTime_Overflow
+	beq		CompensationTime_Overflow		; 补偿计时若等于0则溢出不处理
 	dec		R_Temper_Comp_Time
 	rts
 
 
-
-; 低亮时温补调整
-L_LowLight_Comp:
-	lda		R_Temper_Comp_Time					; 低亮时重置温补时间
-	cmp		#8
-	bcc		?No_OverFlow
-	lda		#8
-	sta		R_Temper_Comp_Time
-?No_OverFlow:
-	lda		#8
-	sta		Compensation_MaxTime				; 低亮时最大计时改为8
-	rts
-
-; 高亮时温补调整
-L_HighLight_Comp:
-	lda		#18
-	sta		Compensation_MaxTime				; 高亮时最大计时改为18
-	rts
+CompensationLevel_Table:
+	.byte	2
+	.byte	3
+	.byte	4
+	.byte	5
+	.byte	10
+	.byte	15

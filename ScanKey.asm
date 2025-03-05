@@ -531,7 +531,6 @@ LightLevel_Change:
 	rmb0	PC
 	rmb0	PC_IO_Backup
 
-	jsr		L_LowLight_Comp						; 低亮温补调整
 	rts
 
 Level0:

@@ -39,30 +39,6 @@ F_Init_SystemRam:								; 系统内存初始化
 	rts
 
 
-F_LCD_Init:
-	; 设置为强模式，1/3Bias 3.0V
-	lda		#C_BIS_C_1_3_V30+C_HIS_Strong
-	sta		LCD_CTRL
-
-	; 设置为4COM 28SEG模式，打开Charge Pump， LCD中断频率为1/2FrameRate
-	lda		#C_COM_4_28+C_ENCH_Enable+C_LCDIS_Rate_2
-	sta		LCD_COM
-
-	; 设置Seg线 除了S0、S1做IO口，其他全作Seg线
-	lda		#C_PC2S+C_PC3S+C_PC54S+C_PC76S+C_PD30S+C_PD74S
-	sta		PC_SEG
-	lda		#$ff
-	sta		PD_SEG
-
-	lda		TMRC
-	ora		#C_LCDON
-	sta		TMRC
-
-	jsr		F_ClearScreen						; 清屏
-
-	rts
-
-
 F_Beep_Init:
 	lda		#C_T000_Fsub
 	sta		PADF1
