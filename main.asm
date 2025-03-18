@@ -1,26 +1,26 @@
-	.CHIP		W65C02S								; cpuçš„é€‰å‹
+	.CHIP		W65C02S								; cpuµÄÑ¡ĞÍ
 	.MACLIST	ON
 
-CODE_BEG	EQU		E000H							; èµ·å§‹åœ°å€
+CODE_BEG	EQU		E000H							; ÆğÊ¼µØÖ·
 
-PROG		SECTION OFFSET CODE_BEG					; å®šä¹‰ä»£ç æ®µçš„åç§»é‡ä»CODE_BEGå¼€å§‹ï¼Œç”¨äºç»„ç»‡ç¨‹åºä»£ç ã€‚
-.include	50Px1x.h								; å¤´æ–‡ä»¶
+PROG		SECTION OFFSET CODE_BEG					; ¶¨Òå´úÂë¶ÎµÄÆ«ÒÆÁ¿´ÓCODE_BEG¿ªÊ¼£¬ÓÃÓÚ×éÖ¯³ÌĞò´úÂë¡£
+.include	50Px1x.h								; Í·ÎÄ¼ş
 .include	RAM.INC	
 .include	MACRO.mac
 
-STACK_BOT		EQU		FFH							; å †æ ˆåº•éƒ¨
-.PROG												; ç¨‹åºå¼€å§‹
+STACK_BOT		EQU		FFH							; ¶ÑÕ»µ×²¿
+.PROG												; ³ÌĞò¿ªÊ¼
 
 V_RESET:
 	nop
 	nop
 	nop
 	ldx		#STACK_BOT
-	txs												; ä½¿ç”¨è¿™ä¸ªå€¼åˆå§‹åŒ–å †æ ˆæŒ‡é’ˆï¼Œè¿™é€šå¸¸æ˜¯ä¸ºäº†è®¾ç½®å †æ ˆçš„åº•éƒ¨åœ°å€ï¼Œç¡®ä¿ç¨‹åºè¿è¡Œä¸­å †æ ˆçš„æ­£ç¡®ä½¿ç”¨ã€‚
+	txs												; Ê¹ÓÃÕâ¸öÖµ³õÊ¼»¯¶ÑÕ»Ö¸Õë£¬ÕâÍ¨³£ÊÇÎªÁËÉèÖÃ¶ÑÕ»µÄµ×²¿µØÖ·£¬È·±£³ÌĞòÔËĞĞÖĞ¶ÑÕ»µÄÕıÈ·Ê¹ÓÃ¡£
 	lda		#$07									; #$97
-	sta		SYSCLK									; è®¾ç½®ç³»ç»Ÿæ—¶é’Ÿ
+	sta		SYSCLK									; ÉèÖÃÏµÍ³Ê±ÖÓ
 
-	lda		#00										; æ¸…æ•´ä¸ªRAM
+	lda		#00										; ÇåÕû¸öRAM
 	ldx		#$ff
 	sta		$1800
 L_Clear_Ram_Loop:
@@ -28,33 +28,33 @@ L_Clear_Ram_Loop:
 	dex
 	bne		L_Clear_Ram_Loop
 
-	jsr		F_ClearScreen							; æ¸…æ˜¾å­˜
+	jsr		F_ClearScreen							; ÇåÏÔ´æ
 
 	lda		#$0
-	sta		DIVC									; åˆ†é¢‘æ§åˆ¶å™¨ï¼Œå®šæ—¶å™¨ä¸DIVå¼‚æ­¥
-	sta		IER										; é™¤èƒ½ä¸­æ–­
+	sta		DIVC									; ·ÖÆµ¿ØÖÆÆ÷£¬¶¨Ê±Æ÷ÓëDIVÒì²½
+	sta		IER										; ³ıÄÜÖĞ¶Ï
 	lda		FUSE
-	sta		MF0										; ä¸ºå†…éƒ¨RCæŒ¯è¡å™¨æä¾›æ ¡å‡†æ•°æ®	
+	sta		MF0										; ÎªÄÚ²¿RCÕñµ´Æ÷Ìá¹©Ğ£×¼Êı¾İ	
 
-	jsr		F_Init_SystemRam						; åˆå§‹åŒ–ç³»ç»ŸRAMå¹¶ç¦ç”¨æ‰€æœ‰æ–­ç”µä¿ç•™çš„RAM
-	jsr		F_Port_Init								; åˆå§‹åŒ–ç”¨åˆ°çš„IOå£
+	jsr		F_Init_SystemRam						; ³õÊ¼»¯ÏµÍ³RAM²¢½ûÓÃËùÓĞ¶Ïµç±£ÁôµÄRAM
+	jsr		F_Port_Init								; ³õÊ¼»¯ÓÃµ½µÄIO¿Ú
 	jsr		F_Beep_Init
 
 	jsr		F_Timer_Init
 	jsr		F_RFC_Init
 
-	cli												; å¼€æ€»ä¸­æ–­
+	cli												; ¿ª×ÜÖĞ¶Ï
 
-; ä¸Šç”µå¤„ç†
-	rmb4	IER										;  å…³é—­æŒ‰é”®ä¸­æ–­é¿å…ä¸Šç”µè¿‡ç¨‹è¢«æ‰“æ‰°
+; ÉÏµç´¦Àí
+	rmb4	IER										;  ¹Ø±Õ°´¼üÖĞ¶Ï±ÜÃâÉÏµç¹ı³Ì±»´òÈÅ
 	lda		#1
 	sta		Backlight_Level
-	smb0	PC										; åˆå§‹äº®åº¦è®¾ç½®ä¸ºé«˜äº®
+	smb0	PC										; ³õÊ¼ÁÁ¶ÈÉèÖÃÎª¸ßÁÁ
 	smb0	PC_IO_Backup
 
-	jsr		F_Test_Mode								; ä¸Šç”µæ˜¾ç¤ºéƒ¨åˆ†
+	jsr		F_Test_Mode								; ÉÏµçÏÔÊ¾²¿·Ö
 
-	jsr		F_RFC_MeasureStart						; ä¸Šç”µæ¸©æ¹¿åº¦æµ‹é‡
+	jsr		F_RFC_MeasureStart						; ÉÏµçÎÂÊª¶È²âÁ¿
 Wait_RFC_MeasureOver:
 	jsr		F_RFC_MeasureManage
 	bbs0	RFC_Flag,Wait_RFC_MeasureOver
@@ -65,10 +65,10 @@ Wait_RFC_MeasureOver:
 	jsr		F_Time_Display
 	jsr		F_Display_Week
 
-	lda		#4										; ä¸Šç”µèœ‚é¸£å™¨å“2å£°
+	lda		#4										; ÉÏµç·äÃùÆ÷Ïì2Éù
 	sta		Beep_Serial
 	smb0	TMRC
-Loop_BeepTest:										; å“é“ƒä¸¤å£°
+Loop_BeepTest:										; ÏìÁåÁ½Éù
 	jsr		F_Louding
 	lda		Beep_Serial
 	bne		Loop_BeepTest
@@ -79,25 +79,25 @@ Loop_BeepTest:										; å“é“ƒä¸¤å£°
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	smb4	IER										;  ä¸Šç”µæ˜¾ç¤ºå®Œæˆï¼Œé‡æ–°å¼€å¯æŒ‰é”®ä¸­æ–­
+	smb4	IER										;  ÉÏµçÏÔÊ¾Íê³É£¬ÖØĞÂ¿ªÆô°´¼üÖĞ¶Ï
 
 	bra		Global_Run
 
 
-; çŠ¶æ€æœº
+; ×´Ì¬»ú
 MainLoop:
 	smb4	SYSCLK
-	sta		HALT									; ä¼‘çœ 
+	sta		HALT									; ĞİÃß
 	rmb4	SYSCLK
-Global_Run:											; å…¨å±€ç”Ÿæ•ˆçš„åŠŸèƒ½å¤„ç†
+Global_Run:											; È«¾ÖÉúĞ§µÄ¹¦ÄÜ´¦Àí
 	jsr		F_KeyHandler
 	jsr		F_Louding
 	jsr		F_PowerManage
-	jsr		F_Time_Run								; èµ°æ—¶
+	jsr		F_Time_Run								; ×ßÊ±
 	jsr		F_SymbolRegulate
 	jsr		F_Display_Week
 	jsr		F_RFC_MeasureManage
-	jsr		F_ReturnToDisTime						; å®šæ—¶è¿”å›æ—¶æ˜¾æ¨¡å¼
+	jsr		F_ReturnToDisTime						; ¶¨Ê±·µ»ØÊ±ÏÔÄ£Ê½
 
 Status_Juge:
 	bbs0	Sys_Status_Flag,Status_DisClock
@@ -108,11 +108,11 @@ Status_Juge:
 	bra		MainLoop
 Status_DisClock:
 	jsr		F_Clock_Display
-	jsr		F_Alarm_Handler							; æ˜¾ç¤ºçŠ¶æ€æœ‰å“é—¹åˆ¤æ–­
+	jsr		F_Alarm_Handler							; ÏÔÊ¾×´Ì¬ÓĞÏìÄÖÅĞ¶Ï
 	bra		MainLoop
 Status_DisAlarm:
 	jsr		F_Alarm_Display
-	jsr		F_Alarm_Handler							; æ˜¾ç¤ºçŠ¶æ€æœ‰å“é—¹åˆ¤æ–­
+	jsr		F_Alarm_Handler							; ÏÔÊ¾×´Ì¬ÓĞÏìÄÖÅĞ¶Ï
 	bra		MainLoop
 Status_SetClock:
 	jsr		F_Clock_Set
@@ -130,31 +130,31 @@ F_ReturnToDisTime:
 L_Return_Start:
 	bbr0	Sys_Status_Flag,L_Return_Juge
 	bbs0	Sys_Status_Ordinal,L_Return_Juge
-	bbr2	Key_Flag,L_Return_Juge_Exit				; æ—¶æ˜¾æ¨¡å¼ä¸‹ï¼Œå¦‚æœå›ºæ˜¾ï¼Œåˆ™ä¸ç»§ç»­æ‰§è¡Œ
-	bbs6	Key_Flag,L_Return_Juge_Exit				; DPæ˜¾ç¤ºæ—¶ï¼Œä¸è®¡æ•°
+	bbr2	Key_Flag,L_Return_Juge_Exit				; Ê±ÏÔÄ£Ê½ÏÂ£¬Èç¹û¹ÌÏÔ£¬Ôò²»¼ÌĞøÖ´ĞĞ
+	bbs6	Key_Flag,L_Return_Juge_Exit				; DPÏÔÊ¾Ê±£¬²»¼ÆÊı
 	lda		#10
 	sta		Return_MaxTime
 L_Return_Juge:
 	rmb7	Clock_Flag
 	lda		Return_Counter
-	cmp		Return_MaxTime							; å½“å‰æ¨¡å¼çš„è¿”å›æ—¶é—´
+	cmp		Return_MaxTime							; µ±Ç°Ä£Ê½µÄ·µ»ØÊ±¼ä
 	bcs		L_Return_Stop
 	inc		Return_Counter
 	bra		L_Return_Juge_Exit
 L_Return_Stop:
 	lda		#0
 	sta		Return_Counter
-	bbr0	Sys_Status_Flag,No_TimeDis_Return		; Sys Flagç¬¬ä¸€ä½ä¸º0åˆ™ä¸æ˜¯æ—¶æ˜¾
-	bbs0	Sys_Status_Ordinal,No_TimeDis_Return	; Sys Ordinalä¸ä¸º0åˆ™ä¸æ˜¯æ—¶æ˜¾
-	jsr		SwitchState_ClockDis					; æ—¶æ˜¾ä¸‹è‹¥æœ‰è½®æ˜¾ï¼Œåˆ™è®¡æ—¶ç»“æŸè¿”å›æ—¥æ˜¾
+	bbr0	Sys_Status_Flag,No_TimeDis_Return		; Sys FlagµÚÒ»Î»Îª0Ôò²»ÊÇÊ±ÏÔ
+	bbs0	Sys_Status_Ordinal,No_TimeDis_Return	; Sys Ordinal²»Îª0Ôò²»ÊÇÊ±ÏÔ
+	jsr		SwitchState_ClockDis					; Ê±ÏÔÏÂÈôÓĞÂÖÏÔ£¬Ôò¼ÆÊ±½áÊø·µ»ØÈÕÏÔ
 	bra		L_Return_Juge_Exit
 
 No_TimeDis_Return:
 	lda		#0
-	sta		Sys_Status_Ordinal						; éæ—¶æ˜¾è‹¥è®¡æ—¶ç»“æŸåˆ™è¿”å›æ—¶æ˜¾
+	sta		Sys_Status_Ordinal						; ·ÇÊ±ÏÔÈô¼ÆÊ±½áÊøÔò·µ»ØÊ±ÏÔ
 
 Return_Over:
-	lda		#0001B									; å›åˆ°æ—¶æ˜¾æ¨¡å¼
+	lda		#0001B									; »Øµ½Ê±ÏÔÄ£Ê½
 	sta		Sys_Status_Flag
 L_Return_Juge_Exit:
 	rts
@@ -162,7 +162,7 @@ L_Return_Juge_Exit:
 
 
 
-; ä¸­æ–­æœåŠ¡å‡½æ•°
+; ÖĞ¶Ï·şÎñº¯Êı
 V_IRQ:
 	pha
 	txa
@@ -181,7 +181,7 @@ V_IRQ:
 	jmp		L_EndIrq
 
 L_DivIrq:
-	rmb0	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
+	rmb0	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
 	sei
 	inc		Counter_20ms
 	lda		Counter_20ms
@@ -202,24 +202,24 @@ RFC_Sample:
 	cli
 	bra		L_EndIrq
 
-L_Timer0Irq:									; ç”¨äºèœ‚é¸£å™¨
-	rmb1	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
+L_Timer0Irq:									; ÓÃÓÚ·äÃùÆ÷
+	rmb1	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
 
 	inc		Counter_16Hz
-	lda		Counter_16Hz						; 16Hzè®¡æ•°
+	lda		Counter_16Hz						; 16Hz¼ÆÊı
 	cmp		#192
 	bcs		L_16Hz_Out
 	bra		L_EndIrq
 L_16Hz_Out:
 	lda		#0
 	sta		Counter_16Hz
-	smb6	Timer_Flag							; 16Hzæ ‡å¿—
+	smb6	Timer_Flag							; 16Hz±êÖ¾
 	bra		L_EndIrq
 
-L_Timer1Irq:									; ç”¨äºå¿«åŠ è®¡æ—¶
-	rmb2	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
-	smb4	Timer_Flag							; æ‰«é”®16Hzæ ‡å¿—
-	lda		Counter_4Hz							; 4Hzè®¡æ•°
+L_Timer1Irq:									; ÓÃÓÚ¿ì¼Ó¼ÆÊ±
+	rmb2	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
+	smb4	Timer_Flag							; É¨¼ü16Hz±êÖ¾
+	lda		Counter_4Hz							; 4Hz¼ÆÊı
 	cmp		#03
 	bcs		L_4Hz_Out
 	inc		Counter_4Hz
@@ -227,29 +227,29 @@ L_Timer1Irq:									; ç”¨äºå¿«åŠ è®¡æ—¶
 L_4Hz_Out:
 	lda		#$0
 	sta		Counter_4Hz
-	smb5	Key_Flag							; å¿«åŠ 4Hzæ ‡å¿—
+	smb5	Key_Flag							; ¿ì¼Ó4Hz±êÖ¾
 	bra		L_EndIrq
 
 L_Timer2Irq:
-	rmb3	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
+	rmb3	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
 	jmp		I_Timer2IRQ_Handler
 
 L_PaIrq:
-	rmb4	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
+	rmb4	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
 	rmb4	SYSCLK
-	bbr0	RFC_Flag,?RFC_Sample_Juge			; æŒ‰é”®ä¼šæ‰“æ–­RFCé‡‡æ ·
+	bbr0	RFC_Flag,?RFC_Sample_Juge			; °´¼ü»á´ò¶ÏRFC²ÉÑù
 	jsr		F_RFC_Abort
 ?RFC_Sample_Juge:
 	smb0	Key_Flag
-	smb1	Key_Flag							; é¦–æ¬¡è§¦å‘
-	rmb3	Timer_Flag							; å¦‚æœæœ‰æ–°çš„ä¸‹é™æ²¿åˆ°æ¥ï¼Œæ¸…å¿«åŠ æ ‡å¿—ä½
-	rmb4	Timer_Flag							; 16Hzè®¡æ—¶
-	smb1	TMRC								; æ‰“å¼€å¿«åŠ å®šæ—¶
+	smb1	Key_Flag							; Ê×´Î´¥·¢
+	rmb3	Timer_Flag							; Èç¹ûÓĞĞÂµÄÏÂ½µÑØµ½À´£¬Çå¿ì¼Ó±êÖ¾Î»
+	rmb4	Timer_Flag							; 16Hz¼ÆÊ±
+	smb1	TMRC								; ´ò¿ª¿ì¼Ó¶¨Ê±
 
 	bra		L_EndIrq
 
 L_LcdIrq:
-	rmb6	IFR									; æ¸…ä¸­æ–­æ ‡å¿—ä½
+	rmb6	IFR									; ÇåÖĞ¶Ï±êÖ¾Î»
 
 	lda		COM_Counter
 	cmp		#3
@@ -270,15 +270,15 @@ L_EndIrq:
 
 ;I_PaIRQ_Handler:
 ;	smb0	Key_Flag
-;	smb1	Key_Flag							; é¦–æ¬¡è§¦å‘
-;	rmb3	Timer_Flag							; å¦‚æœæœ‰æ–°çš„ä¸‹é™æ²¿åˆ°æ¥ï¼Œæ¸…å¿«åŠ æ ‡å¿—ä½
-;	rmb4	Timer_Flag							; 16Hzè®¡æ—¶
+;	smb1	Key_Flag							; Ê×´Î´¥·¢
+;	rmb3	Timer_Flag							; Èç¹ûÓĞĞÂµÄÏÂ½µÑØµ½À´£¬Çå¿ì¼Ó±êÖ¾Î»
+;	rmb4	Timer_Flag							; 16Hz¼ÆÊ±
 ;
-;	smb1	TMRC								; æ‰“å¼€å¿«åŠ å®šæ—¶
+;	smb1	TMRC								; ´ò¿ª¿ì¼Ó¶¨Ê±
 ;	bra		L_EndIrq
 
 I_Timer2IRQ_Handler:
-	smb0	Timer_Flag							; åŠç§’æ ‡å¿—
+	smb0	Timer_Flag							; °ëÃë±êÖ¾
 	smb0	Symbol_Flag
 	lda		Counter_1Hz
 	cmp		#01
@@ -289,14 +289,14 @@ L_1Hz_Out:
 	lda		#$0
 	sta		Counter_1Hz
 	lda		Timer_Flag
-	ora		#10100110B							; 1Sã€å¢Sã€ç†„å±çš„1Sã€å“é“ƒ1Sæ ‡å¿—ä½
+	ora		#10100110B							; 1S¡¢ÔöS¡¢Ï¨ÆÁµÄ1S¡¢ÏìÁå1S±êÖ¾Î»
 	sta		Timer_Flag
-	smb1	Backlight_Flag						; äº®å±1Sè®¡æ—¶
-	smb7	Key_Flag							; DPæ˜¾ç¤º1Sè®¡æ—¶
+	smb1	Backlight_Flag						; ÁÁÆÁ1S¼ÆÊ±
+	smb7	Key_Flag							; DPÏÔÊ¾1S¼ÆÊ±
 	smb1	Symbol_Flag
-	smb7	Clock_Flag							; è¿”å›æ—¶æ˜¾1Sè®¡æ—¶
-	smb5	RFC_Flag							; 30Sé‡‡æ ·è®¡æ—¶
-	rmb4	Clock_Flag							; æ¸…é™¤å“é—¹é˜»å¡æ ‡å¿—
+	smb7	Clock_Flag							; ·µ»ØÊ±ÏÔ1S¼ÆÊ±
+	smb5	RFC_Flag							; 30S²ÉÑù¼ÆÊ±
+	rmb4	Clock_Flag							; Çå³ıÏìÄÖ×èÈû±êÖ¾
 	bra		L_EndIrq
 
 
@@ -317,7 +317,7 @@ L_1Hz_Out:
 .include	TestMode.asm
 
 
-.BLKB	0FFFFH-$,0FFH							; ä»å½“å‰åœ°å€åˆ°FFFFå…¨éƒ¨å¡«å……0xFF
+.BLKB	0FFFFH-$,0FFH							; ´Óµ±Ç°µØÖ·µ½FFFFÈ«²¿Ìî³ä0xFF
 
 .ORG	0FFF8H
 	DB		C_PY_SEL+C_OMS_BR

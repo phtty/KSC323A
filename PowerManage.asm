@@ -1,20 +1,20 @@
 F_PowerManage:
-	jsr		L_HLightLevel_WithTime				; 7ç‚¹åè®¾ä¸ºé«˜äº®
-	jsr		L_LLightLevel_WithTime				; 18ç‚¹åè®¾ä¸ºä½äº®
+	jsr		L_HLightLevel_WithTime				; 7µãºóÉèÎª¸ßÁÁ
+	jsr		L_LLightLevel_WithTime				; 18µãºóÉèÎªµÍÁÁ
 
-	bbs2	Clock_Flag,WakeUp_Trigger			; å“é—¹æ—¶5020å¼€å¯å¹¶åˆ·æ–°äº®å±æ—¶é—´
+	bbs2	Clock_Flag,WakeUp_Trigger			; ÏìÄÖÊ±5020¿ªÆô²¢Ë¢ĞÂÁÁÆÁÊ±¼ä
 
 	bbr6	PB,No_5VDC_PWR
 	bbr0	Backlight_Flag,L_5020_NoWakeUp
-	rmb0	Backlight_Flag						; æ’å…¥DC5Væ—¶è¿›è¡Œä¸€æ¬¡äº®å±
+	rmb0	Backlight_Flag						; ²åÈëDC5VÊ±½øĞĞÒ»´ÎÁÁÆÁ
 WakeUp_Trigger:
 	bbr4	PD,L_5020_NoWakeUp
 	rmb4	PD
-	jsr		L_Open_5020							; äº®å±åæ‰“å¼€LCDä¸­æ–­
+	jsr		L_Open_5020							; ÁÁÆÁºó´ò¿ªLCDÖĞ¶Ï
 L_5020_NoWakeUp:
 	lda		#0
 	sta		Backlight_Counter
-	smb3	Key_Flag							; ç»™å±å¹•å”¤é†’äº‹ä»¶ï¼Œé¿å…åˆ‡å›å»çš„æ—¶å€™ä¸å¼€ä¸­æ–­
+	smb3	Key_Flag							; ¸øÆÁÄ»»½ĞÑÊÂ¼ş£¬±ÜÃâÇĞ»ØÈ¥µÄÊ±ºò²»¿ªÖĞ¶Ï
 	rts
 
 No_5VDC_PWR:
@@ -24,7 +24,7 @@ No_5VDC_PWR:
 WakeUp_Event_Yes:
 	lda		Backlight_Counter
 	cmp		#17
-	bcs		L_ShutDown_Display					; è®¡æ»¡15Såˆ™æ–­å¼€5020ä¾›ç”µï¼Œç†„å±ç­‰å¾…æŒ‰é”®å”¤é†’
+	bcs		L_ShutDown_Display					; ¼ÆÂú15SÔò¶Ï¿ª5020¹©µç£¬Ï¨ÆÁµÈ´ı°´¼ü»½ĞÑ
 	bbr1	Backlight_Flag,BacklightCount_NoAdd
 	rmb1	Backlight_Flag
 	inc		Backlight_Counter
@@ -33,8 +33,8 @@ BacklightCount_NoAdd:
 L_ShutDown_Display:
 	lda		#$00
 	sta		Backlight_Counter
-	smb4	PD									; å±å¹•å”¤é†’ç»“æŸï¼Œæ‹‰é«˜PD4å…³é—­5020
-	jsr		L_Close_5020						; ç†„å±åå…³é—­LCDä¸­æ–­
+	smb4	PD									; ÆÁÄ»»½ĞÑ½áÊø£¬À­¸ßPD4¹Ø±Õ5020
+	jsr		L_Close_5020						; Ï¨ÆÁºó¹Ø±ÕLCDÖĞ¶Ï
 	rmb3	Key_Flag
 	rts
 
@@ -50,8 +50,8 @@ L_HLightLevel_WithTime:
 	lda		R_Time_Sec
 	cmp		#0
 	bne		?LightLevel_Exit
-	smb0	PC_IO_Backup						; ä¿®æ”¹è®°å¿†äº®åº¦ä¸ºé«˜äº®
-	smb0	PC									; è®¾ç½®ä¸ºé«˜äº®
+	smb0	PC_IO_Backup						; ĞŞ¸Ä¼ÇÒäÁÁ¶ÈÎª¸ßÁÁ
+	smb0	PC									; ÉèÖÃÎª¸ßÁÁ
 	lda		#1
 	sta		Backlight_Level
 ?LightLevel_Exit:
@@ -67,8 +67,8 @@ L_LLightLevel_WithTime:
 	lda		R_Time_Sec
 	cmp		#0
 	bne		?LightLevel_Exit
-	rmb0	PC									; è®¾ç½®ä¸ºä½äº®
-	rmb0	PC_IO_Backup						; ä¿®æ”¹è®°å¿†äº®åº¦ä¸ºä½äº®
+	rmb0	PC									; ÉèÖÃÎªµÍÁÁ
+	rmb0	PC_IO_Backup						; ĞŞ¸Ä¼ÇÒäÁÁ¶ÈÎªµÍÁÁ
 	lda		#0
 	sta		Backlight_Level
 ?LightLevel_Exit:
@@ -84,14 +84,14 @@ L_LightLevel_WithKeyU:
 	beq		KeyU_LowLight
 	rts
 KeyU_HighLight:
-	smb0	PC									; è®¾ç½®ä¸ºé«˜äº®
-	smb0	PC_IO_Backup						; ä¿®æ”¹è®°å¿†äº®åº¦ä¸ºé«˜äº®
+	smb0	PC									; ÉèÖÃÎª¸ßÁÁ
+	smb0	PC_IO_Backup						; ĞŞ¸Ä¼ÇÒäÁÁ¶ÈÎª¸ßÁÁ
 	lda		#1
 	sta		Backlight_Level
 	rts
 KeyU_LowLight:
-	rmb0	PC									; è®¾ç½®ä¸ºä½äº®
-	rmb0	PC_IO_Backup						; ä¿®æ”¹è®°å¿†äº®åº¦ä¸ºä½äº®
+	rmb0	PC									; ÉèÖÃÎªµÍÁÁ
+	rmb0	PC_IO_Backup						; ĞŞ¸Ä¼ÇÒäÁÁ¶ÈÎªµÍÁÁ
 	lda		#0
 	sta		Backlight_Level
 	rts
@@ -105,12 +105,12 @@ L_LightLevel_WithKeyD:
 	beq		KeyD_LowLight
 	rts
 KeyD_HighLight:
-	smb0	PC									; è®¾ç½®ä¸ºé«˜äº®
+	smb0	PC									; ÉèÖÃÎª¸ßÁÁ
 	lda		#1
 	sta		Backlight_Level
 	rts
 KeyD_LowLight:
-	rmb0	PC									; è®¾ç½®ä¸ºä½äº®
+	rmb0	PC									; ÉèÖÃÎªµÍÁÁ
 	lda		#0
 	sta		Backlight_Level
 	rts

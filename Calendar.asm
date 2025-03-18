@@ -1,10 +1,10 @@
-F_Calendar_Add:										; èµ°æ—¥æœŸ
+F_Calendar_Add:										; ×ßÈÕÆÚ
 	smb1	Calendar_Flag
 	jsr		F_Is_Leap_Year
-	ldx		R_Date_Month							; æœˆä»½æ•°ä½œä¸ºç´¢å¼•ï¼ŒæŸ¥è¡¨
+	ldx		R_Date_Month							; ÔÂ·İÊı×÷ÎªË÷Òı£¬²é±í
 	dex
-	bbs0	Calendar_Flag,L_Leap_Year				; å¦‚æœæ˜¯é—°å¹´ï¼ŒæŸ¥é—°å¹´æœˆä»½å¤©æ•°è¡¨
-	lda		L_Table_Month_Common,x					; å¦åˆ™æŸ¥å¹³å¹´æœˆä»½å¤©æ•°è¡¨
+	bbs0	Calendar_Flag,L_Leap_Year				; Èç¹ûÊÇÈòÄê£¬²éÈòÄêÔÂ·İÌìÊı±í
+	lda		L_Table_Month_Common,x					; ·ñÔò²éÆ½ÄêÔÂ·İÌìÊı±í
 	bra		L_Day_Juge
 L_Leap_Year:
 	lda		L_Table_Month_Leap,x
@@ -12,11 +12,11 @@ L_Day_Juge:
 	cmp		R_Date_Day
 	bne		L_Day_Add			
 	lda		#1
-	sta		R_Date_Day								; æ—¥è¿›ä½å‘ç”Ÿ
+	sta		R_Date_Day								; ÈÕ½øÎ»·¢Éú
 	lda		R_Date_Month
-	cmp		#12										; è‹¥æ˜¯æœˆä»½åˆ°å·²ç»è®¡åˆ°12
-	beq		L_Year_Add								; æœˆä»½è¿›ä½
-	inc		R_Date_Month							; æœˆä»½æ­£å¸¸åŠ 
+	cmp		#12										; ÈôÊÇÔÂ·İµ½ÒÑ¾­¼Æµ½12
+	beq		L_Year_Add								; ÔÂ·İ½øÎ»
+	inc		R_Date_Month							; ÔÂ·İÕı³£¼Ó
 	rts
 
 L_Day_Add:
@@ -27,8 +27,8 @@ L_Year_Add:
 	lda		#1
 	sta		R_Date_Month
 	lda		R_Date_Year
-	cmp		#99										; å¹´ä»½èµ°åˆ°2099
-	beq		L_Reload_Year							; åˆ™ä¸‹ä¸€å¹´å›åˆ°2000
+	cmp		#99										; Äê·İ×ßµ½2099
+	beq		L_Reload_Year							; ÔòÏÂÒ»Äê»Øµ½2000
 	inc		R_Date_Year
 	rts
 L_Reload_Year:
@@ -36,11 +36,11 @@ L_Reload_Year:
 	sta		R_Date_Year
 	rts
 
-; åˆ¤æ–­å¹³é—°å¹´å‡½æ•°
+; ÅĞ¶ÏÆ½ÈòÄêº¯Êı
 F_Is_Leap_Year:
 	lda		R_Date_Year
-	and		#0011B									; å–æœ€åä¸¤ä½
-	beq		L_Set_LeapYear_Flag						; è‹¥éƒ½ä¸º0åˆ™èƒ½è¢«4æ•´é™¤
+	and		#0011B									; È¡×îºóÁ½Î»
+	beq		L_Set_LeapYear_Flag						; Èô¶¼Îª0ÔòÄÜ±»4Õû³ı
 	rmb0	Calendar_Flag
 	rts
 L_Set_LeapYear_Flag:
@@ -48,106 +48,106 @@ L_Set_LeapYear_Flag:
 	rts
 
 
-; é€šè¿‡å½“å‰æ—¥æœŸè®¡ç®—å½“å‰æ˜ŸæœŸæ•°
+; Í¨¹ıµ±Ç°ÈÕÆÚ¼ÆËãµ±Ç°ĞÇÆÚÊı
 L_GetWeek:
 	jsr		F_Is_Leap_Year
 
 	ldx		R_Date_Day
-	dex												; å½“å‰æ—¥æœŸ-1->A
+	dex												; µ±Ç°ÈÕÆÚ-1->A
 	txa
 	jsr		L_MOD_A_7
-	sta		P_Temp									; å½“å‰æ—¥æœŸç›¸å¯¹æœˆé¦–æ—¥çš„æ˜ŸæœŸæ•°åç§»é‡->P_Temp
+	sta		P_Temp									; µ±Ç°ÈÕÆÚÏà¶ÔÔÂÊ×ÈÕµÄĞÇÆÚÊıÆ«ÒÆÁ¿->P_Temp
 
 	ldx		R_Date_Month
 	dex
 	bbs0	Calendar_Flag,L_DateToWeek_Leap
-	lda		L_Table_Gap_CommonMonth,x				; å¹³å¹´æœˆä»½é¦–æ—¥çš„æ˜ŸæœŸæ•°->A
+	lda		L_Table_Gap_CommonMonth,x				; Æ½ÄêÔÂ·İÊ×ÈÕµÄĞÇÆÚÊı->A
 	bra		L_Get_Week
 L_DateToWeek_Leap:
-	lda		L_Table_Gap_LeapMonth,x					; é—°å¹´æœˆä»½é¦–æ—¥çš„æ˜ŸæœŸæ•°->A
+	lda		L_Table_Gap_LeapMonth,x					; ÈòÄêÔÂ·İÊ×ÈÕµÄĞÇÆÚÊı->A
 L_Get_Week:
-	sta		P_Temp+1								; æœˆä»½é¦–æ—¥çš„æ˜ŸæœŸæ•°->P_Temp+1
+	sta		P_Temp+1								; ÔÂ·İÊ×ÈÕµÄĞÇÆÚÊı->P_Temp+1
 
-	lda		R_Date_Year								; è·å–å½“å‰å¹´é¦–æ—¥çš„æ˜ŸæœŸæ•°
+	lda		R_Date_Year								; »ñÈ¡µ±Ç°ÄêÊ×ÈÕµÄĞÇÆÚÊı
 	clc
-	ror												; å¹´ä»½é™¤ä»¥2æ¥æŸ¥è¡¨
+	ror												; Äê·İ³ıÒÔ2À´²é±í
 	tax
 	lda		L_Table_WeekInYear,x
 	bbs0	R_Date_Year,L_Odd_Year
-	and		#0111B									; å¶æ•°å¹´ä»½å–ä½4ä½
+	and		#0111B									; Å¼ÊıÄê·İÈ¡µÍ4Î»
 	bra		L_Get_Weak_YearFirstDay
 L_Odd_Year:
 	jsr		L_LSR_4Bit
-	and		#0111B									; å¥‡æ•°å¹´ä»½å–é«˜4ä½
+	and		#0111B									; ÆæÊıÄê·İÈ¡¸ß4Î»
 L_Get_Weak_YearFirstDay:
 	clc
 	adc		P_Temp
 	clc
-	adc		P_Temp+1								; å½“å‰å¹´é¦–æ—¥çš„æ˜ŸæœŸæ•°+æ€»åç§»==å½“å‰æ˜ŸæœŸæ•°
+	adc		P_Temp+1								; µ±Ç°ÄêÊ×ÈÕµÄĞÇÆÚÊı+×ÜÆ«ÒÆ==µ±Ç°ĞÇÆÚÊı
 	jsr		L_MOD_A_7
 	sta		R_Date_Week
 	rts
 
 
 
-; æ—¥æœŸæ˜¾ç¤º
+; ÈÕÆÚÏÔÊ¾
 F_Date_Display:
-	jsr		F_ClrCol								; æ—¥æœŸä¸æ˜¾ç¤ºCOLå’ŒPM
+	jsr		F_ClrCol								; ÈÕÆÚ²»ÏÔÊ¾COLºÍPM
 	jsr		F_ClrPM
 
-	jsr		F_Display_Date							; æ˜¾ç¤ºæœˆæ—¥
+	jsr		F_Display_Date							; ÏÔÊ¾ÔÂÈÕ
 
 	rts
 
 
 
 F_DisYear_Set:
-	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Year	; æœ‰å¿«åŠ æ—¶ä¸é—ªçƒ
-	bbs0	Timer_Flag,L_Blink_Year					; æ²¡æœ‰åŠSæ ‡å¿—ä¸é—ªçƒ
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Year	; ÓĞ¿ì¼ÓÊ±²»ÉÁË¸
+	bbs0	Timer_Flag,L_Blink_Year					; Ã»ÓĞ°ëS±êÖ¾²»ÉÁË¸
 	rts
 L_Blink_Year:
-	rmb0	Timer_Flag								; æ¸…åŠSæ ‡å¿—
-	bbs1	Timer_Flag,L_Year_Clear					; æœ‰1Sæ ‡å¿—æ—¶ç­
+	rmb0	Timer_Flag								; Çå°ëS±êÖ¾
+	bbs1	Timer_Flag,L_Year_Clear					; ÓĞ1S±êÖ¾Ê±Ãğ
 L_KeyTrigger_NoBlink_Year:
 	jsr		L_DisDate_Year
 	rts
 L_Year_Clear:
-	rmb1	Timer_Flag								; æ¸…1Sæ ‡å¿—
+	rmb1	Timer_Flag								; Çå1S±êÖ¾
 	jsr		F_UnDisplay_D0_1
 	jsr		F_UnDisplay_D2_3
 	rts
 
 
 F_DisMonth_Set:
-	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Month	; æœ‰å¿«åŠ æ—¶ä¸é—ªçƒ
-	bbs0	Timer_Flag,L_Blink_Month				; æ²¡æœ‰åŠSæ ‡å¿—ä¸é—ªçƒ
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Month	; ÓĞ¿ì¼ÓÊ±²»ÉÁË¸
+	bbs0	Timer_Flag,L_Blink_Month				; Ã»ÓĞ°ëS±êÖ¾²»ÉÁË¸
 	rts
 L_Blink_Month:
-	rmb0	Timer_Flag								; æ¸…åŠSæ ‡å¿—
-	bbs1	Timer_Flag,L_Month_Clear				; æœ‰1Sæ ‡å¿—æ—¶ç­
+	rmb0	Timer_Flag								; Çå°ëS±êÖ¾
+	bbs1	Timer_Flag,L_Month_Clear				; ÓĞ1S±êÖ¾Ê±Ãğ
 L_KeyTrigger_NoBlink_Month:
 	jsr		L_DisDate_Month
 	jsr		L_DisDate_Day
 	rts	
 L_Month_Clear:
-	rmb1	Timer_Flag								; æ¸…1Sæ ‡å¿—
+	rmb1	Timer_Flag								; Çå1S±êÖ¾
 	jsr		F_UnDisplay_D0_1
 	rts
 
 
 F_DisDay_Set:
-	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Day		; æœ‰å¿«åŠ æ—¶ä¸é—ªçƒ
-	bbs0	Timer_Flag,L_Blink_Day					; æ²¡æœ‰åŠSæ ‡å¿—ä¸é—ªçƒ
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Day		; ÓĞ¿ì¼ÓÊ±²»ÉÁË¸
+	bbs0	Timer_Flag,L_Blink_Day					; Ã»ÓĞ°ëS±êÖ¾²»ÉÁË¸
 	rts
 L_Blink_Day:
-	rmb0	Timer_Flag								; æ¸…åŠSæ ‡å¿—
-	bbs1	Timer_Flag,L_Day_Clear					; æœ‰1Sæ ‡å¿—æ—¶ç­
+	rmb0	Timer_Flag								; Çå°ëS±êÖ¾
+	bbs1	Timer_Flag,L_Day_Clear					; ÓĞ1S±êÖ¾Ê±Ãğ
 L_KeyTrigger_NoBlink_Day:
 	jsr		L_DisDate_Day
 	jsr		L_DisDate_Month
 	rts	
 L_Day_Clear:
-	rmb1	Timer_Flag								; æ¸…1Sæ ‡å¿—
+	rmb1	Timer_Flag								; Çå1S±êÖ¾
 	jsr		F_UnDisplay_D2_3
 	rts
 
@@ -163,7 +163,7 @@ L_MOD_A_7Over:
 
 
 
-; å¹³å¹´çš„æ¯æœˆä»½å¤©æ•°è¡¨
+; Æ½ÄêµÄÃ¿ÔÂ·İÌìÊı±í
 L_Table_Month_Common:
 	.byte	31	; January
 	.byte	28	; February
@@ -178,7 +178,7 @@ L_Table_Month_Common:
 	.byte	30	; November
 	.byte	31	; December
 
-; é—°å¹´çš„æ¯æœˆä»½å¤©æ•°è¡¨
+; ÈòÄêµÄÃ¿ÔÂ·İÌìÊı±í
 L_Table_Month_Leap:
 	.byte	31	; January
 	.byte	29	; February
@@ -194,7 +194,7 @@ L_Table_Month_Leap:
 	.byte	31	; December
 
 L_Table_WeekInYear:
-	.byte	$1E	; 2001,2000 E="1110"ä»£è¡¨2000å¹´1æœˆ1æ—¥æ˜¯æ˜ŸæœŸå…­(110),æ˜¯é—°å¹´(1)
+	.byte	$1E	; 2001,2000 E="1110"´ú±í2000Äê1ÔÂ1ÈÕÊÇĞÇÆÚÁù(110),ÊÇÈòÄê(1)
 	.byte	$32	; 2003,2002
 	.byte	$6C	; 2005,2004
 	.byte	$10	; 2007,2006
@@ -245,32 +245,32 @@ L_Table_WeekInYear:
 	.byte	$28	; 2097,2096
 	.byte	$43	; 2099,2098
 
-; å¹³å¹´é‡Œæ¯æœˆä»½é¦–æ—¥å¯¹å½“å‰å¹´ä»½é¦–æ—¥çš„æ˜ŸæœŸåç§»
+; Æ½ÄêÀïÃ¿ÔÂ·İÊ×ÈÕ¶Ôµ±Ç°Äê·İÊ×ÈÕµÄĞÇÆÚÆ«ÒÆ
 L_Table_Gap_CommonMonth:
-	.byte	$0	; 1æœˆ1æ—¥
-	.byte	$3	; 2æœˆ1æ—¥
-	.byte	$3	; 3æœˆ1æ—¥
-	.byte	$6	; 4æœˆ1æ—¥
-	.byte	$1	; 5æœˆ1æ—¥
-	.byte	$4	; 6æœˆ1æ—¥
-	.byte	$6	; 7æœˆ1æ—¥
-	.byte	$2	; 8æœˆ1æ—¥
-	.byte	$5	; 9æœˆ1æ—¥
-	.byte	$0	; 10æœˆ1æ—¥
-	.byte	$3	; 11æœˆ1æ—¥
-	.byte	$5	; 12æœˆ1æ—¥
+	.byte	$0	; 1ÔÂ1ÈÕ
+	.byte	$3	; 2ÔÂ1ÈÕ
+	.byte	$3	; 3ÔÂ1ÈÕ
+	.byte	$6	; 4ÔÂ1ÈÕ
+	.byte	$1	; 5ÔÂ1ÈÕ
+	.byte	$4	; 6ÔÂ1ÈÕ
+	.byte	$6	; 7ÔÂ1ÈÕ
+	.byte	$2	; 8ÔÂ1ÈÕ
+	.byte	$5	; 9ÔÂ1ÈÕ
+	.byte	$0	; 10ÔÂ1ÈÕ
+	.byte	$3	; 11ÔÂ1ÈÕ
+	.byte	$5	; 12ÔÂ1ÈÕ
 
-; é—°å¹´é‡Œæ¯æœˆä»½é¦–æ—¥å¯¹å½“å‰å¹´ä»½é¦–æ—¥çš„æ˜ŸæœŸåç§»
+; ÈòÄêÀïÃ¿ÔÂ·İÊ×ÈÕ¶Ôµ±Ç°Äê·İÊ×ÈÕµÄĞÇÆÚÆ«ÒÆ
 L_Table_Gap_LeapMonth:
-	.byte	$0	; 1æœˆ1æ—¥
-	.byte	$3	; 2æœˆ1æ—¥
-	.byte	$4	; 3æœˆ1æ—¥
-	.byte	$0	; 4æœˆ1æ—¥
-	.byte	$2	; 5æœˆ1æ—¥
-	.byte	$5	; 6æœˆ1æ—¥
-	.byte	$0	; 7æœˆ1æ—¥
-	.byte	$3	; 8æœˆ1æ—¥
-	.byte	$6	; 9æœˆ1æ—¥
-	.byte	$1	; 10æœˆ1æ—¥
-	.byte	$4	; 11æœˆ1æ—¥
-	.byte	$6	; 12æœˆ1æ—¥
+	.byte	$0	; 1ÔÂ1ÈÕ
+	.byte	$3	; 2ÔÂ1ÈÕ
+	.byte	$4	; 3ÔÂ1ÈÕ
+	.byte	$0	; 4ÔÂ1ÈÕ
+	.byte	$2	; 5ÔÂ1ÈÕ
+	.byte	$5	; 6ÔÂ1ÈÕ
+	.byte	$0	; 7ÔÂ1ÈÕ
+	.byte	$3	; 8ÔÂ1ÈÕ
+	.byte	$6	; 9ÔÂ1ÈÕ
+	.byte	$1	; 10ÔÂ1ÈÕ
+	.byte	$4	; 11ÔÂ1ÈÕ
+	.byte	$6	; 12ÔÂ1ÈÕ

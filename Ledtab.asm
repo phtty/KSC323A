@@ -52,7 +52,7 @@ s2		EQU		2
 s1		EQU		1
 s0		EQU		0
 
-; LEDæ˜¾ç¤ºï¼Œæ¯ä¸ªCOMå ç”¨4ä¸ªbyte
+; LEDÏÔÊ¾£¬Ã¿¸öCOMÕ¼ÓÃ4¸öbyte
 .MACRO	db_c_s	com,seg
 		.byte	com*4+seg/8
 .ENDMACRO
@@ -61,7 +61,7 @@ s0		EQU		0
 		.byte	1.shl.(seg-seg/8*8)
 .ENDMACRO
 
-Led_byte:							;æ®µç <==>SEG/COMè¡¨
+Led_byte:							;¶ÎÂë<==>SEG/COM±í
 led_table1:
 led_d0	equ	$-led_table1
 	db_c_s	c0,s27	; 0a

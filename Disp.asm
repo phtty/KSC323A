@@ -24,141 +24,141 @@ L_FillLed:
 
 
 ;===========================================================
-;@brief		æ˜¾ç¤ºå®Œæ•´çš„ä¸€ä¸ªæ•°å­—
+;@brief		ÏÔÊ¾ÍêÕûµÄÒ»¸öÊı×Ö
 ;@para:		A = 0~9
 ;			X = offset	
-;@impact:	P_Tempï¼ŒP_Temp+1ï¼ŒP_Temp+2ï¼ŒP_Temp+3, Xï¼ŒA
+;@impact:	P_Temp£¬P_Temp+1£¬P_Temp+2£¬P_Temp+3, X£¬A
 ;===========================================================
 L_Dis_7Bit_DigitDot:
-	stx		P_Temp+1					; åç§»é‡æš‚å­˜è¿›P_Temp+2, è…¾å‡ºXæ¥åšå˜å€å¯»å€
+	stx		P_Temp+1					; Æ«ÒÆÁ¿Ôİ´æ½øP_Temp+2, ÌÚ³öXÀ´×ö±äÖ·Ñ°Ö·
 
 	tax
-	lda		Table_Digit_7bit,x			; å°†æ˜¾ç¤ºçš„æ•°å­—é€šè¿‡æŸ¥è¡¨æ‰¾åˆ°å¯¹åº”çš„æ®µç å­˜è¿›A
-	sta		P_Temp						; æš‚å­˜æ®µç å€¼åˆ°P_Temp
+	lda		Table_Digit_7bit,x			; ½«ÏÔÊ¾µÄÊı×ÖÍ¨¹ı²é±íÕÒµ½¶ÔÓ¦µÄ¶ÎÂë´æ½øA
+	sta		P_Temp						; Ôİ´æ¶ÎÂëÖµµ½P_Temp
 
 	lda		#7
-	sta		P_Temp+2					; è®¾ç½®æ˜¾ç¤ºæ®µæ•°ä¸º7
-L_Judge_Dis_7Bit_DigitDot:				; æ˜¾ç¤ºå¾ªç¯çš„å¼€å§‹
-	ldx		P_Temp+1					; è¡¨å¤´åç§»é‡->X
-	lda		Led_bit,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„bitä½
-	sta		P_Temp+3					; bitä½->P_Temp+3
-	lda		Led_byte,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„æ˜¾å­˜åœ°å€
-	tax									; æ˜¾å­˜åœ°å€åç§»->X
-	ror		P_Temp						; å¾ªç¯å³ç§»å–å¾—ç›®æ ‡æ®µæ˜¯äº®æˆ–è€…ç­
-	bcc		L_CLR_7bit					; å½“å‰æ®µçš„å€¼è‹¥æ˜¯0åˆ™è¿›æ¸…ç‚¹å­ç¨‹åº
-	lda		LED_RamAddr,x				; å°†ç›®æ ‡æ®µçš„æ˜¾å­˜çš„ç‰¹å®šbitä½ç½®1æ¥æ‰“äº®
-	ora		P_Temp+3					; å°†COMå’ŒSEGä¿¡æ¯ä¸LED RAMåœ°å€è¿›è¡Œé€»è¾‘æˆ–æ“ä½œ
+	sta		P_Temp+2					; ÉèÖÃÏÔÊ¾¶ÎÊıÎª7
+L_Judge_Dis_7Bit_DigitDot:				; ÏÔÊ¾Ñ­»·µÄ¿ªÊ¼
+	ldx		P_Temp+1					; ±íÍ·Æ«ÒÆÁ¿->X
+	lda		Led_bit,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄbitÎ»
+	sta		P_Temp+3					; bitÎ»->P_Temp+3
+	lda		Led_byte,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄÏÔ´æµØÖ·
+	tax									; ÏÔ´æµØÖ·Æ«ÒÆ->X
+	ror		P_Temp						; Ñ­»·ÓÒÒÆÈ¡µÃÄ¿±ê¶ÎÊÇÁÁ»òÕßÃğ
+	bcc		L_CLR_7bit					; µ±Ç°¶ÎµÄÖµÈôÊÇ0Ôò½øÇåµã×Ó³ÌĞò
+	lda		LED_RamAddr,x				; ½«Ä¿±ê¶ÎµÄÏÔ´æµÄÌØ¶¨bitÎ»ÖÃ1À´´òÁÁ
+	ora		P_Temp+3					; ½«COMºÍSEGĞÅÏ¢ÓëLED RAMµØÖ·½øĞĞÂß¼­»ò²Ù×÷
 
 	sta		LED_RamAddr,x
-	bra		L_Inc_Dis_Index_Digit_7bit	; è·³è½¬åˆ°æ˜¾ç¤ºç´¢å¼•å¢åŠ çš„å­ç¨‹åºã€‚
+	bra		L_Inc_Dis_Index_Digit_7bit	; Ìø×ªµ½ÏÔÊ¾Ë÷ÒıÔö¼ÓµÄ×Ó³ÌĞò¡£
 L_CLR_7bit:	
-	lda		LED_RamAddr,x				; åŠ è½½LED RAMçš„åœ°å€
-	ora		P_Temp+3					; å…ˆç½®1ç¡®å®šçŠ¶æ€å†å¼‚æˆ–ç¿»è½¬æˆ0
+	lda		LED_RamAddr,x				; ¼ÓÔØLED RAMµÄµØÖ·
+	ora		P_Temp+3					; ÏÈÖÃ1È·¶¨×´Ì¬ÔÙÒì»ò·­×ª³É0
 	eor		P_Temp+3
-	sta		LED_RamAddr,x				; å°†ç»“æœå†™å›LED RAMï¼Œæ¸…é™¤å¯¹åº”ä½ç½®ã€‚
+	sta		LED_RamAddr,x				; ½«½á¹ûĞ´»ØLED RAM£¬Çå³ı¶ÔÓ¦Î»ÖÃ¡£
 L_Inc_Dis_Index_Digit_7bit:
-	inc		P_Temp+1					; é€’å¢åç§»é‡ï¼Œå¤„ç†ä¸‹ä¸€ä¸ªæ®µ
-	dec		P_Temp+2					; é€’å‡å‰©ä½™è¦æ˜¾ç¤ºçš„æ®µæ•°
-	bne		L_Judge_Dis_7Bit_DigitDot	; å‰©ä½™æ®µæ•°ä¸º0åˆ™è¿”å›
+	inc		P_Temp+1					; µİÔöÆ«ÒÆÁ¿£¬´¦ÀíÏÂÒ»¸ö¶Î
+	dec		P_Temp+2					; µİ¼õÊ£ÓàÒªÏÔÊ¾µÄ¶ÎÊı
+	bne		L_Judge_Dis_7Bit_DigitDot	; Ê£Óà¶ÎÊıÎª0Ôò·µ»Ø
 	rts
 
 
 
-; ç”¨äºæ˜¾ç¤ºæ˜ŸæœŸçš„ä¸ƒæ®µæ•°æ˜¾
+; ÓÃÓÚÏÔÊ¾ĞÇÆÚµÄÆß¶ÎÊıÏÔ
 L_Dis_7Bit_WeekDot:
-	stx		P_Temp+1					; åç§»é‡æš‚å­˜è¿›P_Temp+1, è…¾å‡ºXæ¥åšå˜å€å¯»å€
+	stx		P_Temp+1					; Æ«ÒÆÁ¿Ôİ´æ½øP_Temp+1, ÌÚ³öXÀ´×ö±äÖ·Ñ°Ö·
 
-	ldx		R_Date_Week					; å–å¾—å½“å‰æ˜ŸæœŸæ•°
-	lda		Table_Week_7bit,x			; å°†æ˜¾ç¤ºçš„æ˜ŸæœŸé€šè¿‡æŸ¥è¡¨æ‰¾åˆ°å¯¹åº”çš„æ®µç å­˜è¿›A
-	bbr2	Calendar_Flag,Now_Week		; è‹¥æ˜¯éœ€è¦åæ˜¾ï¼Œåˆ™æ˜¾ç¤ºæŒ‰ä½å–åå€¼
+	ldx		R_Date_Week					; È¡µÃµ±Ç°ĞÇÆÚÊı
+	lda		Table_Week_7bit,x			; ½«ÏÔÊ¾µÄĞÇÆÚÍ¨¹ı²é±íÕÒµ½¶ÔÓ¦µÄ¶ÎÂë´æ½øA
+	bbr2	Calendar_Flag,Now_Week		; ÈôÊÇĞèÒª·´ÏÔ£¬ÔòÏÔÊ¾°´Î»È¡·´Öµ
 	eor		#$7f
 Now_Week:
-	sta		P_Temp						; æš‚å­˜æ®µç å€¼åˆ°P_Temp
+	sta		P_Temp						; Ôİ´æ¶ÎÂëÖµµ½P_Temp
 
 	lda		#7
-	sta		P_Temp+2					; è®¾ç½®æ˜¾ç¤ºæ®µæ•°ä¸º7
-L_Judge_Dis_7Bit_WeekDot:				; æ˜¾ç¤ºå¾ªç¯çš„å¼€å§‹
-	ldx		P_Temp+1					; å–å›åç§»é‡ä½œä¸ºç´¢å¼•
-	lda		Led_bit,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„bitä½
+	sta		P_Temp+2					; ÉèÖÃÏÔÊ¾¶ÎÊıÎª7
+L_Judge_Dis_7Bit_WeekDot:				; ÏÔÊ¾Ñ­»·µÄ¿ªÊ¼
+	ldx		P_Temp+1					; È¡»ØÆ«ÒÆÁ¿×÷ÎªË÷Òı
+	lda		Led_bit,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄbitÎ»
 	sta		P_Temp+3
-	lda		Led_byte,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„æ˜¾å­˜åœ°å€
+	lda		Led_byte,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄÏÔ´æµØÖ·
 	tax
-	ror		P_Temp						; å¾ªç¯å³ç§»å–å¾—ç›®æ ‡æ®µæ˜¯äº®æˆ–è€…ç­
-	bcc		L_CLR_7bit_Week				; å½“å‰æ®µçš„å€¼è‹¥æ˜¯0åˆ™è¿›æ¸…ç‚¹å­ç¨‹åº
-	lda		LED_RamAddr,x				; å°†ç›®æ ‡æ®µçš„æ˜¾å­˜çš„ç‰¹å®šbitä½ç½®1æ¥æ‰“äº®
+	ror		P_Temp						; Ñ­»·ÓÒÒÆÈ¡µÃÄ¿±ê¶ÎÊÇÁÁ»òÕßÃğ
+	bcc		L_CLR_7bit_Week				; µ±Ç°¶ÎµÄÖµÈôÊÇ0Ôò½øÇåµã×Ó³ÌĞò
+	lda		LED_RamAddr,x				; ½«Ä¿±ê¶ÎµÄÏÔ´æµÄÌØ¶¨bitÎ»ÖÃ1À´´òÁÁ
 	ora		P_Temp+3
 	sta		LED_RamAddr,x
-	bra		L_Inc_Dis_Index_Week_7bit	; è·³è½¬åˆ°æ˜¾ç¤ºç´¢å¼•å¢åŠ çš„å­ç¨‹åº
+	bra		L_Inc_Dis_Index_Week_7bit	; Ìø×ªµ½ÏÔÊ¾Ë÷ÒıÔö¼ÓµÄ×Ó³ÌĞò
 L_CLR_7bit_Week:
-	lda		LED_RamAddr,x				; åŠ è½½LCD RAMçš„åœ°å€
-	ora		P_Temp+3					; å…ˆå°†æŒ‡å®šbitç”¨æˆ–æ“ä½œç½®1
-	eor		P_Temp+3					; ç„¶åå¼‚æˆ–æ“ä½œç¿»è½¬ç½®0
-	sta		LED_RamAddr,x				; å°†ç»“æœå†™å›LCD RAMï¼Œæ¸…é™¤å¯¹åº”ä½ç½®
+	lda		LED_RamAddr,x				; ¼ÓÔØLCD RAMµÄµØÖ·
+	ora		P_Temp+3					; ÏÈ½«Ö¸¶¨bitÓÃ»ò²Ù×÷ÖÃ1
+	eor		P_Temp+3					; È»ºóÒì»ò²Ù×÷·­×ªÖÃ0
+	sta		LED_RamAddr,x				; ½«½á¹ûĞ´»ØLCD RAM£¬Çå³ı¶ÔÓ¦Î»ÖÃ
 L_Inc_Dis_Index_Week_7bit:
-	inc		P_Temp+1					; é€’å¢åç§»é‡ï¼Œå¤„ç†ä¸‹ä¸€ä¸ªæ®µ
-	dec		P_Temp+2					; é€’å‡å‰©ä½™è¦æ˜¾ç¤ºçš„æ®µæ•°
-	bne		L_Judge_Dis_7Bit_WeekDot	; å‰©ä½™æ®µæ•°ä¸º0åˆ™è¿”å›
+	inc		P_Temp+1					; µİÔöÆ«ÒÆÁ¿£¬´¦ÀíÏÂÒ»¸ö¶Î
+	dec		P_Temp+2					; µİ¼õÊ£ÓàÒªÏÔÊ¾µÄ¶ÎÊı
+	bne		L_Judge_Dis_7Bit_WeekDot	; Ê£Óà¶ÎÊıÎª0Ôò·µ»Ø
 	rts
 
 
 
 
 ;===========================================================
-;@brief		æ˜¾ç¤ºéæ•°å­—å­—ç¬¦
+;@brief		ÏÔÊ¾·ÇÊı×Ö×Ö·û
 ;@para:		A = 0~9
 ;			X = offset	
-;@impact:	P_Tempï¼ŒP_Temp+1ï¼ŒP_Temp+2ï¼ŒP_Temp+3, Xï¼ŒA
+;@impact:	P_Temp£¬P_Temp+1£¬P_Temp+2£¬P_Temp+3, X£¬A
 ;===========================================================
 L_Dis_7Bit_WordDot:
-	stx		P_Temp+1					; åç§»é‡æš‚å­˜è¿›P_Temp+2, è…¾å‡ºXæ¥åšå˜å€å¯»å€
+	stx		P_Temp+1					; Æ«ÒÆÁ¿Ôİ´æ½øP_Temp+2, ÌÚ³öXÀ´×ö±äÖ·Ñ°Ö·
 
 	tax
-	lda		Table_Word_7bit,x			; å°†æ˜¾ç¤ºçš„æ•°å­—é€šè¿‡æŸ¥è¡¨æ‰¾åˆ°å¯¹åº”çš„æ®µç å­˜è¿›A
-	sta		P_Temp						; æš‚å­˜æ®µç å€¼åˆ°P_Temp
+	lda		Table_Word_7bit,x			; ½«ÏÔÊ¾µÄÊı×ÖÍ¨¹ı²é±íÕÒµ½¶ÔÓ¦µÄ¶ÎÂë´æ½øA
+	sta		P_Temp						; Ôİ´æ¶ÎÂëÖµµ½P_Temp
 
 	lda		#7
-	sta		P_Temp+2					; è®¾ç½®æ˜¾ç¤ºæ®µæ•°ä¸º7
-L_Judge_Dis_7Bit_WordDot:				; æ˜¾ç¤ºå¾ªç¯çš„å¼€å§‹
-	ldx		P_Temp+1					; è¡¨å¤´åç§»é‡->X
-	lda		Led_bit,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„bitä½
-	sta		P_Temp+3					; bitä½->P_Temp+3
-	lda		Led_byte,x					; æŸ¥è¡¨å®šä½ç›®æ ‡æ®µçš„æ˜¾å­˜åœ°å€
-	tax									; æ˜¾å­˜åœ°å€åç§»->X
-	ror		P_Temp						; å¾ªç¯å³ç§»å–å¾—ç›®æ ‡æ®µæ˜¯äº®æˆ–è€…ç­
-	bcc		L_CLR_7bit					; å½“å‰æ®µçš„å€¼è‹¥æ˜¯0åˆ™è¿›æ¸…ç‚¹å­ç¨‹åº
-	lda		LED_RamAddr,x				; å°†ç›®æ ‡æ®µçš„æ˜¾å­˜çš„ç‰¹å®šbitä½ç½®1æ¥æ‰“äº®
-	ora		P_Temp+3					; å°†COMå’ŒSEGä¿¡æ¯ä¸LED RAMåœ°å€è¿›è¡Œé€»è¾‘æˆ–æ“ä½œ
+	sta		P_Temp+2					; ÉèÖÃÏÔÊ¾¶ÎÊıÎª7
+L_Judge_Dis_7Bit_WordDot:				; ÏÔÊ¾Ñ­»·µÄ¿ªÊ¼
+	ldx		P_Temp+1					; ±íÍ·Æ«ÒÆÁ¿->X
+	lda		Led_bit,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄbitÎ»
+	sta		P_Temp+3					; bitÎ»->P_Temp+3
+	lda		Led_byte,x					; ²é±í¶¨Î»Ä¿±ê¶ÎµÄÏÔ´æµØÖ·
+	tax									; ÏÔ´æµØÖ·Æ«ÒÆ->X
+	ror		P_Temp						; Ñ­»·ÓÒÒÆÈ¡µÃÄ¿±ê¶ÎÊÇÁÁ»òÕßÃğ
+	bcc		L_CLR_7bit					; µ±Ç°¶ÎµÄÖµÈôÊÇ0Ôò½øÇåµã×Ó³ÌĞò
+	lda		LED_RamAddr,x				; ½«Ä¿±ê¶ÎµÄÏÔ´æµÄÌØ¶¨bitÎ»ÖÃ1À´´òÁÁ
+	ora		P_Temp+3					; ½«COMºÍSEGĞÅÏ¢ÓëLED RAMµØÖ·½øĞĞÂß¼­»ò²Ù×÷
 	
 	sta		LED_RamAddr,x
-	bra		L_Inc_Dis_Index_Prog_Word	; è·³è½¬åˆ°æ˜¾ç¤ºç´¢å¼•å¢åŠ çš„å­ç¨‹åºã€‚
+	bra		L_Inc_Dis_Index_Prog_Word	; Ìø×ªµ½ÏÔÊ¾Ë÷ÒıÔö¼ÓµÄ×Ó³ÌĞò¡£
 L_CLR_Word_7bit:	
-	lda		LED_RamAddr,x				; åŠ è½½LED RAMçš„åœ°å€
-	ora		P_Temp+3					; å…ˆç½®1ç¡®å®šçŠ¶æ€å†å¼‚æˆ–ç¿»è½¬æˆ0
+	lda		LED_RamAddr,x				; ¼ÓÔØLED RAMµÄµØÖ·
+	ora		P_Temp+3					; ÏÈÖÃ1È·¶¨×´Ì¬ÔÙÒì»ò·­×ª³É0
 	eor		P_Temp+3
-	sta		LED_RamAddr,x				; å°†ç»“æœå†™å›LED RAMï¼Œæ¸…é™¤å¯¹åº”ä½ç½®ã€‚
+	sta		LED_RamAddr,x				; ½«½á¹ûĞ´»ØLED RAM£¬Çå³ı¶ÔÓ¦Î»ÖÃ¡£
 L_Inc_Dis_Index_Prog_Word:
-	inc		P_Temp+1					; é€’å¢åç§»é‡ï¼Œå¤„ç†ä¸‹ä¸€ä¸ªæ®µ
-	dec		P_Temp+2					; é€’å‡å‰©ä½™è¦æ˜¾ç¤ºçš„æ®µæ•°
-	bne		L_Judge_Dis_7Bit_WordDot	; å‰©ä½™æ®µæ•°ä¸º0åˆ™è¿”å›
+	inc		P_Temp+1					; µİÔöÆ«ÒÆÁ¿£¬´¦ÀíÏÂÒ»¸ö¶Î
+	dec		P_Temp+2					; µİ¼õÊ£ÓàÒªÏÔÊ¾µÄ¶ÎÊı
+	bne		L_Judge_Dis_7Bit_WordDot	; Ê£Óà¶ÎÊıÎª0Ôò·µ»Ø
 	rts
 
 
 
 ;===========================================================
-;@brief		æ˜¾ç¤º1æˆ–è€…ä¸æ˜¾ç¤º
+;@brief		ÏÔÊ¾1»òÕß²»ÏÔÊ¾
 ;@para:		A = 0~1
 ;			X = offset	
-;@impact:	Xï¼ŒA
+;@impact:	X£¬A
 ;===========================================================
 L_Dis_2Bit_DigitDot:
 	bne		One_Digit
-	ldx		#led_d4						; é›¶åˆ™ä¸æ˜¾ç¤º
+	ldx		#led_d4						; ÁãÔò²»ÏÔÊ¾
 	jsr		F_ClrSymbol
 	ldx		#led_d4+1
 	jsr		F_ClrSymbol
 	rts
 One_Digit:
-	ldx		#led_d4						; ä¸€åˆ™æ˜¾ç¤ºbcä¸¤æ®µ
+	ldx		#led_d4						; Ò»ÔòÏÔÊ¾bcÁ½¶Î
 	jsr		F_DisSymbol
 	ldx		#led_d4+1
 	jsr		F_DisSymbol
@@ -166,16 +166,16 @@ One_Digit:
 
 
 
-; å‘é€å½“å‰COMçš„ç¼“å­˜å†…å®¹
+; ·¢ËÍµ±Ç°COMµÄ»º´æÄÚÈİ
 L_Send_Buffer_COM:
-	rmb7	PD							; å‘é€æ•°æ®æ—¶éœ€è¦LEæ‹‰ä½é”å­˜5020å½“å‰æ•°æ®
+	rmb7	PD							; ·¢ËÍÊı¾İÊ±ĞèÒªLEÀ­µÍËø´æ5020µ±Ç°Êı¾İ
 	lda		COM_Counter
 
-	clc									; ä¹˜ä»¥4ä½œåç§»
+	clc									; ³ËÒÔ4×÷Æ«ÒÆ
 	rol
 	rol
 	tax
-	lda		LED_RamAddr,x				; 32ä¸ªSegçš„çŠ¶æ€ä¾æ¬¡é€è¿›LED_Temp
+	lda		LED_RamAddr,x				; 32¸öSegµÄ×´Ì¬ÒÀ´ÎËÍ½øLED_Temp
 	sta		LED_Temp
 	inx
 	lda		LED_RamAddr,x
@@ -189,66 +189,66 @@ L_Send_Buffer_COM:
 
 	lda		#32
 	sta		LED_Temp+4
-L_Sending_Loop:							; ç”±äº5020æ˜¯MSBï¼Œå‘é€å¿…é¡»é«˜ä½å…ˆå‘
-	rol		LED_Temp					; å¾ªç¯å·¦ç§»åï¼Œæ£€æµ‹Cä½
+L_Sending_Loop:							; ÓÉÓÚ5020ÊÇMSB£¬·¢ËÍ±ØĞë¸ßÎ»ÏÈ·¢
+	rol		LED_Temp					; Ñ­»·×óÒÆºó£¬¼ì²âCÎ»
 	rol		LED_Temp+1
 	rol		LED_Temp+2
 	rol		LED_Temp+3
 	bcc		L_Send_0
-	smb5	PD							; å¦‚æœæ˜¯1ï¼Œåˆ™è¾“å‡ºé«˜
+	smb5	PD							; Èç¹ûÊÇ1£¬ÔòÊä³ö¸ß
 	bra		L_CLK_Change
 L_Send_0:
-	rmb5	PD							; 0åˆ™è¾“å‡ºä½
+	rmb5	PD							; 0ÔòÊä³öµÍ
 L_CLK_Change:
-	rmb6	PD							; CLKäº§ç”Ÿä¸€æ¬¡ä¸Šå‡æ²¿ä½¿å¾—5020å¼€å§‹ä½ç§»
-	nop									; å»¶æ—¶6ä¸ªæŒ‡ä»¤å‘¨æœŸç¡®ä¿IOå£ç¿»è½¬å®Œæˆ
+	rmb6	PD							; CLK²úÉúÒ»´ÎÉÏÉıÑØÊ¹µÃ5020¿ªÊ¼Î»ÒÆ
+	nop									; ÑÓÊ±6¸öÖ¸ÁîÖÜÆÚÈ·±£IO¿Ú·­×ªÍê³É
 	nop
 	nop
 	smb6	PD
 	dec		LED_Temp+4
 	bne		L_Sending_Loop
  
-	lda		PC							; 5020æ•°æ®æ›´æ”¹å‰éœ€è¦å…ˆå…³é—­æ‰€æœ‰COMé¿å…äº®ä¸Šä¸€ä¸ªCOMçš„ç¯
+	lda		PC							; 5020Êı¾İ¸ü¸ÄÇ°ĞèÒªÏÈ¹Ø±ÕËùÓĞCOM±ÜÃâÁÁÉÏÒ»¸öCOMµÄµÆ
 	ora		#$0e
 	sta		PC
 
-	smb7	PD							; 5020å–æ¶ˆé”å­˜ï¼Œæ¥æ”¶æ–°æ•°æ®
-	nop									; å»¶æ—¶6ä¸ªæŒ‡ä»¤å‘¨æœŸç¡®ä¿IOå£ç¿»è½¬å®Œæˆ
+	smb7	PD							; 5020È¡ÏûËø´æ£¬½ÓÊÕĞÂÊı¾İ
+	nop									; ÑÓÊ±6¸öÖ¸ÁîÖÜÆÚÈ·±£IO¿Ú·­×ªÍê³É
 	nop
 	nop
-	rmb7	PD							; é”å­˜æ•°æ®é¿å…æ„å¤–æ”¹å˜
+	rmb7	PD							; Ëø´æÊı¾İ±ÜÃâÒâÍâ¸Ä±ä
 
-	ldx		COM_Counter					; 32bitå‘é€å®Œæˆï¼Œæ ¹æ®COMæ•°é€‰æ‹©å¯¹åº”COMå¼•è„š
-	lda		Table_COMx_SEL,x			; æŸ¥è¡¨å¾—å‡ºå½“å‰COMçš„IOçŠ¶æ€
+	ldx		COM_Counter					; 32bit·¢ËÍÍê³É£¬¸ù¾İCOMÊıÑ¡Ôñ¶ÔÓ¦COMÒı½Å
+	lda		Table_COMx_SEL,x			; ²é±íµÃ³öµ±Ç°COMµÄIO×´Ì¬
 	and		PC
-	sta		PC							; COMé€‰æ‹©
+	sta		PC							; COMÑ¡Ôñ
 
 	rts
 
 
 
 ;-----------------------------------------
-;@brief:	å•ç‹¬çš„ç”»ç‚¹ã€æ¸…ç‚¹å‡½æ•°,ä¸€èˆ¬ç”¨äºMSæ˜¾ç¤º
+;@brief:	µ¥¶ÀµÄ»­µã¡¢Çåµãº¯Êı,Ò»°ãÓÃÓÚMSÏÔÊ¾
 ;@para:		X = offset
 ;@impact:	A, X, P_Temp
 ;-----------------------------------------
 F_DisSymbol:
 	jsr		F_DisSymbol_Com
-	sta		LED_RamAddr,x				; ç”»ç‚¹
+	sta		LED_RamAddr,x				; »­µã
 	rts
 
 F_ClrSymbol:
-	jsr		F_DisSymbol_Com				; æ¸…ç‚¹
+	jsr		F_DisSymbol_Com				; Çåµã
 	eor		P_Temp
 	sta		LED_RamAddr,x
 	rts
 
 F_DisSymbol_Com:
-	lda		Led_bit,x					; æŸ¥è¡¨å¾—çŸ¥ç›®æ ‡æ®µçš„bitä½
+	lda		Led_bit,x					; ²é±íµÃÖªÄ¿±ê¶ÎµÄbitÎ»
 	sta		P_Temp
-	lda		Led_byte,x					; æŸ¥è¡¨å¾—çŸ¥ç›®æ ‡æ®µçš„åœ°å€
+	lda		Led_byte,x					; ²é±íµÃÖªÄ¿±ê¶ÎµÄµØÖ·
 	tax
-	lda		LED_RamAddr,x				; å°†ç›®æ ‡æ®µçš„æ˜¾å­˜çš„ç‰¹å®šbitä½ç½®1æ¥æ‰“äº®
+	lda		LED_RamAddr,x				; ½«Ä¿±ê¶ÎµÄÏÔ´æµÄÌØ¶¨bitÎ»ÖÃ1À´´òÁÁ
 	ora		P_Temp
 	rts
 

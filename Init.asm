@@ -1,4 +1,4 @@
-F_Init_SystemRam:								; ç³»ç»Ÿå†…å­˜åˆå§‹åŒ–
+F_Init_SystemRam:								; ÏµÍ³ÄÚ´æ³õÊ¼»¯
 	lda		#0001B
 	sta		Sys_Status_Flag
 
@@ -42,32 +42,32 @@ F_Init_SystemRam:								; ç³»ç»Ÿå†…å­˜åˆå§‹åŒ–
 F_Beep_Init:
 	lda		#C_T000_Fsub
 	sta		PADF1
-	rmb0	TMCLK								; TIM0é€‰æ‹©æ—¶é’Ÿæºä¸ºFsub
+	rmb0	TMCLK								; TIM0Ñ¡ÔñÊ±ÖÓÔ´ÎªFsub
 	rmb1	TMCLK
 
-	lda		#256-8								; é…ç½®TIM0é¢‘ç‡ä¸º2048Hz
+	lda		#256-8								; ÅäÖÃTIM0ÆµÂÊÎª2048Hz
 	sta		TMR0
 
-	rmb3	PB_TYPE								; PB3é€‰æ‹©NMOSè¾“å‡º0é¿å…æ¼ç”µ
+	rmb3	PB_TYPE								; PB3Ñ¡ÔñNMOSÊä³ö0±ÜÃâÂ©µç
 
-	rmb1	PADF0								; PB3 PWMè¾“å‡ºæ§åˆ¶ï¼Œåˆå§‹åŒ–ä¸è¾“å‡º
-	rmb3	PADF0								; é…ç½®PB3çš„PWMè¾“å‡ºæ¨¡å¼ï¼Œé¢‘ç‡ä¸ºTIM0/2
+	rmb1	PADF0								; PB3 PWMÊä³ö¿ØÖÆ£¬³õÊ¼»¯²»Êä³ö
+	rmb3	PADF0								; ÅäÖÃPB3µÄPWMÊä³öÄ£Ê½£¬ÆµÂÊÎªTIM0/2
 	smb4	PADF0
 
 	rts
 
 
 F_Port_Init:
-	lda		#$1c								; PA5ä¸éœ€è¦å”¤é†’
+	lda		#$1c								; PA5²»ĞèÒª»½ĞÑ
 	sta		PA_WAKE
 	lda		#$1c
 	sta		PA_DIR
 	lda		#$1c
 	sta		PA
-	smb4	IER									; æ‰“å¼€PAå£å¤–éƒ¨ä¸­æ–­
+	smb4	IER									; ´ò¿ªPA¿ÚÍâ²¿ÖĞ¶Ï
 
 	lda		#$0
-	sta		PC_DIR								; PCé…ç½®ä¸ºè¾“å‡º
+	sta		PC_DIR								; PCÅäÖÃÎªÊä³ö
 	lda		#$0
 	sta		PC
 
@@ -76,51 +76,51 @@ F_Port_Init:
 	sta		PB
 
 	lda		#$07
-	sta		PD_DIR								; PD0-3é…ç½®ä¸ºä¸‰æ€è¾“å…¥ï¼Œå…¶ä½™ä¸ºè¾“å‡º
+	sta		PD_DIR								; PD0-3ÅäÖÃÎªÈıÌ¬ÊäÈë£¬ÆäÓàÎªÊä³ö
 	lda		#$00
 	sta		PD
-	sta		PD_SEG								; PDå£å…¨éƒ¨ä½œIOå£ä½¿ç”¨
+	sta		PD_SEG								; PD¿ÚÈ«²¿×÷IO¿ÚÊ¹ÓÃ
 
-	lda		#C_PB2S								; PB2ä½œPPå£°éŸ³è¾“å‡º
+	lda		#C_PB2S								; PB2×÷PPÉùÒôÊä³ö
 	sta		PADF0
 
 	rts
 
 
 F_Timer_Init:
-	rmb1	IER									; å…³TMR0ã€1å®šæ—¶å™¨ä¸­æ–­
-	rmb1	IFR									; æ¸…é™¤TMR0ã€1ä¸­æ–­æ ‡å¿—ä½
+	rmb1	IER									; ¹ØTMR0¡¢1¶¨Ê±Æ÷ÖĞ¶Ï
+	rmb1	IFR									; Çå³ıTMR0¡¢1ÖĞ¶Ï±êÖ¾Î»
 	rmb2	IER
 	rmb2	IFR
-	rmb0	TMRC								; å…³é—­TMR0
-	rmb1	TMRC								; å…³é—­TMR1
+	rmb0	TMRC								; ¹Ø±ÕTMR0
+	rmb1	TMRC								; ¹Ø±ÕTMR1
 
-	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0æ—¶é’ŸæºT000
-	sta		TMCLK								; TIM1æ—¶é’ŸæºFsub/64(512Hz)
+	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0Ê±ÖÓÔ´T000
+	sta		TMCLK								; TIM1Ê±ÖÓÔ´Fsub/64(512Hz)
 	lda		#C_T000_Fsub
-	sta		PADF1								; T000é€‰æ‹©ä¸ºFsub
+	sta		PADF1								; T000Ñ¡ÔñÎªFsub
 
-	; TIM2æ—¶é’ŸæºDIV,Fsub 64åˆ†é¢‘512Hzï¼Œå…³é—­å®šæ—¶å™¨åŒæ­¥
+	; TIM2Ê±ÖÓÔ´DIV,Fsub 64·ÖÆµ512Hz£¬¹Ø±Õ¶¨Ê±Æ÷Í¬²½
 	lda		#C_Asynchronous+C_DIVC_Fsub_64
-	sta		DIVC								; å…³é—­å®šæ—¶å™¨åŒæ­¥ï¼ŒDIVæ—¶é’Ÿæºä¸ºFsub/64(512Hz)
+	sta		DIVC								; ¹Ø±Õ¶¨Ê±Æ÷Í¬²½£¬DIVÊ±ÖÓÔ´ÎªFsub/64(512Hz)
 
-	lda		#256-8								; é…ç½®TIM0é¢‘ç‡ä¸º4096Hz
+	lda		#256-8								; ÅäÖÃTIM0ÆµÂÊÎª4096Hz
 	sta		TMR0
 	lda		#$0
 	sta		TMR2
 
-	lda		#$256-32							; 16Hzä¸€æ¬¡ä¸­æ–­
+	lda		#$256-32							; 16HzÒ»´ÎÖĞ¶Ï
 	sta		TMR1
 
-	lda		IER									; å¼€å®šæ—¶å™¨ä¸­æ–­
+	lda		IER									; ¿ª¶¨Ê±Æ÷ÖĞ¶Ï
 	ora		#C_TMR0I+C_TMR1I+C_TMR2I+C_LCDI
 	sta		IER
 
 	lda		#C_TMR2ON
-	sta		TMRC								; åˆå§‹åŒ–åªå¼€TIM2ç”¨äºèµ°æ—¶
+	sta		TMRC								; ³õÊ¼»¯Ö»¿ªTIM2ÓÃÓÚ×ßÊ±
 
 	lda		#C_COM_2_42_38+C_LCDIS_Rate
-	sta		LCD_COM								; å¼€LCDä¸­æ–­ç”¨äºå®šæ—¶æ˜¾ç¤ºLED
+	sta		LCD_COM								; ¿ªLCDÖĞ¶ÏÓÃÓÚ¶¨Ê±ÏÔÊ¾LED
 	lda		#$02
 	sta		FRAME
 
@@ -129,34 +129,34 @@ F_Timer_Init:
 
 
 F_Timer_NormalMode:
-	rmb1	IER									; å…³TMR0ã€1å®šæ—¶å™¨ä¸­æ–­
-	rmb1	IFR									; æ¸…é™¤TMR0ã€1ä¸­æ–­æ ‡å¿—ä½
+	rmb1	IER									; ¹ØTMR0¡¢1¶¨Ê±Æ÷ÖĞ¶Ï
+	rmb1	IFR									; Çå³ıTMR0¡¢1ÖĞ¶Ï±êÖ¾Î»
 	rmb2	IER
 	rmb2	IFR
 	lda		TMRC
 	pha
-	rmb0	TMRC								; å…³é—­TMR0
-	rmb1	TMRC								; å…³é—­TMR1
-	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0æ—¶é’ŸæºT000
-	sta		TMCLK								; TIM1æ—¶é’ŸæºFsub/64(512Hz)
+	rmb0	TMRC								; ¹Ø±ÕTMR0
+	rmb1	TMRC								; ¹Ø±ÕTMR1
+	lda		#C_TMR1_Fsub_64+C_TMR0_Fsub			; TIM0Ê±ÖÓÔ´T000
+	sta		TMCLK								; TIM1Ê±ÖÓÔ´Fsub/64(512Hz)
 	lda		#C_T000_Fsub
-	sta		PADF1								; T000é€‰æ‹©ä¸ºFsub
+	sta		PADF1								; T000Ñ¡ÔñÎªFsub
 	lda		#C_Asynchronous+C_DIVC_Fsub_64
-	sta		DIVC								; å…³é—­å®šæ—¶å™¨åŒæ­¥å¹¶é€‰æ‹©DIVæ—¶é’Ÿæºä¸ºFsub/64(512Hz)
+	sta		DIVC								; ¹Ø±Õ¶¨Ê±Æ÷Í¬²½²¢Ñ¡ÔñDIVÊ±ÖÓÔ´ÎªFsub/64(512Hz)
 
-	lda		#256-8								; é…ç½®TIM0é¢‘ç‡ä¸º4096Hz
+	lda		#256-8								; ÅäÖÃTIM0ÆµÂÊÎª4096Hz
 	sta		TMR0
-	lda		#256-32								; é…ç½®TIM1é¢‘ç‡ä¸º16Hz
+	lda		#256-32								; ÅäÖÃTIM1ÆµÂÊÎª16Hz
 	sta		TMR1
 
 	pla
 	sta		TMRC
 
-	rmb0	IER									; å…³é—­DIVä¸­æ–­
-	smb1	IER									; å¼€TIM0ã€1å®šæ—¶å™¨ä¸­æ–­
+	rmb0	IER									; ¹Ø±ÕDIVÖĞ¶Ï
+	smb1	IER									; ¿ªTIM0¡¢1¶¨Ê±Æ÷ÖĞ¶Ï
 	smb2	IER
 
-	rmb0	RFC_Flag							; æ¸…é™¤é‡‡æ ·å¯ç”¨ä¸­æ ‡å¿—ä½
+	rmb0	RFC_Flag							; Çå³ı²ÉÑùÆôÓÃÖĞ±êÖ¾Î»
 	rmb3	RFC_Flag
 	rmb6	RFC_Flag
 
@@ -167,38 +167,38 @@ F_Timer_NormalMode:
 
 F_RFC_Init:
 	lda		#$0f
-	sta		PD_DIR								; PD0-4é…ç½®ä¸ºä¸‰æ€è¾“å…¥ï¼Œå…¶ä½™ä¸ºè¾“å‡º
+	sta		PD_DIR								; PD0-4ÅäÖÃÎªÈıÌ¬ÊäÈë£¬ÆäÓàÎªÊä³ö
 	lda		#$0
 	sta		PD
 
 	rmb6	PC_SEG
 
-	lda		RFCC0								; PD0-3é…ç½®ä¸ºRFCåŠŸèƒ½
+	lda		RFCC0								; PD0-3ÅäÖÃÎªRFC¹¦ÄÜ
 	ora		#$0f
 	sta		RFCC0
 
 	lda		#$00
-	sta		RFCC1								; å…³é—­RFCæµ‹é‡åŠŸèƒ½
-	sta		PD_SEG								; PDå£å…¨éƒ¨ä½œIOå£ä½¿ç”¨
+	sta		RFCC1								; ¹Ø±ÕRFC²âÁ¿¹¦ÄÜ
+	sta		PD_SEG								; PD¿ÚÈ«²¿×÷IO¿ÚÊ¹ÓÃ
 
 	rts
 
 
 F_KeyMatrix_PC4Scan_Ready:
-	;rmb4	IER									; å…³é—­PAå£ä¸­æ–­ï¼Œé¿å…è¯¯è§¦å‘ä¸­æ–­
+	;rmb4	IER									; ¹Ø±ÕPA¿ÚÖĞ¶Ï£¬±ÜÃâÎó´¥·¢ÖĞ¶Ï
 
 	rmb4	PC
 	smb5	PC
-	rmb4	IFR									; å¤ä½æ ‡å¿—ä½,é¿å…ä¸­æ–­å¼€å¯æ—¶ç›´æ¥è¿›å…¥ä¸­æ–­æœåŠ¡
+	rmb4	IFR									; ¸´Î»±êÖ¾Î»,±ÜÃâÖĞ¶Ï¿ªÆôÊ±Ö±½Ó½øÈëÖĞ¶Ï·şÎñ
 	jsr		L_KeyDelay
 	rts
 
 F_KeyMatrix_PC5Scan_Ready:
-	;rmb4	IER									; å…³é—­PAå£ä¸­æ–­ï¼Œé¿å…è¯¯è§¦å‘ä¸­æ–­
+	;rmb4	IER									; ¹Ø±ÕPA¿ÚÖĞ¶Ï£¬±ÜÃâÎó´¥·¢ÖĞ¶Ï
 
 	smb4	PC
 	rmb5	PC
-	rmb4	IFR									; å¤ä½æ ‡å¿—ä½,é¿å…ä¸­æ–­å¼€å¯æ—¶ç›´æ¥è¿›å…¥ä¸­æ–­æœåŠ¡
+	rmb4	IFR									; ¸´Î»±êÖ¾Î»,±ÜÃâÖĞ¶Ï¿ªÆôÊ±Ö±½Ó½øÈëÖĞ¶Ï·şÎñ
 	jsr		L_KeyDelay
 	rts
 
@@ -208,7 +208,7 @@ F_QuikAdd_Scan:
 	rmb4	PC
 	rmb5	PC
 	rts
-L_QuikAdd_ScanReset:							; æœ‰é•¿æŒ‰æ—¶PC4,PC5è¾“å‡ºé«˜ï¼Œé¿å…é•¿æŒ‰æ—¶æ¼ç”µ
+L_QuikAdd_ScanReset:							; ÓĞ³¤°´Ê±PC4,PC5Êä³ö¸ß£¬±ÜÃâ³¤°´Ê±Â©µç
 	smb4	PC
-	smb5	PC									; å¿«åŠ ä¸‹ä¸éœ€è¦å¼€å¯ä¸­æ–­ï¼Œå®šæ—¶æ‰«æIOå£å³å¯
+	smb5	PC									; ¿ì¼ÓÏÂ²»ĞèÒª¿ªÆôÖĞ¶Ï£¬¶¨Ê±É¨ÃèIO¿Ú¼´¿É
 	rts

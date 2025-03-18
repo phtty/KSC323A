@@ -1,4 +1,4 @@
-F_Display_Time:									; è°ƒç”¨æ˜¾ç¤ºå‡½æ•°æ˜¾ç¤ºå½“å‰æ—¶é—´
+F_Display_Time:									; µ÷ÓÃÏÔÊ¾º¯ÊıÏÔÊ¾µ±Ç°Ê±¼ä
 	jsr		L_DisTime_Min
 	jsr		L_DisTime_Hour
 	rts
@@ -17,29 +17,29 @@ L_DisTime_Min:
 	jsr		L_Dis_7Bit_DigitDot
 	rts	
 
-L_DisTime_Hour:									; æ˜¾ç¤ºå°æ—¶
+L_DisTime_Hour:									; ÏÔÊ¾Ğ¡Ê±
 	bbr0	Clock_Flag,L_24hMode_Time
 	lda		R_Time_Hour
 	cmp		#12
 	bcs		L_Time12h_PM
-	jsr		F_ClrPM								; 12hæ¨¡å¼AMéœ€è¦ç­PMç‚¹
-	lda		R_Time_Hour							; æ”¹æ˜¾å­˜å‡½æ•°ä¼šæ”¹Aå€¼ï¼Œé‡æ–°å–å˜é‡
+	jsr		F_ClrPM								; 12hÄ£Ê½AMĞèÒªÃğPMµã
+	lda		R_Time_Hour							; ¸ÄÏÔ´æº¯Êı»á¸ÄAÖµ£¬ÖØĞÂÈ¡±äÁ¿
 	cmp		#0
 	beq		L_Time_0Hour
 	bra		L_Start_DisTime_Hour
 L_Time12h_PM:
-	jsr		F_DisPM								; 12hæ¨¡å¼PMéœ€è¦äº®PMç‚¹
-	lda		R_Time_Hour							; æ”¹æ˜¾å­˜å‡½æ•°ä¼šæ”¹Aå€¼ï¼Œé‡æ–°å–å˜é‡
+	jsr		F_DisPM								; 12hÄ£Ê½PMĞèÒªÁÁPMµã
+	lda		R_Time_Hour							; ¸ÄÏÔ´æº¯Êı»á¸ÄAÖµ£¬ÖØĞÂÈ¡±äÁ¿
 	sec
 	sbc		#12
 	cmp		#0
 	bne		L_Start_DisTime_Hour
-L_Time_0Hour:									; 12hæ¨¡å¼0ç‚¹éœ€è¦å˜æˆ12ç‚¹
+L_Time_0Hour:									; 12hÄ£Ê½0µãĞèÒª±ä³É12µã
 	lda		#12
 	bra		L_Start_DisTime_Hour
 
 L_24hMode_Time:
-	jsr		F_ClrPM								; 24hæ¨¡å¼ä¸‹éœ€è¦ç­PMç‚¹
+	jsr		F_ClrPM								; 24hÄ£Ê½ÏÂĞèÒªÃğPMµã
 	lda		R_Time_Hour
 L_Start_DisTime_Hour:
 	jsr		L_A_DecToHex
@@ -50,7 +50,7 @@ L_Start_DisTime_Hour:
 	pla
 	and		#$f0
 	jsr		L_LSR_4Bit
-	bne		L_Hour_Tens_NoZero					; å°æ—¶æ¨¡å¼çš„åä½0ä¸æ˜¾ç¤º
+	bne		L_Hour_Tens_NoZero					; Ğ¡Ê±Ä£Ê½µÄÊ®Î»0²»ÏÔÊ¾
 	lda		#$0a
 L_Hour_Tens_NoZero:
 	ldx		#led_d0
@@ -60,14 +60,14 @@ L_Hour_Tens_NoZero:
 
 
 
-; Sys_Status_Ordinal = é—¹é’Ÿåºå·
-F_Display_Alarm:								; è°ƒç”¨æ˜¾ç¤ºå‡½æ•°æ˜¾ç¤ºå½“å‰é—¹é’Ÿ
+; Sys_Status_Ordinal = ÄÖÖÓĞòºÅ
+F_Display_Alarm:								; µ÷ÓÃÏÔÊ¾º¯ÊıÏÔÊ¾µ±Ç°ÄÖÖÓ
 	jsr		L_DisAlarm_Min
 	jsr		L_DisAlarm_Hour
 	rts
 
 L_DisAlarm_Min:
-	lda		Sys_Status_Ordinal					; åˆ¤æ–­è¦æ˜¾ç¤ºä¸‰ç»„é—¹é’Ÿçš„å“ªä¸€ä¸ª
+	lda		Sys_Status_Ordinal					; ÅĞ¶ÏÒªÏÔÊ¾Èı×éÄÖÖÓµÄÄÄÒ»¸ö
 	bne		No_Alarm1Min_Display
 	lda		R_Alarm1_Min
 	bra		AlarmMin_Display_Start
@@ -94,8 +94,8 @@ AlarmMin_Display_Start:
 	jsr		L_Dis_7Bit_DigitDot
 	rts	
 
-L_DisAlarm_Hour:								; æ˜¾ç¤ºé—¹é’Ÿå°æ—¶
-	lda		Sys_Status_Ordinal					; åˆ¤æ–­è¦æ˜¾ç¤ºä¸‰ç»„é—¹é’Ÿçš„å“ªä¸€ä¸ª
+L_DisAlarm_Hour:								; ÏÔÊ¾ÄÖÖÓĞ¡Ê±
+	lda		Sys_Status_Ordinal					; ÅĞ¶ÏÒªÏÔÊ¾Èı×éÄÖÖÓµÄÄÄÒ»¸ö
 	cmp		#0
 	bne		No_Alarm1Hour_Display
 	lda		R_Alarm1_Hour
@@ -114,24 +114,24 @@ AlarmHour_Display_Start:
 	lda		R_Alarm_Hour
 	cmp		#12
 	bcs		L_Alarm12h_PM
-	jsr		F_ClrPM								; 12hæ¨¡å¼AMéœ€è¦ç­PMç‚¹
-	lda		R_Alarm_Hour						; æ”¹æ˜¾å­˜å‡½æ•°ä¼šæ”¹Aå€¼ï¼Œé‡æ–°å–å˜é‡
+	jsr		F_ClrPM								; 12hÄ£Ê½AMĞèÒªÃğPMµã
+	lda		R_Alarm_Hour						; ¸ÄÏÔ´æº¯Êı»á¸ÄAÖµ£¬ÖØĞÂÈ¡±äÁ¿
 	cmp		#0
 	beq		L_Alarm_0Hour
 	bra		L_Start_DisAlarm_Hour
 L_Alarm12h_PM:
-	jsr		F_DisPM								; 12hæ¨¡å¼PMéœ€è¦äº®PMç‚¹
-	lda		R_Alarm_Hour						; æ”¹æ˜¾å­˜å‡½æ•°ä¼šæ”¹Aå€¼ï¼Œé‡æ–°å–å˜é‡
+	jsr		F_DisPM								; 12hÄ£Ê½PMĞèÒªÁÁPMµã
+	lda		R_Alarm_Hour						; ¸ÄÏÔ´æº¯Êı»á¸ÄAÖµ£¬ÖØĞÂÈ¡±äÁ¿
 	sec
 	sbc		#12
 	cmp		#0
 	bne		L_Start_DisAlarm_Hour
-L_Alarm_0Hour:									; 12hæ¨¡å¼0ç‚¹éœ€è¦å˜æˆ12ç‚¹
+L_Alarm_0Hour:									; 12hÄ£Ê½0µãĞèÒª±ä³É12µã
 	lda		#12
 	bra		L_Start_DisAlarm_Hour
 
 L_24hMode_Alarm:
-	jsr		F_ClrPM								; 24hæ¨¡å¼ä¸‹éœ€è¦ç­PMç‚¹
+	jsr		F_ClrPM								; 24hÄ£Ê½ÏÂĞèÒªÃğPMµã
 	lda		R_Alarm_Hour
 L_Start_DisAlarm_Hour:
 	jsr		L_A_DecToHex
@@ -142,7 +142,7 @@ L_Start_DisAlarm_Hour:
 	pla
 	and		#$f0
 	jsr		L_LSR_4Bit
-	bne		L_AlarmHour_Tens_NoZero				; å°æ—¶æ¨¡å¼çš„åä½0ä¸æ˜¾ç¤º
+	bne		L_AlarmHour_Tens_NoZero				; Ğ¡Ê±Ä£Ê½µÄÊ®Î»0²»ÏÔÊ¾
 	lda		#$0a
 L_AlarmHour_Tens_NoZero:
 	ldx		#led_d0
@@ -150,7 +150,7 @@ L_AlarmHour_Tens_NoZero:
 	rts
 
 
-; æ˜¾ç¤ºæ—¥æœŸå‡½æ•°
+; ÏÔÊ¾ÈÕÆÚº¯Êı
 F_Display_Date:
 	jsr		L_DisDate_Day
 	jsr		L_DisDate_Month
@@ -166,7 +166,7 @@ L_DisDate_Day:
 	pla
 	and		#$f0
 	jsr		L_LSR_4Bit
-	bne		L_Day_Tens_NoZero					; æ—¥æœŸåä½0ä¸æ˜¾ç¤º
+	bne		L_Day_Tens_NoZero					; ÈÕÆÚÊ®Î»0²»ÏÔÊ¾
 	lda		#10
 L_Day_Tens_NoZero:
 	ldx		#led_d2
@@ -183,7 +183,7 @@ L_DisDate_Month:
 	pla
 	and		#$f0
 	jsr		L_LSR_4Bit
-	bne		L_Month_Tens_NoZero					; æœˆä»½åä½0ä¸æ˜¾ç¤º
+	bne		L_Month_Tens_NoZero					; ÔÂ·İÊ®Î»0²»ÏÔÊ¾
 	lda		#10
 L_Month_Tens_NoZero:
 	ldx		#led_d0
@@ -191,7 +191,7 @@ L_Month_Tens_NoZero:
 	rts
 
 L_DisDate_Year:
-	lda		#00									; 20xxå¹´çš„å¼€å¤´20æ˜¯å›ºå®šçš„
+	lda		#00									; 20xxÄêµÄ¿ªÍ·20ÊÇ¹Ì¶¨µÄ
 	ldx		#led_d1
 	jsr		L_Dis_7Bit_DigitDot
 	lda		#02
@@ -199,7 +199,7 @@ L_DisDate_Year:
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
 
-	lda		R_Date_Year							; æ˜¾ç¤ºå½“å‰çš„å¹´ä»½
+	lda		R_Date_Year							; ÏÔÊ¾µ±Ç°µÄÄê·İ
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
@@ -215,7 +215,7 @@ L_DisDate_Year:
 
 
 
-F_UnDisplay_D0_1:								; é—ªçƒæ—¶å–æ¶ˆæ˜¾ç¤ºç”¨çš„å‡½æ•°
+F_UnDisplay_D0_1:								; ÉÁË¸Ê±È¡ÏûÏÔÊ¾ÓÃµÄº¯Êı
 	lda		#10
 	ldx		#led_d0
 	jsr		L_Dis_7Bit_DigitDot
@@ -225,7 +225,7 @@ F_UnDisplay_D0_1:								; é—ªçƒæ—¶å–æ¶ˆæ˜¾ç¤ºç”¨çš„å‡½æ•°
 	rts
 
 
-F_UnDisplay_D2_3:								; é—ªçƒæ—¶å–æ¶ˆæ˜¾ç¤ºç”¨çš„å‡½æ•°
+F_UnDisplay_D2_3:								; ÉÁË¸Ê±È¡ÏûÏÔÊ¾ÓÃµÄº¯Êı
 	lda		#10
 	ldx		#led_d2
 	jsr		L_Dis_7Bit_DigitDot
@@ -252,15 +252,15 @@ F_Display_Week:
 
 
 
-; æ˜¾ç¤ºæ¸©åº¦å‡½æ•°
+; ÏÔÊ¾ÎÂ¶Èº¯Êı
 F_Display_Temper:
 	ldx		#led_minus
-	jsr		F_ClrSymbol							; æ¸…è´Ÿå·æ˜¾ç¤º
+	jsr		F_ClrSymbol							; Çå¸ººÅÏÔÊ¾
 	lda		#0
-	jsr		L_Dis_2Bit_DigitDot					; æ¸…æ¸©åº¦ç™¾ä½æ˜¾ç¤º
+	jsr		L_Dis_2Bit_DigitDot					; ÇåÎÂ¶È°ÙÎ»ÏÔÊ¾
 	lda		#10
 	ldx		#led_d7
-	jsr		L_Dis_7Bit_DigitDot					; æ¸…ç†æ¸©åº¦å•ä½æ˜¾ç¤º
+	jsr		L_Dis_7Bit_DigitDot					; ÇåÀíÎÂ¶Èµ¥Î»ÏÔÊ¾
 
 	bbr4	RFC_Flag,Dis_CDegree
 	jmp		Display_FahrenheitDegree
@@ -277,7 +277,7 @@ Display_CelsiusDegree:
 	jsr		L_Dis_7Bit_DigitDot
 	lda		P_Temp+7
 	and		#$f0
-	beq		Degree_NoTens						; é«˜4ä½ä¸º0ï¼Œåˆ™d5ä¸æ˜¾ç¤º
+	beq		Degree_NoTens						; ¸ß4Î»Îª0£¬Ôòd5²»ÏÔÊ¾
 	jsr		L_LSR_4Bit
 	ldx		#led_d5
 	jsr		L_Dis_7Bit_DigitDot
@@ -286,19 +286,19 @@ Degree_NoTens:
 	lda		#10
 	ldx		#led_d5
 	jsr		L_Dis_7Bit_DigitDot
-	bbr2	RFC_Flag,NoMinusTemper				; æ¸©åº¦æ˜¯ä¸ªä½è´Ÿæ•°æ—¶ï¼Œd5æ˜¾ç¤ºè´Ÿå·
+	bbr2	RFC_Flag,NoMinusTemper				; ÎÂ¶ÈÊÇ¸öÎ»¸ºÊıÊ±£¬d5ÏÔÊ¾¸ººÅ
 
 	ldx		#led_d5+6
 	jsr		F_DisSymbol
 	bra		NoMinusTemper
 
 Dis_CelSymbol:
-	bbr2	RFC_Flag,NoMinusTemper				; æ¸©åº¦ä¸ºåä½è´Ÿæ•°æ—¶ï¼Œd4æ˜¾ç¤ºè´Ÿå·
+	bbr2	RFC_Flag,NoMinusTemper				; ÎÂ¶ÈÎªÊ®Î»¸ºÊıÊ±£¬d4ÏÔÊ¾¸ººÅ
 	ldx		#led_minus
 	jsr		F_DisSymbol
 
 NoMinusTemper:
-	lda		#0									; æ˜¾ç¤ºæ‘„æ°åº¦C
+	lda		#0									; ÏÔÊ¾ÉãÊÏ¶ÈC
 	ldx		#led_d7
 	jsr		L_Dis_7Bit_WordDot
 	rts
@@ -322,7 +322,7 @@ Display_FahrenheitDegree:
 	and		#$0f
 	ldx		#led_d6
 	jsr		L_Dis_7Bit_DigitDot
-	lda		#1									; æ˜¾ç¤ºåæ°åº¦C
+	lda		#1									; ÏÔÊ¾»ªÊÏ¶ÈC
 	ldx		#led_d7
 	jsr		L_Dis_7Bit_WordDot
 	rts
@@ -331,10 +331,10 @@ Display_FahrenheitDegree:
 
 
 
-; æ˜¾ç¤ºæ¹¿åº¦å‡½æ•°
+; ÏÔÊ¾Êª¶Èº¯Êı
 F_Display_Humid:
 	lda		R_Humidity
-	beq		DisHumid_MinusTemper				; æ¸©åº¦ä¸ºè´Ÿæ—¶ï¼Œä¸æ˜¾ç¤ºæ¹¿åº¦
+	beq		DisHumid_MinusTemper				; ÎÂ¶ÈÎª¸ºÊ±£¬²»ÏÔÊ¾Êª¶È
 	jsr		L_A_DecToHex
 	pha
 	and		#$0f
@@ -357,7 +357,7 @@ DisHumid_MinusTemper:
 
 
 
-F_SymbolRegulate:								; æ˜¾ç¤ºå¸¸äº®ç‚¹
+F_SymbolRegulate:								; ÏÔÊ¾³£ÁÁµã
 	ldx		#led_TMP
 	jsr		F_DisSymbol
 	ldx		#led_Per1
@@ -370,14 +370,14 @@ F_SymbolRegulate:								; æ˜¾ç¤ºå¸¸äº®ç‚¹
 	rts
 
 
-; è´ªç¡æ—¶é—ªALMç‚¹
+; Ì°Ë¯Ê±ÉÁALMµã
 L_ALMDot_Blink:
-	bbr3	Clock_Flag,L_SymbolDis_Exit			; å¦‚æœéè´ªç¡çŠ¶æ€ï¼Œåˆ™ä¸è¿›æ­¤å­ç¨‹åº
+	bbr3	Clock_Flag,L_SymbolDis_Exit			; Èç¹û·ÇÌ°Ë¯×´Ì¬£¬Ôò²»½ø´Ë×Ó³ÌĞò
 	bbs0	Symbol_Flag,L_SymbolDis
 L_SymbolDis_Exit:
 	rts
 L_SymbolDis:
-	rmb0	Symbol_Flag							; ALMç‚¹åŠSæ ‡å¿—
+	rmb0	Symbol_Flag							; ALMµã°ëS±êÖ¾
 	bbs1	Symbol_Flag,L_ALM_Dot_Clr
 L_ALM_Dot_Dis:
 	bbs0	Triggered_AlarmGroup,Group1_Bright
@@ -394,7 +394,7 @@ Group3_Bright:
 	rts
 	
 L_ALM_Dot_Clr:
-	rmb1	Symbol_Flag							; ALMç‚¹1Sæ ‡å¿—
+	rmb1	Symbol_Flag							; ALMµã1S±êÖ¾
 	bbs0	Triggered_AlarmGroup,Group1_Extinguish
 	bbs1	Triggered_AlarmGroup,Group2_Extinguish
 	bbs2	Triggered_AlarmGroup,Group3_Extinguish
@@ -410,12 +410,12 @@ Group3_Extinguish:
 
 
 
-; éé—¹é’Ÿæ˜¾ç¤ºçŠ¶æ€ä¸‹ï¼Œæ˜¾ç¤ºå¼€å¯çš„é—¹é’Ÿ
+; ·ÇÄÖÖÓÏÔÊ¾×´Ì¬ÏÂ£¬ÏÔÊ¾¿ªÆôµÄÄÖÖÓ
 F_AlarmSW_Display:
-	bbs3	Clock_Flag,F_AlarmSW_Exit			; è´ªç¡æ—¶ï¼Œè¢«é—ªç‚¹å­ç¨‹åºæ¥ç®¡
+	bbs3	Clock_Flag,F_AlarmSW_Exit			; Ì°Ë¯Ê±£¬±»ÉÁµã×Ó³ÌĞò½Ó¹Ü
 	lda		Sys_Status_Flag
 	cmp		#0010B
-	bne		Alarm1_Switch						; åœ¨é—¹é’Ÿæ˜¾ç¤ºæ¨¡å¼ä¸‹ï¼Œä¸æ§åˆ¶é—¹é’Ÿç»„çš„ç‚¹æ˜¾ç¤º
+	bne		Alarm1_Switch						; ÔÚÄÖÖÓÏÔÊ¾Ä£Ê½ÏÂ£¬²»¿ØÖÆÄÖÖÓ×éµÄµãÏÔÊ¾
 F_AlarmSW_Exit:
 	rts
 
@@ -451,12 +451,12 @@ Alarm3_Switch_Off:
 
 
 F_DP_Display:
-	bbs6	Key_Flag,DP_Display				; æ²¡æœ‰DPæ˜¾ç¤ºæ ‡å¿—åˆ™æ˜¾ç¤ºæ—¶é’Ÿ
+	bbs6	Key_Flag,DP_Display				; Ã»ÓĞDPÏÔÊ¾±êÖ¾ÔòÏÔÊ¾Ê±ÖÓ
 	rts
 DP_Display:
-	jsr		F_ClrCol						; DPæ˜¾ç¤ºéœ€è¦ç­ç§’ç‚¹å’ŒPMç‚¹
+	jsr		F_ClrCol						; DPÏÔÊ¾ĞèÒªÃğÃëµãºÍPMµã
 	jsr		F_ClrPM
-	bbs7	Key_Flag,DP_Display_Juge		; åœ¨DPæ˜¾ç¤ºé‡Œï¼Œå¦‚æœæ²¡1Såˆ™ä¸ç»§ç»­æ˜¾ç¤ºæ—¶é’Ÿï¼Œç›´æ¥é€€å‡º
+	bbs7	Key_Flag,DP_Display_Juge		; ÔÚDPÏÔÊ¾Àï£¬Èç¹ûÃ»1SÔò²»¼ÌĞøÏÔÊ¾Ê±ÖÓ£¬Ö±½ÓÍË³ö
 	pla
 	pla
 	rts
@@ -465,15 +465,15 @@ DP_Display_Juge:
 	inc		Counter_DP
 	lda		Counter_DP
 	cmp		#6
-	beq		DP_Display_Over					; è®¡æ»¡5så‰ä¸€ç›´æ˜¾ç¤ºDP
+	beq		DP_Display_Over					; ¼ÆÂú5sÇ°Ò»Ö±ÏÔÊ¾DP
 
 	bbs2	Key_Flag,DP_RDMode
-	jsr		L_Dis_dp_1						; å›ºæ˜¾DP-1
+	jsr		L_Dis_dp_1						; ¹ÌÏÔDP-1
 	bra		DP_Mode_Return
 DP_RDMode:
-	jsr		L_Dis_dp_2						; è½®æ˜¾DP-2
+	jsr		L_Dis_dp_2						; ÂÖÏÔDP-2
 DP_Mode_Return:
-	pla										; ç­‰å¾…1Sæ ‡å¿—åˆ°æ¥ï¼Œå¢åŠ è®¡æ•°
+	pla										; µÈ´ı1S±êÖ¾µ½À´£¬Ôö¼Ó¼ÆÊı
 	pla
 	rts
 DP_Display_Over:
@@ -549,7 +549,7 @@ L_24hMode_Set:
 
 
 
-; äº®ç§’ç‚¹
+; ÁÁÃëµã
 F_DisCol:
 	ldx		#led_COL1
 	jsr		F_DisSymbol
@@ -557,7 +557,7 @@ F_DisCol:
 	jsr		F_DisSymbol
 	rts
 
-; ç­ç§’ç‚¹
+; ÃğÃëµã
 F_ClrCol:
 	ldx		#led_COL1
 	jsr		F_ClrSymbol
@@ -565,49 +565,49 @@ F_ClrCol:
 	jsr		F_ClrSymbol
 	rts
 
-; äº®PMç‚¹
+; ÁÁPMµã
 F_DisPM:
 	ldx		#led_PM
 	jsr		F_DisSymbol
 	rts
 
-; ç­PMç‚¹
+; ÃğPMµã
 F_ClrPM:
 	ldx		#led_PM
 	jsr		F_ClrSymbol
 	rts
 
-; äº®AL1ç‚¹
+; ÁÁAL1µã
 F_DisAL1:
 	ldx		#led_AL1
 	jsr		F_DisSymbol
 	rts
 
-; ç­AL1ç‚¹
+; ÃğAL1µã
 F_ClrAL1:
 	ldx		#led_AL1
 	jsr		F_ClrSymbol
 	rts
 
-; äº®AL2ç‚¹
+; ÁÁAL2µã
 F_DisAL2:
 	ldx		#led_AL2
 	jsr		F_DisSymbol
 	rts
 
-; ç­AL2ç‚¹
+; ÃğAL2µã
 F_ClrAL2:
 	ldx		#led_AL2
 	jsr		F_ClrSymbol
 	rts
 
-; äº®AL3ç‚¹
+; ÁÁAL3µã
 F_DisAL3:
 	ldx		#led_AL3
 	jsr		F_DisSymbol
 	rts
 
-; ç­AL3ç‚¹
+; ÃğAL3µã
 F_ClrAL3:
 	ldx		#led_AL3
 	jsr		F_ClrSymbol
@@ -625,34 +625,34 @@ L_LSR_4Bit:
 
 
 
-; å°†256ä»¥å†…çš„æ•°ä»¥åè¿›åˆ¶å­˜å‚¨åœ¨åå…­è¿›åˆ¶æ ¼å¼ä¸­
-; A==è½¬æ¢çš„æ•°ï¼ŒX==ç™¾ä½
+; ½«256ÒÔÄÚµÄÊıÒÔÊ®½øÖÆ´æ´¢ÔÚÊ®Áù½øÖÆ¸ñÊ½ÖĞ
+; A==×ª»»µÄÊı£¬X==°ÙÎ»
 L_A_DecToHex:
-	sta		P_Temp								; å°†åè¿›åˆ¶è¾“å…¥ä¿å­˜åˆ°P_Temp
+	sta		P_Temp								; ½«Ê®½øÖÆÊäÈë±£´æµ½P_Temp
 	ldx		#0
 	lda		#0
-	sta		P_Temp+1							; åä½æ¸…é›¶
-	sta		P_Temp+2							; ä¸ªä½æ¸…é›¶
+	sta		P_Temp+1							; Ê®Î»ÇåÁã
+	sta		P_Temp+2							; ¸öÎ»ÇåÁã
 
 L_DecToHex_Loop:
 	lda		P_Temp
 	cmp		#10
-	bcc		L_DecToHex_End						; å¦‚æœå°äº10ï¼Œåˆ™ä¸ç”¨è½¬æ¢
+	bcc		L_DecToHex_End						; Èç¹ûĞ¡ÓÚ10£¬Ôò²»ÓÃ×ª»»
 
 	sec
-	sbc		#10									; å‡å»10
-	sta		P_Temp								; æ›´æ–°åè¿›åˆ¶å€¼
-	inc		P_Temp+1							; åä½+1ï¼Œç´¯åŠ åå…­è¿›åˆ¶çš„åä½
-	bra		L_DecToHex_Loop						; é‡å¤å¾ªç¯
+	sbc		#10									; ¼õÈ¥10
+	sta		P_Temp								; ¸üĞÂÊ®½øÖÆÖµ
+	inc		P_Temp+1							; Ê®Î»+1£¬ÀÛ¼ÓÊ®Áù½øÖÆµÄÊ®Î»
+	bra		L_DecToHex_Loop						; ÖØ¸´Ñ­»·
 
 L_DecToHex_End:
-	lda		P_Temp								; æœ€åå‰©ä½™çš„å€¼æ˜¯ä¸ªä½
-	sta		P_Temp+2							; å­˜å…¥ä¸ªä½
+	lda		P_Temp								; ×îºóÊ£ÓàµÄÖµÊÇ¸öÎ»
+	sta		P_Temp+2							; ´æÈë¸öÎ»
 
 Juge_3Positions:
-	lda		P_Temp+1							; å°†åä½æ”¾å…¥Aå¯„å­˜å™¨ç»„åˆ
+	lda		P_Temp+1							; ½«Ê®Î»·ÅÈëA¼Ä´æÆ÷×éºÏ
 	cmp		#10
-	bcc		No_3Positions						; åˆ¤æ–­æ˜¯å¦æœ‰ç™¾ä½
+	bcc		No_3Positions						; ÅĞ¶ÏÊÇ·ñÓĞ°ÙÎ»
 	sec
 	sbc		#10
 	sta		P_Temp+1
@@ -663,8 +663,8 @@ No_3Positions:
 	rol
 	rol
 	rol
-	rol											; å·¦ç§»4æ¬¡ï¼Œå®Œæˆä¹˜16
+	rol											; ×óÒÆ4´Î£¬Íê³É³Ë16
 	clc
-	adc		P_Temp+2							; åŠ ä¸Šä¸ªä½å€¼
+	adc		P_Temp+2							; ¼ÓÉÏ¸öÎ»Öµ
 
 	rts

@@ -7,83 +7,83 @@ L_Humid_Handle:
 
 L_Search_HumidTable:
 	lda		R_Temperature
-	bbr2	RFC_Flag,?Start						; è‹¥æ¸©åº¦ä¸ºè´Ÿæ•°ï¼Œåˆ™æ¹¿åº¦ä¸æ˜¾ç¤º
+	bbr2	RFC_Flag,?Start						; ÈôÎÂ¶ÈÎª¸ºÊı£¬ÔòÊª¶È²»ÏÔÊ¾
 	lda		#0
 	sta		R_Humidity
 	rts
 ?Start:
 	cmp		#51
-	bcc		L_Temper_NoOverFlow					; è‹¥æ˜¯æ¸©åº¦å¤§äº50åº¦ï¼Œå›ºå®šä¸º50åº¦
+	bcc		L_Temper_NoOverFlow					; ÈôÊÇÎÂ¶È´óÓÚ50¶È£¬¹Ì¶¨Îª50¶È
 	lda		#50
 L_Temper_NoOverFlow:
-	jsr		L_A_Mod_5							; å°†æ¸©åº¦å€¼é™¤ä»¥5å¾—åˆ°æ¹¿åº¦è¡¨ç´¢å¼•Nï¼Œç”¨äºæŸ¥æ‰¾ç›¸åº”æ¸©åº¦ä¸‹çš„æ¹¿åº¦å€¼ï¼Œä»¥ä¾¿è¿›è¡Œåç»­çš„æ¹¿åº¦è®¡ç®—
+	jsr		L_A_Mod_5							; ½«ÎÂ¶ÈÖµ³ıÒÔ5µÃµ½Êª¶È±íË÷ÒıN£¬ÓÃÓÚ²éÕÒÏàÓ¦ÎÂ¶ÈÏÂµÄÊª¶ÈÖµ£¬ÒÔ±ã½øĞĞºóĞøµÄÊª¶È¼ÆËã
 	stx		P_Temp
 	cmp		#2
 	bcs		N_GreaterThan1
-	bra		Temper_GapSmall						; ä½™æ•°ä¸º0å’Œ1æ—¶ç”¨ç´¢å¼•NæŸ¥è¡¨
+	bra		Temper_GapSmall						; ÓàÊıÎª0ºÍ1Ê±ÓÃË÷ÒıN²é±í
 N_GreaterThan1:
 	cmp		#4
 	bcs		N_GreaterThan3
-	bra		Temper_GapMiddle					; ä½™æ•°ä¸º2å’Œ3æ—¶ç”¨ç´¢å¼•Nå’ŒN+1æŸ¥ä¸¤æ¬¡è¡¨ï¼Œå–äºŒè€…çš„å¹³å‡æ•°
+	bra		Temper_GapMiddle					; ÓàÊıÎª2ºÍ3Ê±ÓÃË÷ÒıNºÍN+1²éÁ½´Î±í£¬È¡¶şÕßµÄÆ½¾ùÊı
 N_GreaterThan3:
 	inc		P_Temp
-	bra		Temper_GapLong						; ä½™æ•°ä¸º4åˆ™ç”¨ç´¢å¼•å€¼ä¸ºN+1æŸ¥è¡¨
+	bra		Temper_GapLong						; ÓàÊıÎª4ÔòÓÃË÷ÒıÖµÎªN+1²é±í
 
 Temper_GapSmall:
-	jsr		L_SearchTable_N						; åœ¨æ¸©åº¦çš„ä½™æ•°è¾ƒå°æ—¶ï¼Œç›´æ¥é‡‡ç”¨æ¥è¿‘çš„æ¹¿åº¦è¡¨æŸ¥å‡ºæ¹¿åº¦å€¼
+	jsr		L_SearchTable_N						; ÔÚÎÂ¶ÈµÄÓàÊı½ÏĞ¡Ê±£¬Ö±½Ó²ÉÓÃ½Ó½üµÄÊª¶È±í²é³öÊª¶ÈÖµ
 	rts
 Temper_GapMiddle:
 	lda		P_Temp
-	sta		P_Temp+1							; æŸ¥è¡¨ä¼šæ”¹å˜ç´¢å¼•å€¼ï¼Œæš‚å­˜ç´¢å¼•å€¼
-	jsr		L_SearchTable_N						; ä½™æ•°è¾ƒå¤§æ—¶ï¼Œé‡‡ç”¨ä¸¤ä¸ªæ¹¿åº¦è¡¨è®¡ç®—å‡ºçš„å¹³å‡å€¼ä½œä¸ºæ¹¿åº¦å€¼
+	sta		P_Temp+1							; ²é±í»á¸Ä±äË÷ÒıÖµ£¬Ôİ´æË÷ÒıÖµ
+	jsr		L_SearchTable_N						; ÓàÊı½Ï´óÊ±£¬²ÉÓÃÁ½¸öÊª¶È±í¼ÆËã³öµÄÆ½¾ùÖµ×÷ÎªÊª¶ÈÖµ
 	lda		R_Humidity
 	sta		P_Temp+2
 	lda		P_Temp+1
 	sta		P_Temp
-	inc		P_Temp								; æŸ¥ç´¢å¼•å€¼ä¸ºN+1çš„æ¹¿åº¦è¡¨
+	inc		P_Temp								; ²éË÷ÒıÖµÎªN+1µÄÊª¶È±í
 	jsr		L_SearchTable_N
 	lda		R_Humidity
 	clc
-	adc		P_Temp+2							; å‰åå–å¾—çš„æ¹¿åº¦å€¼ç›¸åŠ ç„¶åé™¤ä»¥2ï¼Œè·å¾—å¹³å‡å€¼
+	adc		P_Temp+2							; Ç°ºóÈ¡µÃµÄÊª¶ÈÖµÏà¼ÓÈ»ºó³ıÒÔ2£¬»ñµÃÆ½¾ùÖµ
 	clc
 	ror
-	sta		R_Humidity							; è®¡ç®—å‡ºçš„å¹³å‡å€¼ä¸ºæœ€ç»ˆæ¹¿åº¦å€¼
+	sta		R_Humidity							; ¼ÆËã³öµÄÆ½¾ùÖµÎª×îÖÕÊª¶ÈÖµ
 	rts
 Temper_GapLong:
-	jsr		L_SearchTable_N						; åœ¨æ¸©åº¦çš„ä½™æ•°è¾ƒå¤§æ—¶ï¼Œç”¨ä¸‹ä¸€é˜¶çš„æ¹¿åº¦è¡¨æŸ¥å‡ºæ¹¿åº¦å€¼
+	jsr		L_SearchTable_N						; ÔÚÎÂ¶ÈµÄÓàÊı½Ï´óÊ±£¬ÓÃÏÂÒ»½×µÄÊª¶È±í²é³öÊª¶ÈÖµ
 	rts
 
-; ç”¨Nä½œä¸ºç´¢å¼•ï¼ŒæŸ¥æ¹¿åº¦è¡¨å¾—å‡ºå½“å‰æ¹¿åº¦å€¼
-; P_Tempä¸ºæ¹¿åº¦è¡¨ç´¢å¼•Nï¼ŒQhä¸ºL_RR_Div_RH
+; ÓÃN×÷ÎªË÷Òı£¬²éÊª¶È±íµÃ³öµ±Ç°Êª¶ÈÖµ
+; P_TempÎªÊª¶È±íË÷ÒıN£¬QhÎªL_RR_Div_RH
 L_SearchTable_N:
 	lda		P_Temp
 	clc
-	rol											; Nå€¼ä¹˜ä»¥2å¾—åˆ°æ­£ç¡®çš„åç§»
+	rol											; NÖµ³ËÒÔ2µÃµ½ÕıÈ·µÄÆ«ÒÆ
 	sta		P_Temp
 	lda		#0
-	sta		R_Humidity							; æ¹¿åº¦å€¼
+	sta		R_Humidity							; Êª¶ÈÖµ
 Loop_Start:
-	bbs3	RFC_Flag,Loop_Over					; å¦‚æœåœ¨é€’å‡æŸ¥è¡¨å‡½æ•°ä¸­å‡å®Œï¼Œåˆ™é€€å‡ºå¾ªç¯
-	lda		Humid_SearchLoop_Addr+1				; å…¥æ ˆå¾ªç¯å¼€å§‹æ ‡ç­¾çš„åœ°å€
-	pha											; ä»¥ä¾¿èƒ½åœ¨å¾ªç¯æŸ¥è¡¨å‡½æ•°ä¸­
-	lda		Humid_SearchLoop_Addr				; èƒ½è¿”å›åˆ°è¯¥å‡½æ•°å¾ªç¯å¼€å§‹
+	bbs3	RFC_Flag,Loop_Over					; Èç¹ûÔÚµİ¼õ²é±íº¯ÊıÖĞ¼õÍê£¬ÔòÍË³öÑ­»·
+	lda		Humid_SearchLoop_Addr+1				; ÈëÕ»Ñ­»·¿ªÊ¼±êÇ©µÄµØÖ·
+	pha											; ÒÔ±ãÄÜÔÚÑ­»·²é±íº¯ÊıÖĞ
+	lda		Humid_SearchLoop_Addr				; ÄÜ·µ»Øµ½¸Ãº¯ÊıÑ­»·¿ªÊ¼
 	pha
 
 	ldx		P_Temp
 	lda		Temper_Humid_table+1,x
-	pha											; å…¥æ ˆå¯¹åº”çš„å¾ªç¯æŸ¥è¡¨å‡½æ•°åœ°å€
+	pha											; ÈëÕ»¶ÔÓ¦µÄÑ­»·²é±íº¯ÊıµØÖ·
 	lda		Temper_Humid_table,x
 	pha
-	rts											; è·³è½¬åˆ°å¯¹åº”å¾ªç¯æŸ¥è¡¨å‡½æ•°
+	rts											; Ìø×ªµ½¶ÔÓ¦Ñ­»·²é±íº¯Êı
 Loop_Over:
-	rmb3	RFC_Flag							; å¤ä½å¾ªç¯å®Œæˆæ ‡å¿—ä½
+	rmb3	RFC_Flag							; ¸´Î»Ñ­»·Íê³É±êÖ¾Î»
 	lda		R_Humidity
 	beq		Humid_LowerThan20
 	clc
-	ror											; å¾ªç¯æŸ¥è¡¨å¾—åˆ°çš„å€¼é™¤ä»¥2åŠ 19(+20-1)
+	ror											; Ñ­»·²é±íµÃµ½µÄÖµ³ıÒÔ2¼Ó19(+20-1)
 	clc
 	adc		#19
-	sta		R_Humidity							; æ‰æ˜¯å®é™…æ¹¿åº¦å€¼
+	sta		R_Humidity							; ²ÅÊÇÊµ¼ÊÊª¶ÈÖµ
 	rts
 Humid_LowerThan20:
 	lda		#20
@@ -93,7 +93,7 @@ Humid_LowerThan20:
 
 
 
-Humid_SearchLoop_Addr:							; å­ç¨‹åºçš„åœ°å€è¡¨
+Humid_SearchLoop_Addr:							; ×Ó³ÌĞòµÄµØÖ·±í
 	dw		Loop_Start-1
 Temper_Humid_table:
 	dw		L_0Degree_Humid-1
@@ -108,33 +108,33 @@ Temper_Humid_table:
 	dw		L_45Degree_Humid-1
 	dw		L_50Degree_Humid-1
 
-; æ ‡å‡†ç”µé˜»å·¦ç§»9ä½é™¤ä»¥æ¹¿åº¦ç”µé˜»ï¼Œè®¡ç®—æ¯”å€¼Qh
+; ±ê×¼µç×è×óÒÆ9Î»³ıÒÔÊª¶Èµç×è£¬¼ÆËã±ÈÖµQh
 L_RR_Div_RH:
 	lda		#0
 	sta		RR_Div_RH_H
 	sta		RR_Div_RH_L
 ?Div_Juge:
-	lda		RFC_StanderCount_H					; æ¯”è¾ƒæ ‡å‡†ç”µé˜»å’Œæ¹¿åº¦ç”µé˜»çš„æµ‹é‡å€¼é«˜8ä½
+	lda		RFC_StanderCount_H					; ±È½Ï±ê×¼µç×èºÍÊª¶Èµç×èµÄ²âÁ¿Öµ¸ß8Î»
 	cmp		RFC_HumiCount_H
-	bcc		?Loop_Over							; é«˜8ä½RH>RRæ—¶å³ä¸ºé™¤å®Œäº†
+	bcc		?Loop_Over							; ¸ß8Î»RH>RRÊ±¼´Îª³ıÍêÁË
 	lda		RFC_HumiCount_H
 	cmp		RFC_StanderCount_H
 	bcc		?Div_Start	
 
-	lda		RFC_StanderCount_M					; æ¯”è¾ƒæ ‡å‡†ç”µé˜»å’Œæ¹¿åº¦ç”µé˜»çš„æµ‹é‡å€¼ä¸­8ä½
+	lda		RFC_StanderCount_M					; ±È½Ï±ê×¼µç×èºÍÊª¶Èµç×èµÄ²âÁ¿ÖµÖĞ8Î»
 	cmp		RFC_HumiCount_M
-	bcc		?Loop_Over							; ä¸­8ä½RH>RRæ—¶å³ä¸ºé™¤å®Œäº†
+	bcc		?Loop_Over							; ÖĞ8Î»RH>RRÊ±¼´Îª³ıÍêÁË
 	lda		RFC_HumiCount_M
 	cmp		RFC_StanderCount_M
-	bcc		?Div_Start							; ä¸­8ä½RR>RHï¼Œåˆ™è¿˜æ²¡é™¤å®Œ
+	bcc		?Div_Start							; ÖĞ8Î»RR>RH£¬Ôò»¹Ã»³ıÍê
 
-	lda		RFC_StanderCount_L					; ä¸­8ä½ç›¸ç­‰çš„æƒ…å†µä¸‹ï¼Œçœ‹ä½8ä½
+	lda		RFC_StanderCount_L					; ÖĞ8Î»ÏàµÈµÄÇé¿öÏÂ£¬¿´µÍ8Î»
 	cmp		RFC_HumiCount_L
-	bcc		?Loop_Over							; ä½8ä½RH>RRï¼Œä¹Ÿæ˜¯é™¤å®Œäº†
-	beq		?Loop_Over							; æ­¤æ—¶ä½8ä½RR==0ï¼Œåˆ™ä¸ç»§ç»­é™¤ï¼Œè¯´æ˜é‡‡æ ·é”™è¯¯ï¼Œç›´æ¥è¿”å›
+	bcc		?Loop_Over							; µÍ8Î»RH>RR£¬Ò²ÊÇ³ıÍêÁË
+	beq		?Loop_Over							; ´ËÊ±µÍ8Î»RR==0£¬Ôò²»¼ÌĞø³ı£¬ËµÃ÷²ÉÑù´íÎó£¬Ö±½Ó·µ»Ø
 ?Div_Start:
 	sec
-	lda		RFC_StanderCount_L					; RRå¾ªç¯å‡RH
+	lda		RFC_StanderCount_L					; RRÑ­»·¼õRH
 	sbc		RFC_HumiCount_L
 	sta		RFC_StanderCount_L
 	lda		RFC_StanderCount_M
@@ -150,7 +150,7 @@ L_RR_Div_RH:
 	sta		RR_Div_RH_L
 	lda		RR_Div_RH_H
 	adc		#0
-	sta		RR_Div_RH_H							; å‚¨å­˜å•†
+	sta		RR_Div_RH_H							; ´¢´æÉÌ
 	bra		?Div_Juge
 ?Loop_Over:
 	rts
@@ -165,16 +165,16 @@ L_0Degree_Humid:
 	lda		Humid_0Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_0Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_0Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_0Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_0Degree_Humid_NoOverFlow:
 	rts
 
@@ -187,16 +187,16 @@ L_5Degree_Humid:
 	lda		Humid_5Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_5Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_5Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_5Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_5Degree_Humid_NoOverFlow:
 	rts
 
@@ -209,16 +209,16 @@ L_10Degree_Humid:
 	lda		Humid_10Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_10Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_10Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_10Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_10Degree_Humid_NoOverFlow:
 	rts
 
@@ -231,16 +231,16 @@ L_15Degree_Humid:
 	lda		Humid_15Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_15Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_15Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_15Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_15Degree_Humid_NoOverFlow:
 	rts
 
@@ -253,16 +253,16 @@ L_20Degree_Humid:
 	lda		Humid_20Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_20Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_20Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_20Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_20Degree_Humid_NoOverFlow:
 	rts
 
@@ -275,16 +275,16 @@ L_25Degree_Humid:
 	lda		Humid_25Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_25Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_25Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_25Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_25Degree_Humid_NoOverFlow:
 	rts
 
@@ -297,16 +297,16 @@ L_30Degree_Humid:
 	lda		Humid_30Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_30Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_30Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_30Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_30Degree_Humid_NoOverFlow:
 	rts
 
@@ -319,16 +319,16 @@ L_35Degree_Humid:
 	lda		Humid_35Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_35Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_35Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_35Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_35Degree_Humid_NoOverFlow:
 	rts
 
@@ -341,16 +341,16 @@ L_40Degree_Humid:
 	lda		Humid_40Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_40Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_40Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_40Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_40Degree_Humid_NoOverFlow:
 	rts
 
@@ -363,16 +363,16 @@ L_45Degree_Humid:
 	lda		Humid_45Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_45Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_45Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_45Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_45Degree_Humid_NoOverFlow:
 	rts
 
@@ -385,21 +385,21 @@ L_50Degree_Humid:
 	lda		Humid_50Degree_Table,x
 	sbc		RR_Div_RH_H
 	bcs		L_50Degree_Humid_BackLoop
-	smb3	RFC_Flag							; å¦‚æœä¸å¤Ÿå‡ï¼Œåˆ™è¯´æ˜å¾ªç¯å®Œæˆ
+	smb3	RFC_Flag							; Èç¹û²»¹»¼õ£¬ÔòËµÃ÷Ñ­»·Íê³É
 	dex
 	rts
 L_50Degree_Humid_BackLoop:
 	inx
-	stx		R_Humidity							; æ›´æ–°æ¹¿åº¦å€¼
+	stx		R_Humidity							; ¸üĞÂÊª¶ÈÖµ
 	txa
 	cmp		#151
 	bcc		L_50Degree_Humid_NoOverFlow
-	smb3	RFC_Flag							; è‹¥æ¹¿åº¦å€¼å¤§äº95ï¼Œåˆ™è¾¾åˆ°æœ€å¤§é‡ç¨‹ï¼Œåœæ­¢ç»§ç»­æŸ¥è¡¨å¹¶é€€å‡º
+	smb3	RFC_Flag							; ÈôÊª¶ÈÖµ´óÓÚ95£¬Ôò´ïµ½×î´óÁ¿³Ì£¬Í£Ö¹¼ÌĞø²é±í²¢ÍË³ö
 L_50Degree_Humid_NoOverFlow:
 	rts
 
 
-; æ ‡å‡†ç”µé˜»é‡‡æ ·å€¼ä¹˜ä»¥512
+; ±ê×¼µç×è²ÉÑùÖµ³ËÒÔ512
 L_RR_Multi_512:
 	lda		#9
 	sta		P_Temp
@@ -415,7 +415,7 @@ RR_Multi_512_Loop:
 
 
 
-; Xå­˜å•†ï¼ŒAä¸ºä½™æ•°
+; X´æÉÌ£¬AÎªÓàÊı
 L_A_Mod_5:
 	ldx		#0
 L_A_Mod_5_Start:

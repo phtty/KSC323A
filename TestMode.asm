@@ -1,6 +1,6 @@
 F_Test_Mode:
 	jsr		F_ClearScreen
-	jsr		F_FillScreen						; ä¸Šç”µå…¨æ˜¾2S
+	jsr		F_FillScreen						; ÉÏµçÈ«ÏÔ2S
 	lda		#2
 	sta		P_Temp+4
 Loop_FillScr:
@@ -10,7 +10,7 @@ Loop_FillScr:
 	lda		P_Temp+4
 	bne		Loop_FillScr
 
-	jsr		F_ClearScreen						; ä»0æ˜¾ç¤ºåˆ°9
+	jsr		F_ClearScreen						; ´Ó0ÏÔÊ¾µ½9
 	jsr		L_DisSymbol_Test
 	lda		#0
 	sta		P_Temp+4
@@ -24,7 +24,7 @@ Loop_DisDigit:
 	cmp		#11
 	bne		Loop_DisDigit
 
-	jsr		F_ClearScreen						; æ˜¾ç¤ºPMã€ALç‚¹
+	jsr		F_ClearScreen						; ÏÔÊ¾PM¡¢ALµã
 	lda		#0
 	sta		P_Temp+4
 	jsr		F_DisPM
@@ -35,7 +35,7 @@ Loop_DisSymbol1:
 	bbr0	Timer_Flag,Loop_DisSymbol1
 	rmb0	Timer_Flag
 
-	jsr		F_ClearScreen						; æ˜¾ç¤ºdotç‚¹
+	jsr		F_ClearScreen						; ÏÔÊ¾dotµã
 	lda		#0
 	sta		P_Temp+4
 	jsr		F_DisCol
@@ -43,16 +43,16 @@ Loop_DisSymbol2:
 	bbr0	Timer_Flag,Loop_DisSymbol2
 	rmb0	Timer_Flag
 
-	jsr		F_ClearScreen						; æ˜¾ç¤ºæ¸©åº¦ç‚¹
+	jsr		F_ClearScreen						; ÏÔÊ¾ÎÂ¶Èµã
 	lda		#0
 	sta		P_Temp+4
 	ldx		#led_TMP
 	jsr		F_DisSymbol
 
 	bbr6	PB,StartUp_WakeUp
-	smb0	Backlight_Flag						; æœ‰5Vä¾›ç”µåˆ™ç½®ä½DCæ ‡å¿—
+	smb0	Backlight_Flag						; ÓĞ5V¹©µçÔòÖÃÎ»DC±êÖ¾
 StartUp_WakeUp:
-	smb3	Key_Flag							; ä¸Šç”µå…ˆç»™ä¸€ä¸ªå”¤é†’äº‹ä»¶ï¼Œå…å¾—ä¸Šç”µä¸æ˜¾ç¤º
+	smb3	Key_Flag							; ÉÏµçÏÈ¸øÒ»¸ö»½ĞÑÊÂ¼ş£¬ÃâµÃÉÏµç²»ÏÔÊ¾
 	rmb4	PD
 	rts
 
@@ -100,9 +100,9 @@ L_DisSymbol_Test:
 	jsr		F_DisSymbol
 	lda		#1
 	ldx		#led_d4
-	jsr		L_Dis_2Bit_DigitDot					; digit4å…¨æ˜¾
+	jsr		L_Dis_2Bit_DigitDot					; digit4È«ÏÔ
 	ldx		#led_Per1
 	jsr		F_DisSymbol
 	ldx		#led_Per2
-	jsr		F_DisSymbol							; ç™¾åˆ†å·æ˜¾ç¤º
+	jsr		F_DisSymbol							; °Ù·ÖºÅÏÔÊ¾
 	rts

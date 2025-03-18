@@ -1,13 +1,13 @@
 F_RFC_MeasureManage:
-	bbs1	RFC_Flag,L_RFC_Exit					; å­˜åœ¨å“é—¹å’ŒæŒ‰é”®éŸ³çš„æ—¶å€™ï¼ŒTIM0ã€1è¢«å ç”¨ï¼Œä¸è¿›è¡Œæµ‹é‡
+	bbs1	RFC_Flag,L_RFC_Exit					; ´æÔÚÏìÄÖºÍ°´¼üÒôµÄÊ±ºò£¬TIM0¡¢1±»Õ¼ÓÃ£¬²»½øĞĞ²âÁ¿
 	bbs4	Key_Flag,L_RFC_Exit
-	bbs0	Key_Flag,L_RFC_Exit					; æŒ‰é”®æŒ‰ä¸‹æ—¶ï¼Œä¸è¿›è¡Œæµ‹é‡
+	bbs0	Key_Flag,L_RFC_Exit					; °´¼ü°´ÏÂÊ±£¬²»½øĞĞ²âÁ¿
 
 	bbr6	RFC_Flag,RFC_NoComplete
 	rmb6	RFC_Flag
-	jsr		F_RFC_MeasureStop					; é‡‡æ ·å®Œæˆï¼Œåœæ­¢è¿›å…¥DIVä¸­æ–­ï¼Œå…³é—­RFCæµ‹é‡åŠŸèƒ½
+	jsr		F_RFC_MeasureStop					; ²ÉÑùÍê³É£¬Í£Ö¹½øÈëDIVÖĞ¶Ï£¬¹Ø±ÕRFC²âÁ¿¹¦ÄÜ
 RFC_NoComplete:
-	bbr5	RFC_Flag,L_RFC_Exit					; 1Sæ ‡å¿—ï¼Œè®¡æ•°30S
+	bbr5	RFC_Flag,L_RFC_Exit					; 1S±êÖ¾£¬¼ÆÊı30S
 	rmb5	RFC_Flag
 	lda		Count_RFC
 	cmp		#30
@@ -16,12 +16,12 @@ RFC_NoComplete:
 	rts
 F_RFC_MeasureStart:
 	lda		#0
-	sta		Count_RFC							; æ»¡30Såï¼Œä¸å†è®¡æ•°ï¼Œå¼€å§‹é‡‡æ ·
-	sta		RFC_ChannelCount					; é‡‡æ ·å¼€å§‹ï¼Œæ¸…é™¤é€šé“è®¡æ•°
+	sta		Count_RFC							; Âú30Sºó£¬²»ÔÙ¼ÆÊı£¬¿ªÊ¼²ÉÑù
+	sta		RFC_ChannelCount					; ²ÉÑù¿ªÊ¼£¬Çå³ıÍ¨µÀ¼ÆÊı
 
 	smb0	RFC_Flag
-	rmb0	IFR									; æ¸…é™¤DIVä¸­æ–­æ ‡å¿—ä½
-	smb0	IER									; æ‰“å¼€DIVä¸­æ–­
+	rmb0	IFR									; Çå³ıDIVÖĞ¶Ï±êÖ¾Î»
+	smb0	IER									; ´ò¿ªDIVÖĞ¶Ï
 
 L_RFC_Exit:
 	rts
@@ -30,19 +30,19 @@ L_RFC_Exit:
 
 
 F_RFC_Channel_Select:
-	jsr		F_RFC_TimerReset					; åˆå§‹åŒ–RFCé‡‡æ ·å®šæ—¶å™¨çŠ¶æ€
+	jsr		F_RFC_TimerReset					; ³õÊ¼»¯RFC²ÉÑù¶¨Ê±Æ÷×´Ì¬
 
-	lda		TMRC								; T0Iè®¾ç½®ä¸ºFrcx
+	lda		TMRC								; T0IÉèÖÃÎªFrcx
 	ora		#C_T0I_1
 	sta		TMRC
-	lda		#C_TMR0_T0I+C_TMR1_TMR0				; é…ç½®TM0æ—¶é’Ÿæºä¸ºT0I,TM1æ—¶é’Ÿæºä¸ºTM0,çº§è”TM0å’ŒTM1
+	lda		#C_TMR0_T0I+C_TMR1_TMR0				; ÅäÖÃTM0Ê±ÖÓÔ´ÎªT0I,TM1Ê±ÖÓÔ´ÎªTM0,¼¶ÁªTM0ºÍTM1
 	sta		TMCLK
 
 	lda		#C_SyncWithDIV+C_DIVC_Fsub_64
-	sta		DIVC								; å¼€å¯å®šæ—¶å™¨åŒæ­¥ï¼ŒDIVæ—¶é’Ÿæºä¸ºFsub/64(512Hz)
+	sta		DIVC								; ¿ªÆô¶¨Ê±Æ÷Í¬²½£¬DIVÊ±ÖÓÔ´ÎªFsub/64(512Hz)
 
-	smb0	TMRC								; å¼€å¯TMR0
-	smb1	TMRC								; å¼€å¯TMR1
+	smb0	TMRC								; ¿ªÆôTMR0
+	smb1	TMRC								; ¿ªÆôTMR1
 
 	ldx		RFC_ChannelCount
 	lda		T_RFC_Channel,x
@@ -56,14 +56,14 @@ F_RFC_Channel_Select:
 L_Get_RFC_Data:
 	lda		RFC_ChannelCount
 	bne		L_NoHumi
-	lda		TMR0								; PD3å£å–å¾—æ¹¿åº¦è®¡æ•°å€¼
+	lda		TMR0								; PD3¿ÚÈ¡µÃÊª¶È¼ÆÊıÖµ
 	sta		RFC_HumiCount_L
 	lda		TMR1
 	sta		RFC_HumiCount_M
 	bra		L_Sample_Over
 L_NoHumi:
 	lda		RFC_ChannelCount
-	cmp		#01									; PD2å£å–å¾—æ¸©åº¦è®¡æ•°å€¼
+	cmp		#01									; PD2¿ÚÈ¡µÃÎÂ¶È¼ÆÊıÖµ
 	bne		L_NoTemp
 	lda		TMR0
 	sta		RFC_TempCount_L
@@ -72,26 +72,26 @@ L_NoHumi:
 	bra		L_Sample_Over
 L_NoTemp:
 	lda		RFC_ChannelCount
-	cmp		#02									; PD1å£å–å¾—æ ‡å‡†ç”µé˜»è®¡æ•°å€¼
+	cmp		#02									; PD1¿ÚÈ¡µÃ±ê×¼µç×è¼ÆÊıÖµ
 	bne		L_Sample_Over
 	lda		TMR0
 	sta		RFC_StanderCount_L
 	lda		TMR1
 	sta		RFC_StanderCount_M
-	smb6	RFC_Flag							; é‡‡æ ·å®Œæˆï¼Œå‡†å¤‡è®¡ç®—
+	smb6	RFC_Flag							; ²ÉÑùÍê³É£¬×¼±¸¼ÆËã
 L_Sample_Over:
 	lda		#0
-	sta		RFCC1								; å½“å‰é€šé“é‡‡æ ·å®Œæˆï¼Œå…³é—­RFC
+	sta		RFCC1								; µ±Ç°Í¨µÀ²ÉÑùÍê³É£¬¹Ø±ÕRFC
 	inc		RFC_ChannelCount
 
-F_RFC_TimerReset:								; ç­‰å¾…ä¸‹ä¸€é€šé“é‡‡æ ·å¼€å§‹ï¼Œé‡ç½®å®šæ—¶å™¨çŠ¶æ€
-	rmb1	IER									; å…³TMR0ã€1å®šæ—¶å™¨ä¸­æ–­
-	rmb1	IFR									; æ¸…é™¤TMR0ã€1ä¸­æ–­æ ‡å¿—ä½
+F_RFC_TimerReset:								; µÈ´ıÏÂÒ»Í¨µÀ²ÉÑù¿ªÊ¼£¬ÖØÖÃ¶¨Ê±Æ÷×´Ì¬
+	rmb1	IER									; ¹ØTMR0¡¢1¶¨Ê±Æ÷ÖĞ¶Ï
+	rmb1	IFR									; Çå³ıTMR0¡¢1ÖĞ¶Ï±êÖ¾Î»
 	rmb2	IER
 	rmb2	IFR
-	rmb0	TMRC								; å…³é—­TMR0
-	rmb1	TMRC								; å…³é—­TMR1
-	lda		#$0									; æ¸…0å®šæ—¶å™¨å€¼
+	rmb0	TMRC								; ¹Ø±ÕTMR0
+	rmb1	TMRC								; ¹Ø±ÕTMR1
+	lda		#$0									; Çå0¶¨Ê±Æ÷Öµ
 	sta		TMR0
 	sta		TMR1
 	rts
@@ -100,16 +100,16 @@ F_RFC_TimerReset:								; ç­‰å¾…ä¸‹ä¸€é€šé“é‡‡æ ·å¼€å§‹ï¼Œé‡ç½®å®šæ—¶å™¨çŠ¶æ€
 
 
 F_RFC_MeasureStop:
-	jsr		F_Timer_NormalMode					; å®šæ—¶å™¨é…ç½®ä¸ºå“é“ƒå’Œé•¿æŒ‰çŠ¶æ€,å…³é—­å®šæ—¶å™¨åŒæ­¥
+	jsr		F_Timer_NormalMode					; ¶¨Ê±Æ÷ÅäÖÃÎªÏìÁåºÍ³¤°´×´Ì¬,¹Ø±Õ¶¨Ê±Æ÷Í¬²½
 
 	jsr		L_Temper_Handle
 	jsr		L_Humid_Handle
-	jsr		F_Display_Temper					; æ•°æ®å¤„ç†åï¼Œæ˜¾ç¤ºæ¸©åº¦å’Œæ¹¿åº¦
+	jsr		F_Display_Temper					; Êı¾İ´¦Àíºó£¬ÏÔÊ¾ÎÂ¶ÈºÍÊª¶È
 	jsr		F_Display_Humid
 
 L_CLR_RFC:
 	lda		#0
-	sta		RFC_TempCount_H						; æ¸…ç†ç›¸å…³å˜é‡
+	sta		RFC_TempCount_H						; ÇåÀíÏà¹Ø±äÁ¿
 	sta		RFC_TempCount_M
 	sta		RFC_TempCount_L
 	sta		RFC_HumiCount_H
@@ -123,14 +123,14 @@ L_CLR_RFC:
 
 
 
-; RFCé‡‡æ ·è¢«æ‰“æ–­,é€šå¸¸æ˜¯ç”±å…¶ä»–éœ€è¦å®šæ—¶å™¨çš„åŠŸèƒ½è°ƒç”¨
-; æ­¤æ—¶éœ€è¦ç¦ç”¨RFCé‡‡æ ·ç›´åˆ°æ­¤åŠŸèƒ½ç»“æŸ
+; RFC²ÉÑù±»´ò¶Ï,Í¨³£ÊÇÓÉÆäËûĞèÒª¶¨Ê±Æ÷µÄ¹¦ÄÜµ÷ÓÃ
+; ´ËÊ±ĞèÒª½ûÓÃRFC²ÉÑùÖ±µ½´Ë¹¦ÄÜ½áÊø
 F_RFC_Abort:
-	smb1	RFC_Flag							; ç¦ç”¨RFCé‡‡æ ·
-	jsr		F_Timer_NormalMode					; å®šæ—¶å™¨é…ç½®ä¸ºå“é“ƒå’Œé•¿æŒ‰çŠ¶æ€,å…³é—­å®šæ—¶å™¨åŒæ­¥
+	smb1	RFC_Flag							; ½ûÓÃRFC²ÉÑù
+	jsr		F_Timer_NormalMode					; ¶¨Ê±Æ÷ÅäÖÃÎªÏìÁåºÍ³¤°´×´Ì¬,¹Ø±Õ¶¨Ê±Æ÷Í¬²½
 
 	jsr		L_CLR_RFC
-	sta		RFC_ChannelCount					; é‡ç½®é€šé“è®¡æ•°
+	sta		RFC_ChannelCount					; ÖØÖÃÍ¨µÀ¼ÆÊı
 
 	rts
 

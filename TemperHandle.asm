@@ -9,15 +9,15 @@ L_Temper_Handle:
 	sta		R_Temperature
 	rts
 
-; é€šè¿‡QtæŸ¥è¡¨ç¡®å®šå½“å‰æ¸©åº¦
+; Í¨¹ıQt²é±íÈ·¶¨µ±Ç°ÎÂ¶È
 L_Search_TemperTable:
-	rmb2	RFC_Flag							; æ¸…é™¤è´Ÿæ•°æ¸©åº¦æ ‡å¿—ä½
-	ldx		#255								; åˆå§‹å€¼ä¸º255ï¼Œè¿›å…¥å¾ªç¯åä¼š+1æº¢å‡ºå˜ä¸º0
+	rmb2	RFC_Flag							; Çå³ı¸ºÊıÎÂ¶È±êÖ¾Î»
+	ldx		#255								; ³õÊ¼ÖµÎª255£¬½øÈëÑ­»·ºó»á+1Òç³ö±äÎª0
 L_Sub_Temper:
 	inx
 	txa
 	cmp		#61
-	bcs		L_Temper_Overflow					; å¤§äºç­‰äº50åº¦åˆ™é€€å‡ºå¾ªç¯
+	bcs		L_Temper_Overflow					; ´óÓÚµÈÓÚ50¶ÈÔòÍË³öÑ­»·
 	lda		RT_Div_RR_L
 	sec
 	sbc		Temperature_Table,x
@@ -29,49 +29,49 @@ L_Sub_Temper:
 
 L_Temper_Overflow:
 	txa
-	beq		Temper_LowerThan_M10				; -10åº¦ä»¥ä¸‹ä¸åœ¨è¡¨ä¸­ä¸éœ€è¦é€’å‡1åº¦
+	beq		Temper_LowerThan_M10				; -10¶ÈÒÔÏÂ²»ÔÚ±íÖĞ²»ĞèÒªµİ¼õ1¶È
 	dex
 Temper_LowerThan_M10:
 	stx		P_Temp
 	txa
 	sec
 	sbc		#10
-	bcs		L_Search_Over						; å¤§äº0åˆ™ä¸ºæ­£æ•°or0æ¸©åº¦
-	lda		#10									; è´Ÿæ•°æ¸©åº¦çš„å¤„ç†
+	bcs		L_Search_Over						; ´óÓÚ0ÔòÎªÕıÊıor0ÎÂ¶È
+	lda		#10									; ¸ºÊıÎÂ¶ÈµÄ´¦Àí
 	sec
 	sbc		P_Temp
-	smb2	RFC_Flag							; è´Ÿæ•°æ¸©åº¦æ ‡å¿—ä½
+	smb2	RFC_Flag							; ¸ºÊıÎÂ¶È±êÖ¾Î»
 L_Search_Over:
 	sta		R_Temperature
 	rts
 
-; çƒ­æ•ç”µé˜»å·¦ç§»8ä½é™¤ä»¥æ ‡å‡†ç”µé˜»ï¼Œè®¡ç®—æ¯”å€¼Qtï¼Œé‡ç¨‹ä¸º-10~50åº¦
+; ÈÈÃôµç×è×óÒÆ8Î»³ıÒÔ±ê×¼µç×è£¬¼ÆËã±ÈÖµQt£¬Á¿³ÌÎª-10~50¶È
 L_RT_Div_RR:
 	lda		#0
 	sta		RT_Div_RR_H
 	sta		RT_Div_RR_L
 ?Div_Juge:
 	lda		RFC_TempCount_H
-	cmp		RFC_StanderCount_H					; æ¯”è¾ƒçƒ­æ•ç”µé˜»å’Œæ ‡å‡†ç”µé˜»çš„æµ‹é‡å€¼é«˜8ä½
+	cmp		RFC_StanderCount_H					; ±È½ÏÈÈÃôµç×èºÍ±ê×¼µç×èµÄ²âÁ¿Öµ¸ß8Î»
 	bcc		?Loop_Over
 	lda		RFC_StanderCount_H
 	cmp		RFC_TempCount_H
 	bcc		?Div_Start
 
-	lda		RFC_TempCount_M						; æ¯”è¾ƒçƒ­æ•ç”µé˜»ä¸­8ä½å’Œæ ‡å‡†ç”µé˜»çš„æµ‹é‡å€¼ä¸­8ä½
+	lda		RFC_TempCount_M						; ±È½ÏÈÈÃôµç×èÖĞ8Î»ºÍ±ê×¼µç×èµÄ²âÁ¿ÖµÖĞ8Î»
 	cmp		RFC_StanderCount_M
-	bcc		?Loop_Over							; æ ‡å‡†ç”µé˜»å¤§äºçƒ­æ•ç”µé˜»æ—¶å³ä¸ºé™¤å®Œäº†
+	bcc		?Loop_Over							; ±ê×¼µç×è´óÓÚÈÈÃôµç×èÊ±¼´Îª³ıÍêÁË
 	lda		RFC_StanderCount_M
 	cmp		RFC_TempCount_M
-	bcc		?Div_Start							; RT<RRï¼Œåˆ™ä¸€å®šæ²¡é™¤å®Œ
+	bcc		?Div_Start							; RT<RR£¬ÔòÒ»¶¨Ã»³ıÍê
 
-	lda		RFC_TempCount_L						; é«˜8ä½ç›¸ç­‰çš„æƒ…å†µä¸‹ï¼Œçœ‹ä½8ä½
+	lda		RFC_TempCount_L						; ¸ß8Î»ÏàµÈµÄÇé¿öÏÂ£¬¿´µÍ8Î»
 	cmp		RFC_StanderCount_L
-	bcc		?Loop_Over							; ä½8ä½RR<RTï¼Œåˆ™å¾ªç¯å‡é™¤æ•°
-	beq		?Loop_Over							; æ­¤æ—¶ä½8ä½RT==0ï¼Œåˆ™ä¸ç»§ç»­é™¤ï¼Œè¯´æ˜é‡‡æ ·é”™è¯¯ï¼Œç›´æ¥è¿”å›
+	bcc		?Loop_Over							; µÍ8Î»RR<RT£¬ÔòÑ­»·¼õ³ıÊı
+	beq		?Loop_Over							; ´ËÊ±µÍ8Î»RT==0£¬Ôò²»¼ÌĞø³ı£¬ËµÃ÷²ÉÑù´íÎó£¬Ö±½Ó·µ»Ø
 ?Div_Start:
 	sec
-	lda		RFC_TempCount_L						; RTå¾ªç¯å‡RR
+	lda		RFC_TempCount_L						; RTÑ­»·¼õRR
 	sbc		RFC_StanderCount_L
 	sta		RFC_TempCount_L
 	lda		RFC_TempCount_M
@@ -87,12 +87,12 @@ L_RT_Div_RR:
 	sta		RT_Div_RR_L
 	lda		RT_Div_RR_H
 	adc		#0
-	sta		RT_Div_RR_H							; å‚¨å­˜å•†
+	sta		RT_Div_RR_H							; ´¢´æÉÌ
 	bra		?Div_Juge
 ?Loop_Over:
 	rts
 
-; çƒ­æ•ç”µé˜»ä¹˜ä»¥256
+; ÈÈÃôµç×è³ËÒÔ256
 L_RT_Multi_256:
 	lda		#8
 	sta		P_Temp
@@ -108,38 +108,38 @@ RT_Multi_256_Loop:
 
 
 
-; æ‘„æ°->åæ°åº¦è½¬æ¢
+; ÉãÊÏ->»ªÊÏ¶È×ª»»
 F_C2F:
 	lda		R_Temperature
-	sta		P_Temp							; åˆå§‹åŒ–ä¸€äº›å˜é‡
+	sta		P_Temp							; ³õÊ¼»¯Ò»Ğ©±äÁ¿
 
 	lda		#0
 	sta		P_Temp+1
 
 	clc
-	rol		P_Temp							; å·¦ç§»ä¸‰ä½ä¹˜ä»¥8
+	rol		P_Temp							; ×óÒÆÈıÎ»³ËÒÔ8
 	rol		P_Temp+1
 	clc
-	rol		P_Temp							; å·¦ç§»ä¸‰ä½ä¹˜ä»¥8
+	rol		P_Temp							; ×óÒÆÈıÎ»³ËÒÔ8
 	rol		P_Temp+1
 	clc
-	rol		P_Temp							; å·¦ç§»ä¸‰ä½ä¹˜ä»¥8
+	rol		P_Temp							; ×óÒÆÈıÎ»³ËÒÔ8
 	rol		P_Temp+1
 
 
 	lda		P_Temp
 	clc
-	adc		R_Temperature					; åŠ ä¸Šå®ƒè‡ªèº«å®Œæˆä¹˜9
+	adc		R_Temperature					; ¼ÓÉÏËü×ÔÉíÍê³É³Ë9
 	sta		P_Temp
 	lda		P_Temp+1
 	adc		#0
 	sta		P_Temp+1
 
-	ldx		#0								; ä½¿ç”¨Xå¯„å­˜å™¨æ¥è®¡æ•°å•†
+	ldx		#0								; Ê¹ÓÃX¼Ä´æÆ÷À´¼ÆÊıÉÌ
 ?Div_By_5_Loop:
 	lda		P_Temp+1
-	bne		?Div_By_5_Loop_Start			; æœ‰é«˜8ä½çš„æ—¶å€™ï¼Œç›´æ¥å‡
-	lda		P_Temp							; æ— é«˜8ä½æ—¶ï¼Œå†åˆ¤æ–­ä½8ä½çš„æƒ…å†µ
+	bne		?Div_By_5_Loop_Start			; ÓĞ¸ß8Î»µÄÊ±ºò£¬Ö±½Ó¼õ
+	lda		P_Temp							; ÎŞ¸ß8Î»Ê±£¬ÔÙÅĞ¶ÏµÍ8Î»µÄÇé¿ö
 	cmp		#5
 	bcc		?Loop_Over
 ?Div_By_5_Loop_Start:
@@ -153,23 +153,23 @@ F_C2F:
 	inx
 	bra		?Div_By_5_Loop
 ?Loop_Over:
-	stx		P_Temp							; ç®—å‡ºé™¤ä»¥5çš„å€¼
+	stx		P_Temp							; Ëã³ö³ıÒÔ5µÄÖµ
 	bbs2	RFC_Flag,Minus_Temper
 	txa
 	clc
-	adc		#32								; æ­£æ¸©åº¦æ—¶ï¼Œç›´æ¥åŠ ä¸Š32å³ä¸ºåæ°åº¦ç»“æœ
+	adc		#32								; ÕıÎÂ¶ÈÊ±£¬Ö±½Ó¼ÓÉÏ32¼´Îª»ªÊÏ¶È½á¹û
 	sta		R_Temperature_F
 	rts
 
-Minus_Temper:								; å¤„ç†è´Ÿæ¸©åº¦çš„æƒ…å†µ
+Minus_Temper:								; ´¦Àí¸ºÎÂ¶ÈµÄÇé¿ö
 	lda		#32
 	sec
-	sbc		P_Temp							; è´Ÿæ•°æ¸©åº¦åˆ™æ˜¯32-è®¡ç®—å€¼
+	sbc		P_Temp							; ¸ºÊıÎÂ¶ÈÔòÊÇ32-¼ÆËãÖµ
 	sta		R_Temperature_F
 	rts
 
 
-; æ¸©åº¦è¡¥å¿ï¼Œè¡¥å¿åŒºé—´7â„ƒ~43â„ƒ
+; ÎÂ¶È²¹³¥£¬²¹³¥Çø¼ä7¡æ~43¡æ
 Temper_Compen:
 	lda		R_Temperature
 	cmp		#7
@@ -180,17 +180,17 @@ Temper_Compen:
 
 No_Compensation:
 	lda		#0
-	sta		R_Temper_Comp					; æ¸…ç©ºè¡¥å¿å€¼å’Œè¡¥å¿æ—¶é—´
+	sta		R_Temper_Comp					; Çå¿Õ²¹³¥ÖµºÍ²¹³¥Ê±¼ä
 	sta		R_Temper_Comp_Time
 	rts
 
-; é€šè¿‡è¡¥å¿æ—¶é—´è®¡ç®—è¡¥å¿å€¼
+; Í¨¹ı²¹³¥Ê±¼ä¼ÆËã²¹³¥Öµ
 Compensation_Trigger:
 	ldx		#0
 ?Loop_Start:
 	lda		R_Temper_Comp_Time
 	sec
-	sbc		CompensationLevel_Table,x		; å½“å‰è¡¥å¿æ—¶é—´å¾ªç¯æŸ¥è¡¨å¾—å‡ºè¡¥å¿ç­‰çº§
+	sbc		CompensationLevel_Table,x		; µ±Ç°²¹³¥Ê±¼äÑ­»·²é±íµÃ³ö²¹³¥µÈ¼¶
 	bcc		?Loop_Over
 	inx
 	bra		?Loop_Start
@@ -210,23 +210,23 @@ LowLight_ADJ:
 	rts
 
 
-; æ ¹æ®é«˜äº®ä½äº®ç†„å±å¢å‡è¡¥å¿æ—¶é—´
+; ¸ù¾İ¸ßÁÁµÍÁÁÏ¨ÆÁÔö¼õ²¹³¥Ê±¼ä
 CompensationTime_CHG:
 	lda		#18
 	cmp		R_Temper_Comp_Time
-	bcc		DecCompensation					; è¡¥å¿æ—¶é—´è‹¥å¤§äºæœ€å¤§è¡¥å¿æ—¶é—´åˆ™ç›´æ¥è½¬å…¥è¡¥å¿æ—¶é—´é€’å‡
+	bcc		DecCompensation					; ²¹³¥Ê±¼äÈô´óÓÚ×î´ó²¹³¥Ê±¼äÔòÖ±½Ó×ªÈë²¹³¥Ê±¼äµİ¼õ
 
-	bbs4	PD,DecCompensation				; ç†„å±çŠ¶æ€ä¹Ÿè½¬å…¥è¡¥å¿æ—¶é—´é€’å‡
+	bbs4	PD,DecCompensation				; Ï¨ÆÁ×´Ì¬Ò²×ªÈë²¹³¥Ê±¼äµİ¼õ
 	lda		R_Temper_Comp_Time
 	cmp		#18	
-	bcs		CompensationTime_Overflow		; è¡¥å¿è®¡æ—¶è‹¥å¤§äºç­‰äºæœ€å¤§è¡¥å¿æ—¶é—´åˆ™æº¢å‡ºä¸å¤„ç†
+	bcs		CompensationTime_Overflow		; ²¹³¥¼ÆÊ±Èô´óÓÚµÈÓÚ×î´ó²¹³¥Ê±¼äÔòÒç³ö²»´¦Àí
 	inc		R_Temper_Comp_Time
 CompensationTime_Overflow:
 	rts
 
 DecCompensation:
 	lda		R_Temper_Comp_Time
-	beq		CompensationTime_Overflow		; è¡¥å¿è®¡æ—¶è‹¥ç­‰äº0åˆ™æº¢å‡ºä¸å¤„ç†
+	beq		CompensationTime_Overflow		; ²¹³¥¼ÆÊ±ÈôµÈÓÚ0ÔòÒç³ö²»´¦Àí
 	dec		R_Temper_Comp_Time
 	rts
 

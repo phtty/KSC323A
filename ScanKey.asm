@@ -1,43 +1,43 @@
-; æŒ‰é”®å¤„ç†
+; °´¼ü´¦Àí
 F_KeyHandler:
-	bbs3	Timer_Flag,L_Key4Hz					; å¿«åŠ åˆ°æ¥åˆ™4Hzæ‰«ä¸€æ¬¡ï¼Œæ§åˆ¶å¿«åŠ é¢‘ç‡
-	bbr1	Key_Flag,L_KeyScan					; é¦–æ¬¡æŒ‰é”®è§¦å‘
-	rmb1	Key_Flag							; å¤ä½é¦–æ¬¡è§¦å‘
+	bbs3	Timer_Flag,L_Key4Hz					; ¿ì¼Óµ½À´Ôò4HzÉ¨Ò»´Î£¬¿ØÖÆ¿ì¼ÓÆµÂÊ
+	bbr1	Key_Flag,L_KeyScan					; Ê×´Î°´¼ü´¥·¢
+	rmb1	Key_Flag							; ¸´Î»Ê×´Î´¥·¢
 	jsr		L_KeyDelay
 	lda		PA
-	eor		#$1c								; æŒ‰é”®æ˜¯åé€»è¾‘çš„ï¼Œå°†æŒ‡å®šçš„å‡ ä½æŒ‰é”®å£å–å
+	eor		#$1c								; °´¼üÊÇ·´Âß¼­µÄ£¬½«Ö¸¶¨µÄ¼¸Î»°´¼ü¿ÚÈ¡·´
 	and		#$1c
-	bne		L_KeyYes							; æ£€æµ‹æ˜¯å¦æœ‰æŒ‰é”®è§¦å‘
+	bne		L_KeyYes							; ¼ì²âÊÇ·ñÓĞ°´¼ü´¥·¢
 	jmp		L_KeyNoScanExit
 L_KeyYes:
-	rmb4	IER									; æŒ‰é”®ç¡®å®šè§¦å‘åï¼Œå…³é—­ä¸­æ–­é¿å…è¯¯è§¦å‘
+	rmb4	IER									; °´¼üÈ·¶¨´¥·¢ºó£¬¹Ø±ÕÖĞ¶Ï±ÜÃâÎó´¥·¢
 	sta		PA_IO_Backup
-	bra		L_KeyHandle							; é¦–æ¬¡è§¦å‘å¤„ç†ç»“æŸ
+	bra		L_KeyHandle							; Ê×´Î´¥·¢´¦Àí½áÊø
 
 L_Key4Hz:
 	bbr5	Key_Flag,L_KeyScanExit
 	rmb5	Key_Flag
-L_KeyScan:										; é•¿æŒ‰å¤„ç†éƒ¨åˆ†
-	bbr0	Key_Flag,L_KeyNoScanExit			; æ²¡æœ‰æ‰«é”®æ ‡å¿—åˆ™ä¸ºæ— æŒ‰é”®å¤„ç†äº†ï¼Œåˆ¤æ–­æ˜¯å¦å–æ¶ˆç¦ç”¨RFCé‡‡æ ·
+L_KeyScan:										; ³¤°´´¦Àí²¿·Ö
+	bbr0	Key_Flag,L_KeyNoScanExit			; Ã»ÓĞÉ¨¼ü±êÖ¾ÔòÎªÎŞ°´¼ü´¦ÀíÁË£¬ÅĞ¶ÏÊÇ·ñÈ¡Ïû½ûÓÃRFC²ÉÑù
 
-	jsr		F_QuikAdd_Scan						; çŸ©é˜µæ‰«æï¼Œéœ€è¦å¼€å¯IOå£
-	bbr4	Timer_Flag,L_KeyScanExit			; æ²¡å¼€å§‹å¿«åŠ æ—¶ï¼Œç”¨16Hzæ‰«æ
+	jsr		F_QuikAdd_Scan						; ¾ØÕóÉ¨Ãè£¬ĞèÒª¿ªÆôIO¿Ú
+	bbr4	Timer_Flag,L_KeyScanExit			; Ã»¿ªÊ¼¿ì¼ÓÊ±£¬ÓÃ16HzÉ¨Ãè
 	rmb4	Timer_Flag
 	lda		PA
-	eor		#$1c								; æŒ‰é”®æ˜¯åé€»è¾‘çš„ï¼Œå°†æŒ‡å®šçš„å‡ ä½æŒ‰é”®å£å–å
+	eor		#$1c								; °´¼üÊÇ·´Âß¼­µÄ£¬½«Ö¸¶¨µÄ¼¸Î»°´¼ü¿ÚÈ¡·´
 	and		#$1c
-	cmp		PA_IO_Backup						; è‹¥æ£€æµ‹åˆ°æœ‰æŒ‰é”®çš„çŠ¶æ€å˜åŒ–åˆ™é€€å‡ºå¿«åŠ åˆ¤æ–­å¹¶ç»“æŸ
+	cmp		PA_IO_Backup						; Èô¼ì²âµ½ÓĞ°´¼üµÄ×´Ì¬±ä»¯ÔòÍË³ö¿ì¼ÓÅĞ¶Ï²¢½áÊø
 	beq		L_4_16Hz_Count
-	jsr		F_SpecialKey_Handle					; é•¿æŒ‰ç»ˆæ­¢æ—¶ï¼Œè¿›è¡Œä¸€æ¬¡ç‰¹æ®ŠæŒ‰é”®çš„å¤„ç†
+	jsr		F_SpecialKey_Handle					; ³¤°´ÖÕÖ¹Ê±£¬½øĞĞÒ»´ÎÌØÊâ°´¼üµÄ´¦Àí
 	bra		L_KeyExit
 L_4_16Hz_Count:
-	bbs3	Timer_Flag,Counter_NoAdd			; åœ¨å¿«åŠ è§¦å‘åä¸å†ç»§ç»­å¢åŠ è®¡æ•°
-	inc		QuickAdd_Counter					; å¦åˆ™è®¡æ•°æº¢å‡ºåä¼šå¯¼è‡´ä¸è§¦å‘æŒ‰é”®åŠŸèƒ½
+	bbs3	Timer_Flag,Counter_NoAdd			; ÔÚ¿ì¼Ó´¥·¢ºó²»ÔÙ¼ÌĞøÔö¼Ó¼ÆÊı
+	inc		QuickAdd_Counter					; ·ñÔò¼ÆÊıÒç³öºó»áµ¼ÖÂ²»´¥·¢°´¼ü¹¦ÄÜ
 Counter_NoAdd:
 	lda		QuickAdd_Counter
 	cmp		#32
 	bcs		L_QuikAdd
-	rts											; é•¿æŒ‰è®¡æ—¶ï¼Œå¿…é¡»æ»¡2Sæ‰æœ‰å¿«åŠ 
+	rts											; ³¤°´¼ÆÊ±£¬±ØĞëÂú2S²ÅÓĞ¿ì¼Ó
 L_QuikAdd:
 	bbs3	Timer_Flag,NoQuikAdd_Beep
 	jsr		L_Key_Beep
@@ -47,21 +47,21 @@ NoQuikAdd_Beep:
 
 
 L_KeyHandle:
-	jsr		F_KeyMatrix_PC5Scan_Ready			; åˆ¤æ–­Downé”®å’ŒBacklighté”®
+	jsr		F_KeyMatrix_PC5Scan_Ready			; ÅĞ¶ÏDown¼üºÍBacklight¼ü
 	lda		PA
-	eor		#$0c								; æŒ‰é”®æ˜¯åé€»è¾‘çš„ï¼Œå°†æŒ‡å®šçš„å‡ ä½æŒ‰é”®å£å–å
+	eor		#$0c								; °´¼üÊÇ·´Âß¼­µÄ£¬½«Ö¸¶¨µÄ¼¸Î»°´¼ü¿ÚÈ¡·´
 	and		#$0c
 	cmp		#$04
-	bne		No_KeyDTrigger						; ç”±äºè·³è½¬æŒ‡ä»¤å¯»å€èƒ½åŠ›çš„é—®é¢˜ï¼Œè¿™é‡Œé‡‡ç”¨jmpè¿›è¡Œè·³è½¬
+	bne		No_KeyDTrigger						; ÓÉÓÚÌø×ªÖ¸ÁîÑ°Ö·ÄÜÁ¦µÄÎÊÌâ£¬ÕâÀï²ÉÓÃjmp½øĞĞÌø×ª
 	jmp		L_KeyDTrigger
 No_KeyDTrigger:
 	cmp		#$08
 	bne		No_KeyBTrigger
 	jmp		L_KeyBTrigger
 No_KeyBTrigger:
-	jsr		F_KeyMatrix_PC4Scan_Ready			; åˆ¤æ–­Modeé”®ã€Alarmé”®ã€Upé”®
+	jsr		F_KeyMatrix_PC4Scan_Ready			; ÅĞ¶ÏMode¼ü¡¢Alarm¼ü¡¢Up¼ü
 	lda		PA
-	eor		#$1c								; æŒ‰é”®æ˜¯åé€»è¾‘çš„ï¼Œå°†æŒ‡å®šçš„å‡ ä½æŒ‰é”®å£å–å
+	eor		#$1c								; °´¼üÊÇ·´Âß¼­µÄ£¬½«Ö¸¶¨µÄ¼¸Î»°´¼ü¿ÚÈ¡·´
 	and		#$1c
 	cmp		#$04
 	bne		No_KeyUTrigger
@@ -73,30 +73,30 @@ No_KeyUTrigger:
 No_KeyATrigger:
 	cmp		#$10
 	bne		L_KeyExit
-	jmp		L_KeyMTrigger						; Mé”®è§¦å‘
+	jmp		L_KeyMTrigger						; M¼ü´¥·¢
 
 L_KeyExit:
-	rmb1	TMRC								; å…³é—­å¿«åŠ 16Hzè®¡æ—¶çš„å®šæ—¶å™¨
-	rmb0	Key_Flag							; æ¸…ç›¸å…³æ ‡å¿—ä½
+	rmb1	TMRC								; ¹Ø±Õ¿ì¼Ó16Hz¼ÆÊ±µÄ¶¨Ê±Æ÷
+	rmb0	Key_Flag							; ÇåÏà¹Ø±êÖ¾Î»
 	rmb3	Timer_Flag
-	lda		#0									; æ¸…ç†ç›¸å…³å˜é‡
+	lda		#0									; ÇåÀíÏà¹Ø±äÁ¿
 	sta		QuickAdd_Counter
 	sta		SpecialKey_Flag
 	sta		Counter_DP
 	jsr		F_KeyMatrix_Reset
-	rmb4	IFR									; å¤ä½æ ‡å¿—ä½,é¿å…ä¸­æ–­å¼€å¯æ—¶ç›´æ¥è¿›å…¥ä¸­æ–­æœåŠ¡
-	smb4	IER									; æŒ‰é”®å¤„ç†ç»“æŸï¼Œé‡æ–°å¼€å¯PAå£ä¸­æ–­
+	rmb4	IFR									; ¸´Î»±êÖ¾Î»,±ÜÃâÖĞ¶Ï¿ªÆôÊ±Ö±½Ó½øÈëÖĞ¶Ï·şÎñ
+	smb4	IER									; °´¼ü´¦Àí½áÊø£¬ÖØĞÂ¿ªÆôPA¿ÚÖĞ¶Ï
 L_KeyScanExit:
 	rts
 
-L_KeyNoScanExit:								; æ²¡æœ‰æ‰«é”®çš„æƒ…å†µä¸‹æ˜¯ç©ºé—²çŠ¶æ€ï¼Œæ­¤æ—¶åˆ¤æ–­æ˜¯å¦å–æ¶ˆç¦ç”¨RFCé‡‡æ ·
-	bbs4	Key_Flag,L_KeyScanExit				; æŒ‰é”®éŸ³å’Œå“é—¹æ¨¡å¼ä¸‹ï¼Œåˆ™ä¸å–æ¶ˆç¦ç”¨
+L_KeyNoScanExit:								; Ã»ÓĞÉ¨¼üµÄÇé¿öÏÂÊÇ¿ÕÏĞ×´Ì¬£¬´ËÊ±ÅĞ¶ÏÊÇ·ñÈ¡Ïû½ûÓÃRFC²ÉÑù
+	bbs4	Key_Flag,L_KeyScanExit				; °´¼üÒôºÍÏìÄÖÄ£Ê½ÏÂ£¬Ôò²»È¡Ïû½ûÓÃ
 	bbs2	Clock_Flag,L_KeyScanExit
-	rmb1	RFC_Flag							; å–æ¶ˆç¦ç”¨RFCé‡‡æ ·						
+	rmb1	RFC_Flag							; È¡Ïû½ûÓÃRFC²ÉÑù						
 	rts
 
 
-F_SpecialKey_Handle:							; ç‰¹æ®ŠæŒ‰é”®çš„å¤„ç†
+F_SpecialKey_Handle:							; ÌØÊâ°´¼üµÄ´¦Àí
 	lda		SpecialKey_Flag
 	bne		SpecialKey_Handle
 	rts
@@ -104,7 +104,7 @@ SpecialKey_Handle:
 	bbs3	Timer_Flag,SpecialKey_NoBeep
 	jsr		L_Key_Beep
 SpecialKey_NoBeep:
-	bbs0	SpecialKey_Flag,L_KeyA_ShortHandle	; çŸ­æŒ‰çš„ç‰¹æ®ŠåŠŸèƒ½å¤„ç†
+	bbs0	SpecialKey_Flag,L_KeyA_ShortHandle	; ¶Ì°´µÄÌØÊâ¹¦ÄÜ´¦Àí
 	bbs1	SpecialKey_Flag,L_KeyB_ShortHandle
 	bbs2	SpecialKey_Flag,L_KeyM_ShortHandle
 	bbs3	SpecialKey_Flag,L_KeyU_ShortHandle
@@ -112,25 +112,25 @@ SpecialKey_NoBeep:
 L_KeyA_ShortHandle:
 	lda		Sys_Status_Flag
 	cmp		#1000B
-	bne		No_SwitchState_AlarmSet				; é—¹è®¾æ¨¡å¼åˆ‡æ¢è®¾ç½®å†…å®¹
+	bne		No_SwitchState_AlarmSet				; ÄÖÉèÄ£Ê½ÇĞ»»ÉèÖÃÄÚÈİ
 	jsr		SwitchState_AlarmSet
 	rts
 No_SwitchState_AlarmSet:
-	jsr		SwitchState_AlarmDis				; åˆ‡æ¢é—¹é’Ÿæ˜¾ç¤ºçŠ¶æ€
+	jsr		SwitchState_AlarmDis				; ÇĞ»»ÄÖÖÓÏÔÊ¾×´Ì¬
 	rts
 
 L_KeyB_ShortHandle:
-	jsr		LightLevel_Change					; ä¸‰æ¡£äº®åº¦åˆ‡æ¢
+	jsr		LightLevel_Change					; ÈıµµÁÁ¶ÈÇĞ»»
 	rts
 
 L_KeyM_ShortHandle:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		No_SwitchState_ClockSet
-	jsr		SwitchState_ClockSet				; æ—¶è®¾æ¨¡å¼åˆ‡æ¢è®¾ç½®å†…å®¹
+	jsr		SwitchState_ClockSet				; Ê±ÉèÄ£Ê½ÇĞ»»ÉèÖÃÄÚÈİ
 	rts
 No_SwitchState_ClockSet:
-	jsr		SwitchState_ClockDis				; æ˜¾ç¤ºæ¨¡å¼ä¸‹åˆ‡æ¢æ—¥æœŸæ˜¾ç¤ºã€æ—¶é—´æ˜¾ç¤ºæ¨¡å¼
+	jsr		SwitchState_ClockDis				; ÏÔÊ¾Ä£Ê½ÏÂÇĞ»»ÈÕÆÚÏÔÊ¾¡¢Ê±¼äÏÔÊ¾Ä£Ê½
 	rts
 
 L_KeyU_ShortHandle:
@@ -139,18 +139,18 @@ L_KeyU_ShortHandle:
 	beq		KeyU_NoDisMode
 	lda		#0001B
 	sta		Sys_Status_Flag
-	jsr		DM_SW_TimeMode						; æ˜¾ç¤ºæ¨¡å¼ä¸‹åˆ‡æ¢12/24hæ¨¡å¼
+	jsr		DM_SW_TimeMode						; ÏÔÊ¾Ä£Ê½ÏÂÇĞ»»12/24hÄ£Ê½
 	rts
 KeyU_NoDisMode:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU
-	jsr		AddNum_CS							; æ—¶è®¾æ¨¡å¼å¢æ•°
+	jsr		AddNum_CS							; Ê±ÉèÄ£Ê½ÔöÊı
 	rts
 StatusCS_No_KeyU:
 	cmp		#1000B
 	bne		KeyU_ShortHandle_Exit
-	jsr		AddNum_AS							; é—¹è®¾æ¨¡å¼å¢æ•°
+	jsr		AddNum_AS							; ÄÖÉèÄ£Ê½ÔöÊı
 KeyU_ShortHandle_Exit:
 	rts
 
@@ -158,105 +158,105 @@ L_KeyD_ShortHandle:
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		KeyD_NoDisMode
-	jsr		SwitchState_DisMode					; åˆ‡æ¢å›ºæ˜¾-è½®æ˜¾	
+	jsr		SwitchState_DisMode					; ÇĞ»»¹ÌÏÔ-ÂÖÏÔ	
 	rts
 KeyD_NoDisMode:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD_Short
-	jsr		SubNum_CS							; æ—¶è®¾æ¨¡å¼å‡æ•°
+	jsr		SubNum_CS							; Ê±ÉèÄ£Ê½¼õÊı
 	rts
 StatusCS_No_KeyD_Short:
 	cmp		#1000B
 	bne		KeyD_ShortHandle_Exit
-	jsr		SubNum_AS							; é—¹è®¾æ¨¡å¼å‡æ•°
+	jsr		SubNum_AS							; ÄÖÉèÄ£Ê½¼õÊı
 KeyD_ShortHandle_Exit:
 	rts
 
 
 
-; æŒ‰é”®è§¦å‘å‡½æ•°ï¼Œå¤„ç†æ¯ä¸ªæŒ‰é”®è§¦å‘åçš„å“åº”æ¡ä»¶
+; °´¼ü´¥·¢º¯Êı£¬´¦ÀíÃ¿¸ö°´¼ü´¥·¢ºóµÄÏìÓ¦Ìõ¼ş
 L_KeyATrigger:
-	jsr		L_Universal_TriggerHandle			; é€šç”¨æŒ‰é”®å¤„ç†
-	jsr		L_Key_NoSnoozeLoud					; æŒ‰é”®å¤„ç†è´ªç¡å’Œå“é—¹
+	jsr		L_Universal_TriggerHandle			; Í¨ÓÃ°´¼ü´¦Àí
+	jsr		L_Key_NoSnoozeLoud					; °´¼ü´¦ÀíÌ°Ë¯ºÍÏìÄÖ
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyA
-	jmp		L_KeyExit							; æ—¶é’Ÿè®¾ç½®æ¨¡å¼Aé”®æ— æ•ˆ
+	jmp		L_KeyExit							; Ê±ÖÓÉèÖÃÄ£Ê½A¼üÎŞĞ§
 StatusCS_No_KeyA:
 	cmp		#1000B
 	bne		StatusAS_No_KeyA
 	bbr3	Timer_Flag,L_ASMode_KeyA_ShortTri
 	jsr		L_Key_NoBeep
-	jmp		L_KeyExit							; é—¹é’Ÿè®¾ç½®æ¨¡å¼Aé”®é•¿æŒ‰æ— æ•ˆ
+	jmp		L_KeyExit							; ÄÖÖÓÉèÖÃÄ£Ê½A¼ü³¤°´ÎŞĞ§
 L_ASMode_KeyA_ShortTri:
-	smb0	SpecialKey_Flag						; é—¹è®¾æ¨¡å¼ä¸‹ï¼ŒAé”®ä¸ºç‰¹æ®ŠåŠŸèƒ½æŒ‰é”®
+	smb0	SpecialKey_Flag						; ÄÖÉèÄ£Ê½ÏÂ£¬A¼üÎªÌØÊâ¹¦ÄÜ°´¼ü
 	rts
 StatusAS_No_KeyA:
 	bbs3	Timer_Flag,L_DisMode_KeyA_LongTri
-	smb0	SpecialKey_Flag						; æ˜¾ç¤ºæ¨¡å¼ä¸‹ï¼ŒAé”®ä¸ºç‰¹æ®ŠåŠŸèƒ½æŒ‰é”®
+	smb0	SpecialKey_Flag						; ÏÔÊ¾Ä£Ê½ÏÂ£¬A¼üÎªÌØÊâ¹¦ÄÜ°´¼ü
 	rts
 L_DisMode_KeyA_LongTri:
-	jsr		SwitchState_AlarmSet				; ä»æ˜¾ç¤ºæ¨¡å¼åˆ‡æ¢åˆ°é—¹é’Ÿè®¾ç½®æ¨¡å¼
-	jmp		L_KeyExit							; å¿«åŠ æ—¶ï¼Œä¸é‡å¤æ‰§è¡ŒåŠŸèƒ½å‡½æ•°
+	jsr		SwitchState_AlarmSet				; ´ÓÏÔÊ¾Ä£Ê½ÇĞ»»µ½ÄÖÖÓÉèÖÃÄ£Ê½
+	jmp		L_KeyExit							; ¿ì¼ÓÊ±£¬²»ÖØ¸´Ö´ĞĞ¹¦ÄÜº¯Êı
 
 
 L_KeyBTrigger:
-	jsr		L_Universal_TriggerHandle			; é€šç”¨æŒ‰é”®å¤„ç†
+	jsr		L_Universal_TriggerHandle			; Í¨ÓÃ°´¼ü´¦Àí
 
 	bbr2	Clock_Flag,StatusLM_No_KeyB
-	jsr		Alarm_Snooze						; å“é—¹æ—¶è´ªç¡å¤„ç†
+	jsr		Alarm_Snooze						; ÏìÄÖÊ±Ì°Ë¯´¦Àí
 	jmp		L_KeyExit
 StatusLM_No_KeyB:
 	bbs3	Timer_Flag,L_DisMode_KeyB_LongTri
 	smb1	SpecialKey_Flag
 	rts
 L_DisMode_KeyB_LongTri:
-	jsr		TemperMode_Change					; åˆ‡æ¢æ‘„æ°-åæ°åº¦
-	jmp		L_KeyExit							; å¿«åŠ æ—¶ï¼Œä¸é‡å¤æ‰§è¡ŒåŠŸèƒ½å‡½æ•°
+	jsr		TemperMode_Change					; ÇĞ»»ÉãÊÏ-»ªÊÏ¶È
+	jmp		L_KeyExit							; ¿ì¼ÓÊ±£¬²»ÖØ¸´Ö´ĞĞ¹¦ÄÜº¯Êı
 
 
 L_KeyMTrigger:
-	jsr		L_Universal_TriggerHandle			; é€šç”¨æŒ‰é”®å¤„ç†
-	jsr		L_Key_NoSnoozeLoud					; æŒ‰é”®å¤„ç†è´ªç¡å’Œå“é—¹
+	jsr		L_Universal_TriggerHandle			; Í¨ÓÃ°´¼ü´¦Àí
+	jsr		L_Key_NoSnoozeLoud					; °´¼ü´¦ÀíÌ°Ë¯ºÍÏìÄÖ
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyM
 	bbr3	Timer_Flag,L_CSMode_KeyM_ShortTri
 	jsr		L_Key_NoBeep
-	jmp		L_KeyExit							; æ—¶è®¾æ¨¡å¼Mé”®é•¿æŒ‰æ— æ•ˆ
+	jmp		L_KeyExit							; Ê±ÉèÄ£Ê½M¼ü³¤°´ÎŞĞ§
 L_CSMode_KeyM_ShortTri:
 	smb2	SpecialKey_Flag
 	rts
 StatusCS_No_KeyM:
 	cmp		#1000B
 	bne		StatusAS_No_KeyM
-	jmp		L_KeyExit							; é—¹è®¾æ¨¡å¼Mé”®æ— æ•ˆ
+	jmp		L_KeyExit							; ÄÖÉèÄ£Ê½M¼üÎŞĞ§
 StatusAS_No_KeyM:
-	bbs3	Timer_Flag,L_DisMode_KeyM_LongTri	; åˆ¤æ–­æ˜¾ç¤ºæ¨¡å¼ä¸‹çš„Mé•¿æŒ‰
+	bbs3	Timer_Flag,L_DisMode_KeyM_LongTri	; ÅĞ¶ÏÏÔÊ¾Ä£Ê½ÏÂµÄM³¤°´
 	lda		Sys_Status_Flag
 	and		#0011B
 	beq		StatusDM_No_KeyM
-	smb2	SpecialKey_Flag						; æ˜¾ç¤ºæ¨¡å¼ä¸‹ï¼ŒMé”®ä¸ºç‰¹æ®ŠåŠŸèƒ½æŒ‰é”®
+	smb2	SpecialKey_Flag						; ÏÔÊ¾Ä£Ê½ÏÂ£¬M¼üÎªÌØÊâ¹¦ÄÜ°´¼ü
 StatusDM_No_KeyM:
 	rts
 L_DisMode_KeyM_LongTri:
-	jsr		SwitchState_ClockSet				; ä»æ˜¾ç¤ºæ¨¡å¼åˆ‡æ¢åˆ°æ—¶é—´è®¾ç½®æ¨¡å¼
-	jmp		L_KeyExit							; å¿«åŠ æ—¶ï¼Œä¸é‡å¤æ‰§è¡ŒåŠŸèƒ½å‡½æ•°
+	jsr		SwitchState_ClockSet				; ´ÓÏÔÊ¾Ä£Ê½ÇĞ»»µ½Ê±¼äÉèÖÃÄ£Ê½
+	jmp		L_KeyExit							; ¿ì¼ÓÊ±£¬²»ÖØ¸´Ö´ĞĞ¹¦ÄÜº¯Êı
 
 
 L_KeyUTrigger:
-	jsr		L_Universal_TriggerHandle			; é€šç”¨æŒ‰é”®å¤„ç†
-	jsr		L_Key_NoSnoozeLoud					; æŒ‰é”®å¤„ç†è´ªç¡å’Œå“é—¹
+	jsr		L_Universal_TriggerHandle			; Í¨ÓÃ°´¼ü´¦Àí
+	jsr		L_Key_NoSnoozeLoud					; °´¼ü´¦ÀíÌ°Ë¯ºÍÏìÄÖ
 
 	lda		Sys_Status_Flag
 	and		#0011B
-	beq		Status_NoDisMode_KeyU				; æ—¶é’Ÿæ˜¾å’Œé—¹æ˜¾Ué”®åˆ‡æ¢12/24h
+	beq		Status_NoDisMode_KeyU				; Ê±ÖÓÏÔºÍÄÖÏÔU¼üÇĞ»»12/24h
 	bbr3	Timer_Flag,L_DMode_KeyU_ShortTri
 	jsr		L_Key_NoBeep
-	jmp		L_KeyExit							; æ˜¾ç¤ºæ¨¡å¼Ué”®é•¿æŒ‰æ— æ•ˆ
+	jmp		L_KeyExit							; ÏÔÊ¾Ä£Ê½U¼ü³¤°´ÎŞĞ§
 L_DMode_KeyU_ShortTri:
 	smb3	SpecialKey_Flag
 	rts
@@ -266,11 +266,11 @@ Status_NoDisMode_KeyU:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyU_Short
-	jmp		AddNum_CS							; æ—¶è®¾æ¨¡å¼å¢æ•°
+	jmp		AddNum_CS							; Ê±ÉèÄ£Ê½ÔöÊı
 StatusCS_No_KeyU_Short:
 	cmp		#1000B
 	bne		L_KeyUTrigger_Exit
-	jmp		AddNum_AS							; é—¹è®¾æ¨¡å¼å¢æ•°
+	jmp		AddNum_AS							; ÄÖÉèÄ£Ê½ÔöÊı
 KeyU_NoQuikAdd:
 	smb3	SpecialKey_Flag
 L_KeyUTrigger_Exit:
@@ -278,15 +278,15 @@ L_KeyUTrigger_Exit:
 
 
 L_KeyDTrigger:
-	jsr		L_Universal_TriggerHandle			; é€šç”¨æŒ‰é”®å¤„ç†
-	jsr		L_Key_NoSnoozeLoud					; æŒ‰é”®å¤„ç†è´ªç¡å’Œå“é—¹
+	jsr		L_Universal_TriggerHandle			; Í¨ÓÃ°´¼ü´¦Àí
+	jsr		L_Key_NoSnoozeLoud					; °´¼ü´¦ÀíÌ°Ë¯ºÍÏìÄÖ
 
 	lda		Sys_Status_Flag
 	and		#0011B
-	beq		Status_NoDisMode_KeyD				; åˆ¤æ–­æ˜¯å¦ä¸ºæ˜¾ç¤ºæ¨¡å¼
+	beq		Status_NoDisMode_KeyD				; ÅĞ¶ÏÊÇ·ñÎªÏÔÊ¾Ä£Ê½
 	bbr3	Timer_Flag,L_DMode_KeyD_ShortTri
 	jsr		L_Key_NoBeep
-	jmp		L_KeyExit							; æ˜¾ç¤ºæ¨¡å¼Dé”®é•¿æŒ‰æ— æ•ˆ
+	jmp		L_KeyExit							; ÏÔÊ¾Ä£Ê½D¼ü³¤°´ÎŞĞ§
 L_DMode_KeyD_ShortTri:
 	smb4	SpecialKey_Flag
 	rts
@@ -296,23 +296,23 @@ Status_NoDisMode_KeyD:
 	lda		Sys_Status_Flag
 	cmp		#0100B
 	bne		StatusCS_No_KeyD
-	jmp		SubNum_CS							; æ—¶è®¾æ¨¡å¼å‡æ•°
+	jmp		SubNum_CS							; Ê±ÉèÄ£Ê½¼õÊı
 StatusCS_No_KeyD:
 	cmp		#1000B
 	bne		L_KeyDTrigger_Exit
-	jmp		SubNum_AS							; é—¹è®¾æ¨¡å¼å‡æ•°
+	jmp		SubNum_AS							; ÄÖÉèÄ£Ê½¼õÊı
 KeyD_NoQuikAdd:
 	smb4	SpecialKey_Flag
 L_KeyDTrigger_Exit:
 	rts
 
 
-; æŒ‰é”®æ‰“æ–­è´ªç¡å’Œå“é—¹
+; °´¼ü´ò¶ÏÌ°Ë¯ºÍÏìÄÖ
 L_Key_NoSnoozeLoud:
 	lda		Clock_Flag
 	and		#00001100B
 	beq		?NoSnoozeLoud
-	jsr		L_NoSnooze_CloseLoud				; æ‰“æ–­è´ªç¡å’Œå“é—¹
+	jsr		L_NoSnooze_CloseLoud				; ´ò¶ÏÌ°Ë¯ºÍÏìÄÖ
 	pla
 	pla
 	jmp		L_KeyExit
@@ -320,15 +320,15 @@ L_Key_NoSnoozeLoud:
 	rts
 
 
-; æŒ‰é”®è§¦å‘é€šç”¨åŠŸèƒ½ï¼ŒåŒ…æ‹¬æŒ‰é”®çŸ©é˜µGPIOçŠ¶æ€é‡ç½®ï¼Œå”¤é†’å±å¹•
-; åŒæ—¶ä¼šç»™å‡ºæ˜¯å¦å­˜åœ¨å”¤é†’äº‹ä»¶
-; ç”±äºæ‰“æ–­è´ªç¡å’Œå“é—¹çš„åŠŸèƒ½Bé”®æ²¡æœ‰ï¼Œæ•…ä¸åœ¨æœ¬å‡½æ•°å†…å¤„ç†
+; °´¼ü´¥·¢Í¨ÓÃ¹¦ÄÜ£¬°üÀ¨°´¼ü¾ØÕóGPIO×´Ì¬ÖØÖÃ£¬»½ĞÑÆÁÄ»
+; Í¬Ê±»á¸ø³öÊÇ·ñ´æÔÚ»½ĞÑÊÂ¼ş
+; ÓÉÓÚ´ò¶ÏÌ°Ë¯ºÍÏìÄÖµÄ¹¦ÄÜB¼üÃ»ÓĞ£¬¹Ê²»ÔÚ±¾º¯ÊıÄÚ´¦Àí
 L_Universal_TriggerHandle:
-	jsr		F_KeyMatrix_Reset					; æŒ‰é”®çŸ©é˜µçš„GPIOçŠ¶æ€é‡ç½®
+	jsr		F_KeyMatrix_Reset					; °´¼ü¾ØÕóµÄGPIO×´Ì¬ÖØÖÃ
 	lda		#0
-	sta		Return_Counter						; é‡ç½®è¿”å›æ—¶æ˜¾æ¨¡å¼è®¡æ—¶
+	sta		Return_Counter						; ÖØÖÃ·µ»ØÊ±ÏÔÄ£Ê½¼ÆÊ±
 
-	bbs4	PD,WakeUp_Event						; è‹¥æ­¤æ—¶ç†„å±ï¼ŒæŒ‰é”®ä¼šå¯¼è‡´äº®å±
+	bbs4	PD,WakeUp_Event						; Èô´ËÊ±Ï¨ÆÁ£¬°´¼ü»áµ¼ÖÂÁÁÆÁ
 	bbs3	Timer_Flag,?Handle_Exit
 	rmb1	Backlight_Flag
 	lda		#0
@@ -337,59 +337,59 @@ L_Universal_TriggerHandle:
 	rts
 WakeUp_Event:
 	rmb4	PD
-	smb3	Key_Flag							; ç†„å±çŠ¶æ€æœ‰æŒ‰é”®ï¼Œåˆ™è§¦å‘å”¤é†’äº‹ä»¶
+	smb3	Key_Flag							; Ï¨ÆÁ×´Ì¬ÓĞ°´¼ü£¬Ôò´¥·¢»½ĞÑÊÂ¼ş
 	bbr0	Sys_Status_Flag,DP_2Mode_Reset
 	bbr2	Key_Flag,DP_2Mode_Reset
 	lda		#0
-	sta		Sys_Status_Ordinal					; æ—¶é’Ÿæ˜¾ç¤ºæ¨¡å¼ä¸‹ç†„å±äº®å±ä¼šå›åˆ°æ—¶æ˜¾
+	sta		Sys_Status_Ordinal					; Ê±ÖÓÏÔÊ¾Ä£Ê½ÏÂÏ¨ÆÁÁÁÆÁ»á»Øµ½Ê±ÏÔ
 DP_2Mode_Reset:
-	jsr		L_Open_5020							; äº®å±å¼€å¯LCDä¸­æ–­
-	bbr2	Backlight_Flag,No_RFCMesure_KeyBeep	; æ‰‹åŠ¨ç†„å±ä¸ä¼šæµ‹é‡æ¸©æ¹¿åº¦
+	jsr		L_Open_5020							; ÁÁÆÁ¿ªÆôLCDÖĞ¶Ï
+	bbr2	Backlight_Flag,No_RFCMesure_KeyBeep	; ÊÖ¶¯Ï¨ÆÁ²»»á²âÁ¿ÎÂÊª¶È
 	rmb2	Backlight_Flag
-	jsr		F_RFC_MeasureStart					; è‡ªåŠ¨ç†„å±å”¤é†’åç«‹åˆ»è¿›è¡Œä¸€æ¬¡æ¸©æ¹¿åº¦æµ‹é‡
+	jsr		F_RFC_MeasureStart					; ×Ô¶¯Ï¨ÆÁ»½ĞÑºóÁ¢¿Ì½øĞĞÒ»´ÎÎÂÊª¶È²âÁ¿
 No_RFCMesure_KeyBeep:
 	pla
 	pla
-	jmp		L_KeyExit							; å”¤é†’è§¦å‘çš„é‚£æ¬¡æŒ‰é”®ï¼Œæ²¡æœ‰æŒ‰é”®åŠŸèƒ½
+	jmp		L_KeyExit							; »½ĞÑ´¥·¢µÄÄÇ´Î°´¼ü£¬Ã»ÓĞ°´¼ü¹¦ÄÜ
 WakeUp_Event_Exit:
 	rts
 
 
 L_Key_Beep:
-	lda		#10B								; è®¾ç½®æŒ‰é”®æç¤ºéŸ³çš„å“é“ƒåºåˆ—
+	lda		#10B								; ÉèÖÃ°´¼üÌáÊ¾ÒôµÄÏìÁåĞòÁĞ
 	sta		Beep_Serial
-	smb0	TMRC								; å¼€TIM0èœ‚é¸£å™¨æ—¶é’Ÿ
-	smb4	Key_Flag							; ç½®ä½æŒ‰é”®æç¤ºéŸ³æ ‡å¿—
+	smb0	TMRC								; ¿ªTIM0·äÃùÆ÷Ê±ÖÓ
+	smb4	Key_Flag							; ÖÃÎ»°´¼üÌáÊ¾Òô±êÖ¾
 	rts
 
 L_Key_NoBeep:
-	lda		#0									; æ¸…é™¤æŒ‰é”®æç¤ºéŸ³çš„å“é“ƒåºåˆ—
+	lda		#0									; Çå³ı°´¼üÌáÊ¾ÒôµÄÏìÁåĞòÁĞ
 	sta		Beep_Serial
-	rmb0	TMRC								; å…³TIM0èœ‚é¸£å™¨æ—¶é’Ÿ
-	rmb4	Key_Flag							; å¤ä½æŒ‰é”®æç¤ºéŸ³æ ‡å¿—
+	rmb0	TMRC								; ¹ØTIM0·äÃùÆ÷Ê±ÖÓ
+	rmb4	Key_Flag							; ¸´Î»°´¼üÌáÊ¾Òô±êÖ¾
 	rts
 
 
 
 
-; æ—¶é’Ÿæ¨¡å¼çš„æ—¶æ˜¾å’Œæ—¥æ˜¾åˆ‡æ¢
+; Ê±ÖÓÄ£Ê½µÄÊ±ÏÔºÍÈÕÏÔÇĞ»»
 SwitchState_ClockDis:
 	bbs0	Sys_Status_Flag,CD_ModeCHG
 	lda		#0
-	sta		Sys_Status_Ordinal					; ä»åˆ«çš„æ¨¡å¼åˆ‡æ¢åˆ°æ—¶æ˜¾æ—¶ï¼Œéœ€è¦æ¸…ç©ºä¸€æ¬¡å­æ¨¡å¼
+	sta		Sys_Status_Ordinal					; ´Ó±ğµÄÄ£Ê½ÇĞ»»µ½Ê±ÏÔÊ±£¬ĞèÒªÇå¿ÕÒ»´Î×ÓÄ£Ê½
 CD_ModeCHG:
-	lda		Sys_Status_Ordinal					; å¯¹ç¬¬ä¸€ä½å–åï¼Œåœ¨æ—¥æœŸæ˜¾ç¤ºå’Œæ—¶é—´æ˜¾ç¤ºä¹‹é—´åˆ‡æ¢
+	lda		Sys_Status_Ordinal					; ¶ÔµÚÒ»Î»È¡·´£¬ÔÚÈÕÆÚÏÔÊ¾ºÍÊ±¼äÏÔÊ¾Ö®¼äÇĞ»»
 	eor		#1
 	sta		Sys_Status_Ordinal
 
 	lda		#0001B
-	sta		Sys_Status_Flag						; åˆ‡æ¢æ—¶é’Ÿæ˜¾ç¤º
+	sta		Sys_Status_Flag						; ÇĞ»»Ê±ÖÓÏÔÊ¾
 
-	rmb6	Key_Flag							; æ¸…é™¤DPæ˜¾ç¤º
+	rmb6	Key_Flag							; Çå³ıDPÏÔÊ¾
 
 	bbr0	Sys_Status_Ordinal,?SWState_ClockDis_Eixt
 	lda		#5
-	sta		Return_MaxTime						; æ—¥æ˜¾ç¤ºæ¨¡å¼ï¼Œè¿”å›æ—¶é—´è®¾ä¸º5S
+	sta		Return_MaxTime						; ÈÕÏÔÊ¾Ä£Ê½£¬·µ»ØÊ±¼äÉèÎª5S
 	jsr		F_Date_Display
 	rts
 ?SWState_ClockDis_Eixt:
@@ -399,19 +399,19 @@ CD_ModeCHG:
 
 
 
-; åˆ‡æ¢è½®æµæ˜¾ç¤º-å›ºå®šæ˜¾ç¤º
+; ÇĞ»»ÂÖÁ÷ÏÔÊ¾-¹Ì¶¨ÏÔÊ¾
 SwitchState_DisMode:
-	smb7	Key_Flag							; è®¾ç½®DPæ˜¾ç¤º1Sæ ‡å¿—
-	smb6	Key_Flag							; è®¾ç½®DPæ˜¾ç¤ºæ ‡å¿—
+	smb7	Key_Flag							; ÉèÖÃDPÏÔÊ¾1S±êÖ¾
+	smb6	Key_Flag							; ÉèÖÃDPÏÔÊ¾±êÖ¾
 	lda		#0
 	sta		Counter_DP
 	sta		Sys_Status_Ordinal
 	lda		#0001B
-	sta		Sys_Status_Flag						; åˆ‡æ¢è½®ã€å›ºæ˜¾ä¼šå°†å½“å‰çŠ¶æ€è®¾ç½®ä¸ºæ—¶æ˜¾
+	sta		Sys_Status_Flag						; ÇĞ»»ÂÖ¡¢¹ÌÏÔ»á½«µ±Ç°×´Ì¬ÉèÖÃÎªÊ±ÏÔ
 
 	lda		Key_Flag
 	eor		#100B
-	sta		Key_Flag							; å–åè½®æ˜¾æ ‡å¿—ä½
+	sta		Key_Flag							; È¡·´ÂÖÏÔ±êÖ¾Î»
 
 	jsr		F_Clock_Display
 	rts
@@ -419,115 +419,115 @@ SwitchState_DisMode:
 
 
 
-; åˆ‡æ¢åˆ°é—¹é’Ÿæ˜¾ç¤ºçŠ¶æ€
+; ÇĞ»»µ½ÄÖÖÓÏÔÊ¾×´Ì¬
 SwitchState_AlarmDis:
 	lda		#5
-	sta		Return_MaxTime						; æ˜¾ç¤ºæ¨¡å¼ï¼Œ5Sè¿”å›æ—¶æ˜¾
-	jsr		DP_Display_Over						; æ¸…ç©ºDPæ¨¡å¼å’Œè®¡æ—¶ï¼Œé˜²æ­¢å›å»ç»§ç»­æ˜¾ç¤ºDP
+	sta		Return_MaxTime						; ÏÔÊ¾Ä£Ê½£¬5S·µ»ØÊ±ÏÔ
+	jsr		DP_Display_Over						; Çå¿ÕDPÄ£Ê½ºÍ¼ÆÊ±£¬·ÀÖ¹»ØÈ¥¼ÌĞøÏÔÊ¾DP
 
 	lda		Sys_Status_Flag
 	cmp		#0010B
-	beq		L_Change_Ordinal_AD					; åˆ¤æ–­å½“å‰çŠ¶æ€æ˜¯å¦å·²ç»æ˜¯é—¹é’Ÿæ˜¾ç¤º
+	beq		L_Change_Ordinal_AD					; ÅĞ¶Ïµ±Ç°×´Ì¬ÊÇ·ñÒÑ¾­ÊÇÄÖÖÓÏÔÊ¾
 	lda		#0010B
-	sta		Sys_Status_Flag						; å½“å‰çŠ¶æ€éé—¹æ˜¾åˆ™åˆ‡æ¢è‡³é—¹æ˜¾
+	sta		Sys_Status_Flag						; µ±Ç°×´Ì¬·ÇÄÖÏÔÔòÇĞ»»ÖÁÄÖÏÔ
 	lda		#0
-	sta		Sys_Status_Ordinal					; æ¸…é›¶å­æ¨¡å¼åºå·
+	sta		Sys_Status_Ordinal					; ÇåÁã×ÓÄ£Ê½ĞòºÅ
 	rts
 L_Change_Ordinal_AD:
-	inc		Sys_Status_Ordinal					; å½“å‰çŠ¶æ€ä¸ºé—¹æ˜¾ï¼Œåˆ™é€’å¢å­æ¨¡å¼åºå·
+	inc		Sys_Status_Ordinal					; µ±Ç°×´Ì¬ÎªÄÖÏÔ£¬ÔòµİÔö×ÓÄ£Ê½ĞòºÅ
 	lda		Sys_Status_Ordinal
 	cmp		#3
 	bcc		L_Ordinal_Exit_AD
 	lda		#0
-	sta		Sys_Status_Ordinal					; å­æ¨¡å¼åºå·å¤§äº2æ—¶ï¼Œé‡ç½®å­æ¨¡å¼åºå·
+	sta		Sys_Status_Ordinal					; ×ÓÄ£Ê½ĞòºÅ´óÓÚ2Ê±£¬ÖØÖÃ×ÓÄ£Ê½ĞòºÅ
 L_Ordinal_Exit_AD:
 	rts
 
 
 
 
-; åˆ‡æ¢åˆ°æ—¶é’Ÿè®¾ç½®æ¨¡å¼
+; ÇĞ»»µ½Ê±ÖÓÉèÖÃÄ£Ê½
 SwitchState_ClockSet:
 	lda		#15
-	sta		Return_MaxTime						; è®¾ç½®æ¨¡å¼ï¼Œ15Sè¿”å›æ—¶æ˜¾
-	jsr		DP_Display_Over						; æ¸…ç©ºDPæ¨¡å¼å’Œè®¡æ—¶ï¼Œé˜²æ­¢å›å»ç»§ç»­æ˜¾ç¤ºDP
+	sta		Return_MaxTime						; ÉèÖÃÄ£Ê½£¬15S·µ»ØÊ±ÏÔ
+	jsr		DP_Display_Over						; Çå¿ÕDPÄ£Ê½ºÍ¼ÆÊ±£¬·ÀÖ¹»ØÈ¥¼ÌĞøÏÔÊ¾DP
 
 	lda		Sys_Status_Flag
 	cmp		#0100B
-	beq		L_Change_Ordinal_CS					; åˆ¤æ–­å½“å‰çŠ¶æ€æ˜¯å¦å·²ç»æ˜¯æ—¶é’Ÿè®¾ç½®
+	beq		L_Change_Ordinal_CS					; ÅĞ¶Ïµ±Ç°×´Ì¬ÊÇ·ñÒÑ¾­ÊÇÊ±ÖÓÉèÖÃ
 	lda		#0100B
-	sta		Sys_Status_Flag						; å½“å‰çŠ¶æ€éæ—¶è®¾åˆ™åˆ‡æ¢è‡³æ—¶è®¾
+	sta		Sys_Status_Flag						; µ±Ç°×´Ì¬·ÇÊ±ÉèÔòÇĞ»»ÖÁÊ±Éè
 	lda		#0
-	sta		Sys_Status_Ordinal					; æ¸…é›¶å­æ¨¡å¼åºå·
+	sta		Sys_Status_Ordinal					; ÇåÁã×ÓÄ£Ê½ĞòºÅ
 	bra		L_Ordinal_Exit_CS
 L_Change_Ordinal_CS:
-	inc		Sys_Status_Ordinal					; å½“å‰çŠ¶æ€ä¸ºæ—¶è®¾ï¼Œåˆ™é€’å¢å­æ¨¡å¼åºå·
+	inc		Sys_Status_Ordinal					; µ±Ç°×´Ì¬ÎªÊ±Éè£¬ÔòµİÔö×ÓÄ£Ê½ĞòºÅ
 	lda		Sys_Status_Ordinal
 	cmp		#6
 	bcc		L_Ordinal_Exit_CS
 	lda		#0
-	sta		Sys_Status_Ordinal					; å­æ¨¡å¼åºå·å¤§äº5æ—¶ï¼Œåˆ™å›åˆ°æ—¶æ˜¾æ¨¡å¼ï¼Œå¹¶æ¸…ç©ºåºå·
+	sta		Sys_Status_Ordinal					; ×ÓÄ£Ê½ĞòºÅ´óÓÚ5Ê±£¬Ôò»Øµ½Ê±ÏÔÄ£Ê½£¬²¢Çå¿ÕĞòºÅ
 	lda		#0001B
 	sta		Sys_Status_Flag
 L_Ordinal_Exit_CS:
-	smb0	Timer_Flag							; é€€å‡ºåç«‹å³è¿›è¡Œä¸€æ¬¡æ˜¾ç¤º
+	smb0	Timer_Flag							; ÍË³öºóÁ¢¼´½øĞĞÒ»´ÎÏÔÊ¾
 	rmb1	Timer_Flag
 	rts
 
 
 
 
-; åˆ‡æ¢åˆ°é—¹é’Ÿè®¾ç½®æ¨¡å¼
+; ÇĞ»»µ½ÄÖÖÓÉèÖÃÄ£Ê½
 SwitchState_AlarmSet:
 	lda		#15
-	sta		Return_MaxTime						; è®¾ç½®æ¨¡å¼ï¼Œ15Sè¿”å›æ—¶æ˜¾
-	jsr		DP_Display_Over						; æ¸…ç©ºDPæ¨¡å¼å’Œè®¡æ—¶ï¼Œé˜²æ­¢å›å»ç»§ç»­æ˜¾ç¤ºDP
+	sta		Return_MaxTime						; ÉèÖÃÄ£Ê½£¬15S·µ»ØÊ±ÏÔ
+	jsr		DP_Display_Over						; Çå¿ÕDPÄ£Ê½ºÍ¼ÆÊ±£¬·ÀÖ¹»ØÈ¥¼ÌĞøÏÔÊ¾DP
 
 	lda		Sys_Status_Flag
 	cmp		#1000B
-	beq		L_Change_Ordinal_AS					; åˆ¤æ–­å½“å‰çŠ¶æ€æ˜¯å¦å·²ç»æ˜¯é—¹é’Ÿè®¾ç½®
+	beq		L_Change_Ordinal_AS					; ÅĞ¶Ïµ±Ç°×´Ì¬ÊÇ·ñÒÑ¾­ÊÇÄÖÖÓÉèÖÃ
 	bbr1	Sys_Status_Flag,No_AlarmDis2Set
 	lda		#1000B
-	sta		Sys_Status_Flag						; å½“å‰çŠ¶æ€éé—¹è®¾åˆ™åˆ‡æ¢è‡³é—¹è®¾
-	lda		Sys_Status_Ordinal					; è‹¥å½“å‰å¤„äºé—¹æ˜¾çŠ¶æ€
+	sta		Sys_Status_Flag						; µ±Ç°×´Ì¬·ÇÄÖÉèÔòÇĞ»»ÖÁÄÖÉè
+	lda		Sys_Status_Ordinal					; Èôµ±Ç°´¦ÓÚÄÖÏÔ×´Ì¬
 	clc
 	rol
 	clc
-	adc		Sys_Status_Ordinal					; åˆ™å¯¹å½“å‰æ˜¾ç¤ºçš„é—¹ç»„è®¾ç½®
+	adc		Sys_Status_Ordinal					; Ôò¶Ôµ±Ç°ÏÔÊ¾µÄÄÖ×éÉèÖÃ
 	sta		Sys_Status_Ordinal
 	bra		L_Ordinal_Exit_AS
 No_AlarmDis2Set:
 	lda		#0
-	sta		Sys_Status_Ordinal					; æ¸…é›¶å­æ¨¡å¼åºå·
+	sta		Sys_Status_Ordinal					; ÇåÁã×ÓÄ£Ê½ĞòºÅ
 	lda		#1000B
-	sta		Sys_Status_Flag						; å½“å‰çŠ¶æ€éé—¹è®¾åˆ™åˆ‡æ¢è‡³é—¹è®¾
+	sta		Sys_Status_Flag						; µ±Ç°×´Ì¬·ÇÄÖÉèÔòÇĞ»»ÖÁÄÖÉè
 	bra		L_Ordinal_Exit_AS
 L_Change_Ordinal_AS:
-	inc		Sys_Status_Ordinal					; å½“å‰çŠ¶æ€ä¸ºé—¹è®¾ï¼Œåˆ™é€’å¢å­æ¨¡å¼åºå·
+	inc		Sys_Status_Ordinal					; µ±Ç°×´Ì¬ÎªÄÖÉè£¬ÔòµİÔö×ÓÄ£Ê½ĞòºÅ
 	lda		Sys_Status_Ordinal
 	cmp		#9
 	bcc		L_Ordinal_Exit_AS
 	lda		#0
-	sta		Sys_Status_Ordinal					; å­æ¨¡å¼åºå·å¤§äº8æ—¶ï¼Œåˆ™å›åˆ°æ—¶æ˜¾æ¨¡å¼ï¼Œå¹¶æ¸…ç©ºåºå·
+	sta		Sys_Status_Ordinal					; ×ÓÄ£Ê½ĞòºÅ´óÓÚ8Ê±£¬Ôò»Øµ½Ê±ÏÔÄ£Ê½£¬²¢Çå¿ÕĞòºÅ
 	lda		#0001B
 	sta		Sys_Status_Flag
 L_Ordinal_Exit_AS:
-	smb0	Timer_Flag							; é€€å‡ºåç«‹å³è¿›è¡Œä¸€æ¬¡æ˜¾ç¤º
+	smb0	Timer_Flag							; ÍË³öºóÁ¢¼´½øĞĞÒ»´ÎÏÔÊ¾
 	rmb1	Timer_Flag
 	rts
 
 
 
 
-; åˆ‡æ¢ç¯å…‰äº®åº¦
-; 0ç†„å±ï¼Œ1ä½äº®
+; ÇĞ»»µÆ¹âÁÁ¶È
+; 0Ï¨ÆÁ£¬1µÍÁÁ
 LightLevel_Change:
 	lda		Backlight_Level
 	beq		Level0
 
 	lda		#0
 	sta		Backlight_Level
-	rmb4	PD									; ä½äº®
+	rmb4	PD									; µÍÁÁ
 	rmb0	PC
 	rmb0	PC_IO_Backup
 
@@ -535,25 +535,25 @@ LightLevel_Change:
 
 Level0:
 	rmb0	PC
-	jsr		L_Close_5020						; ç†„å±åå…³é—­LCDä¸­æ–­
+	jsr		L_Close_5020						; Ï¨ÆÁºó¹Ø±ÕLCDÖĞ¶Ï
 	lda		#1
 	sta		Backlight_Level
-	smb4	PD									; ä¸‹ä¸€æ¬¡äº®å±æ˜¯é«˜äº®
-	smb0	PC_IO_Backup						; è®¾ç½®è®°å¿†äº®åº¦ä¸ºé«˜äº®ï¼Œä¸‹æ¬¡å”¤é†’ä¸ºé«˜äº®
-	rmb3	Key_Flag							; ç½®é›¶å±å¹•å”¤é†’æ ‡å¿—
-	rmb2	Backlight_Flag						; æ‰‹åŠ¨ç†„å±ï¼ŒæŒ‰é”®å”¤é†’ä¸è¿›è¡Œæ¸©æ¹¿åº¦æµ‹é‡
+	smb4	PD									; ÏÂÒ»´ÎÁÁÆÁÊÇ¸ßÁÁ
+	smb0	PC_IO_Backup						; ÉèÖÃ¼ÇÒäÁÁ¶ÈÎª¸ßÁÁ£¬ÏÂ´Î»½ĞÑÎª¸ßÁÁ
+	rmb3	Key_Flag							; ÖÃÁãÆÁÄ»»½ĞÑ±êÖ¾
+	rmb2	Backlight_Flag						; ÊÖ¶¯Ï¨ÆÁ£¬°´¼ü»½ĞÑ²»½øĞĞÎÂÊª¶È²âÁ¿
 	rts
 
 
 
 
-; è¿›å…¥è´ªç¡æ¨¡å¼
+; ½øÈëÌ°Ë¯Ä£Ê½
 Alarm_Snooze:
-	smb6	Clock_Flag							; è´ªç¡æŒ‰é”®è§¦å‘						
-	smb3	Clock_Flag							; è¿›å…¥è´ªç¡æ¨¡å¼
-	rmb2	Clock_Flag							; å…³é—­å“é—¹æ¨¡å¼
+	smb6	Clock_Flag							; Ì°Ë¯°´¼ü´¥·¢						
+	smb3	Clock_Flag							; ½øÈëÌ°Ë¯Ä£Ê½
+	rmb2	Clock_Flag							; ¹Ø±ÕÏìÄÖÄ£Ê½
 
-	lda		R_Snooze_Min						; è´ªç¡é—¹é’Ÿçš„æ—¶é—´åŠ 5
+	lda		R_Snooze_Min						; Ì°Ë¯ÄÖÖÓµÄÊ±¼ä¼Ó5
 	clc
 	adc		#5
 	cmp		#60
@@ -563,12 +563,12 @@ Alarm_Snooze:
 L_Snooze_OverflowMin:
 	sec
 	sbc		#60
-	sta		R_Snooze_Min						; äº§ç”Ÿè´ªç¡å“é—¹çš„åˆ†é’Ÿè¿›ä½
+	sta		R_Snooze_Min						; ²úÉúÌ°Ë¯ÏìÄÖµÄ·ÖÖÓ½øÎ»
 	inc		R_Snooze_Hour
 	lda		R_Snooze_Hour
 	cmp		#24
 	bcc		L_Snooze_Exit
-	lda		#00									; äº§ç”Ÿè´ªç¡å°æ—¶è¿›ä½
+	lda		#00									; ²úÉúÌ°Ë¯Ğ¡Ê±½øÎ»
 	sta		R_Snooze_Hour
 L_Snooze_Exit:
 	rts
@@ -576,24 +576,24 @@ L_Snooze_Exit:
 
 
 
-; æ—¶é’Ÿè®¾ç½®ä¸‹çš„12ã€24hæ¨¡å¼åˆ‡æ¢
+; Ê±ÖÓÉèÖÃÏÂµÄ12¡¢24hÄ£Ê½ÇĞ»»
 ClockSet_SW_TimeMode:
 	lda		Clock_Flag
-	eor		#01									; ç¿»è½¬12/24hæ¨¡å¼çš„çŠ¶æ€
+	eor		#01									; ·­×ª12/24hÄ£Ê½µÄ×´Ì¬
 	sta		Clock_Flag
 
 	jsr		L_Dis_xxHr
 	rts
 
-; æ˜¾ç¤ºæ¨¡å¼ä¸‹12ã€24hæ¨¡å¼åˆ‡æ¢
+; ÏÔÊ¾Ä£Ê½ÏÂ12¡¢24hÄ£Ê½ÇĞ»»
 DM_SW_TimeMode:
 	lda		Clock_Flag
-	eor		#01									; ç¿»è½¬12/24hæ¨¡å¼çš„çŠ¶æ€
+	eor		#01									; ·­×ª12/24hÄ£Ê½µÄ×´Ì¬
 	sta		Clock_Flag
 
-	rmb6	Key_Flag							; æ¸…é™¤DPæ˜¾ç¤º
+	rmb6	Key_Flag							; Çå³ıDPÏÔÊ¾
 	lda		#0
-	sta		Sys_Status_Ordinal					; å¦‚æœæ˜¯è½®æ˜¾æ¨¡å¼ï¼Œåˆ‡æ¢å°æ—¶åˆ¶ä¼šå›åˆ°æ—¶æ˜¾
+	sta		Sys_Status_Ordinal					; Èç¹ûÊÇÂÖÏÔÄ£Ê½£¬ÇĞ»»Ğ¡Ê±ÖÆ»á»Øµ½Ê±ÏÔ
 
 	jsr		F_Display_Time
 	rts
@@ -601,9 +601,9 @@ DM_SW_TimeMode:
 
 
 
-; åˆ‡æ¢æ¸©åº¦å•ä½
+; ÇĞ»»ÎÂ¶Èµ¥Î»
 TemperMode_Change:
-	lda		RFC_Flag							; å–åæ ‡å¿—ä½ï¼Œåˆ‡æ¢åæ°åº¦å’Œæ‘„æ°åº¦
+	lda		RFC_Flag							; È¡·´±êÖ¾Î»£¬ÇĞ»»»ªÊÏ¶ÈºÍÉãÊÏ¶È
 	eor		#00010000B
 	sta		RFC_Flag
 	jsr		F_Display_Temper
@@ -613,7 +613,7 @@ TemperMode_Change:
 
 
 
-; æ—¶è®¾æ¨¡å¼å¢æ•°
+; Ê±ÉèÄ£Ê½ÔöÊı
 AddNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch
@@ -640,7 +640,7 @@ No_CS_MonthAdd:
 
 
 
-; é—¹è®¾æ¨¡å¼å¢æ•°
+; ÄÖÉèÄ£Ê½ÔöÊı
 AddNum_AS:
 	lda		Sys_Status_Ordinal
 	jsr		L_A_Div_3
@@ -652,14 +652,14 @@ AddNum_AS:
 No_AlarmSwitch_AddCHG:
 	cmp		#1
 	bne		No_AlarmHourSet_Add
-	jmp		L_AlarmHour_Add						; é—¹é’Ÿå°æ—¶å‡æ•°
+	jmp		L_AlarmHour_Add						; ÄÖÖÓĞ¡Ê±¼õÊı
 No_AlarmHourSet_Add:
-	jmp		L_AlarmMin_Add						; é—¹é’Ÿåˆ†é’Ÿå‡æ•°
+	jmp		L_AlarmMin_Add						; ÄÖÖÓ·ÖÖÓ¼õÊı
 
 
 
 
-; æ—¶è®¾æ¨¡å¼å‡æ•°
+; Ê±ÉèÄ£Ê½¼õÊı
 SubNum_CS:
 	lda		Sys_Status_Ordinal
 	bne		No_CS_TMSwitch2
@@ -686,7 +686,7 @@ No_CS_MonthSub:
 
 
 
-; é—¹è®¾æ¨¡å¼å‡æ•°
+; ÄÖÉèÄ£Ê½¼õÊı
 SubNum_AS:
 	lda		Sys_Status_Ordinal
 	jsr		L_A_Div_3
@@ -698,14 +698,14 @@ SubNum_AS:
 No_AlarmSwitch_SubCHG:
 	cmp		#1
 	bne		No_AlarmHourSet_Sub
-	jmp		L_AlarmHour_Sub						; é—¹é’Ÿå°æ—¶å‡æ•°
+	jmp		L_AlarmHour_Sub						; ÄÖÖÓĞ¡Ê±¼õÊı
 No_AlarmHourSet_Sub:
-	jmp		L_AlarmMin_Sub						; é—¹é’Ÿåˆ†é’Ÿå‡æ•°
+	jmp		L_AlarmMin_Sub						; ÄÖÖÓ·ÖÖÓ¼õÊı
 
 
 
 
-; æ—¶å¢åŠ 
+; Ê±Ôö¼Ó
 L_TimeHour_Add:
 	lda		R_Time_Hour
 	cmp		#23
@@ -720,7 +720,7 @@ TimeHour_Add_Exit:
 	jsr		F_Display_Time
 	rts
 
-; æ—¶å‡å°‘
+; Ê±¼õÉÙ
 L_TimeHour_Sub:
 	lda		R_Time_Hour
 	beq		TimeHour_SubOverflow
@@ -737,10 +737,10 @@ TimeHour_Sub_Exit:
 
 
 
-; åˆ†å¢åŠ 
+; ·ÖÔö¼Ó
 L_TimeMin_Add:
 	lda		#0
-	sta		R_Time_Sec							; è°ƒæ•´åˆ†é’Ÿä¼šæ¸…ç©ºç§’
+	sta		R_Time_Sec							; µ÷Õû·ÖÖÓ»áÇå¿ÕÃë
 
 	lda		R_Time_Min
 	cmp		#59
@@ -754,10 +754,10 @@ TimeMin_Add_Exit:
 	jsr		F_Display_Time
 	rts
 
-; åˆ†å‡å°‘
+; ·Ö¼õÉÙ
 L_TimeMin_Sub:
 	lda		#0
-	sta		R_Time_Sec							; è°ƒæ•´åˆ†é’Ÿä¼šæ¸…ç©ºç§’
+	sta		R_Time_Sec							; µ÷Õû·ÖÖÓ»áÇå¿ÕÃë
 
 	lda		R_Time_Min
 	beq		TimeMin_SubOverflow
@@ -773,7 +773,7 @@ TimeMin_Sub_Exit:
 
 
 
-; å¹´å¢åŠ 
+; ÄêÔö¼Ó
 L_DateYear_Add:
 	lda		R_Date_Year
 	cmp		#99
@@ -784,12 +784,12 @@ DateYear_AddOverflow:
 	lda		#0
 	sta		R_Date_Year
 DateYear_Add_Exit:
-	jsr		L_DayOverflow_Juge					; è‹¥å½“å‰æ—¥æœŸè¶…è¿‡å½“å‰æœˆä»½å…è®¸çš„æœ€å¤§å€¼ï¼Œåˆ™æ—¥æœŸå˜ä¸ºå½“å‰å…è®¸æœ€å¤§æ—¥
+	jsr		L_DayOverflow_Juge					; Èôµ±Ç°ÈÕÆÚ³¬¹ıµ±Ç°ÔÂ·İÔÊĞíµÄ×î´óÖµ£¬ÔòÈÕÆÚ±äÎªµ±Ç°ÔÊĞí×î´óÈÕ
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
 
-; å¹´å‡å°‘
+; Äê¼õÉÙ
 L_DateYear_Sub:
 	lda		R_Date_Year
 	beq		DateYear_SubOverflow
@@ -799,7 +799,7 @@ DateYear_SubOverflow:
 	lda		#99
 	sta		R_Date_Year
 DateYear_Sub_Exit:
-	jsr		L_DayOverflow_Juge					; è‹¥å½“å‰æ—¥æœŸè¶…è¿‡å½“å‰æœˆä»½å…è®¸çš„æœ€å¤§å€¼ï¼Œåˆ™æ—¥æœŸå˜ä¸ºå½“å‰å…è®¸æœ€å¤§æ—¥
+	jsr		L_DayOverflow_Juge					; Èôµ±Ç°ÈÕÆÚ³¬¹ıµ±Ç°ÔÂ·İÔÊĞíµÄ×î´óÖµ£¬ÔòÈÕÆÚ±äÎªµ±Ç°ÔÊĞí×î´óÈÕ
 	jsr		F_Is_Leap_Year
 	jsr		L_DisDate_Year
 	rts
@@ -807,13 +807,13 @@ DateYear_Sub_Exit:
 
 
 
-; æœˆå¢åŠ 
+; ÔÂÔö¼Ó
 L_DateMonth_Add:
 	lda		R_Date_Month
 	cmp		#12
 	bcs		DateMonth_AddOverflow
 	inc		R_Date_Month
-	jsr		L_DayOverflow_Juge					; è‹¥å½“å‰æ—¥æœŸè¶…è¿‡å½“å‰æœˆä»½å…è®¸çš„æœ€å¤§å€¼ï¼Œåˆ™æ—¥æœŸå˜ä¸ºå½“å‰å…è®¸æœ€å¤§æ—¥
+	jsr		L_DayOverflow_Juge					; Èôµ±Ç°ÈÕÆÚ³¬¹ıµ±Ç°ÔÂ·İÔÊĞíµÄ×î´óÖµ£¬ÔòÈÕÆÚ±äÎªµ±Ç°ÔÊĞí×î´óÈÕ
 	bra		DateMonth_Add_Exit
 DateMonth_AddOverflow:
 	lda		#1
@@ -822,13 +822,13 @@ DateMonth_Add_Exit:
 	jsr		F_Date_Display
 	rts
 
-; æœˆå‡å°‘
+; ÔÂ¼õÉÙ
 L_DateMonth_Sub:
 	lda		R_Date_Month
 	cmp		#1
 	beq		DateMonth_SubOverflow
 	dec		R_Date_Month
-	jsr		L_DayOverflow_Juge					; è‹¥å½“å‰æ—¥æœŸè¶…è¿‡å½“å‰æœˆä»½å…è®¸çš„æœ€å¤§å€¼ï¼Œåˆ™æ—¥æœŸå˜ä¸ºå½“å‰å…è®¸æœ€å¤§æ—¥
+	jsr		L_DayOverflow_Juge					; Èôµ±Ç°ÈÕÆÚ³¬¹ıµ±Ç°ÔÂ·İÔÊĞíµÄ×î´óÖµ£¬ÔòÈÕÆÚ±äÎªµ±Ç°ÔÊĞí×î´óÈÕ
 	bra		DateMonth_Sub_Exit
 DateMonth_SubOverflow:
 	lda		#12
@@ -840,14 +840,14 @@ DateMonth_Sub_Exit:
 
 
 
-; æ—¥å¢åŠ 
+; ÈÕÔö¼Ó
 L_DateDay_Add:
 	inc		R_Date_Day
-	jsr		L_DayOverflow_To_1					; è‹¥å½“å‰æ—¥æœŸè¶…è¿‡å½“å‰æœˆä»½å…è®¸çš„æœ€å¤§å€¼ï¼Œåˆ™æ—¥æœŸå˜ä¸º1æ—¥
+	jsr		L_DayOverflow_To_1					; Èôµ±Ç°ÈÕÆÚ³¬¹ıµ±Ç°ÔÂ·İÔÊĞíµÄ×î´óÖµ£¬ÔòÈÕÆÚ±äÎª1ÈÕ
 	jsr		F_Date_Display
 	rts
 
-; æ—¥å‡å°‘
+; ÈÕ¼õÉÙ
 L_DateDay_Sub:
 	lda		R_Date_Day
 	cmp		#1
@@ -874,19 +874,19 @@ DateDay_Sub_Exit:
 
 
 
-; é—¹é’Ÿå¼€å…³
-; Aé—¹é’Ÿç»„ï¼ˆæŒ‰bitï¼‰
+; ÄÖÖÓ¿ª¹Ø
+; AÄÖÖÓ×é£¨°´bit£©
 L_Alarm_Switch:
 	eor		Alarm_Switch
 	sta		Alarm_Switch
 	smb0	Timer_Flag
 	rmb1	Timer_Flag
-	jsr		F_Alarm_SwitchStatue				; åˆ·æ–°ä¸€æ¬¡é—¹é’Ÿå¼€å…³æ˜¾ç¤º
+	jsr		F_Alarm_SwitchStatue				; Ë¢ĞÂÒ»´ÎÄÖÖÓ¿ª¹ØÏÔÊ¾
 	rts
 
 
-; é—¹é’Ÿåˆ†å¢åŠ 
-; Xé—¹é’Ÿç»„ï¼Œ0~2
+; ÄÖÖÓ·ÖÔö¼Ó
+; XÄÖÖÓ×é£¬0~2
 L_AlarmMin_Add:
 	lda		Alarm_MinAddr,x
 	cmp		#59
@@ -904,8 +904,8 @@ AlarmMin_Add_Exit:
 	jsr		F_AlarmMin_Set
 	rts
 
-; é—¹é’Ÿåˆ†å‡å°‘
-; Xé—¹é’Ÿç»„ï¼Œ0~2
+; ÄÖÖÓ·Ö¼õÉÙ
+; XÄÖÖÓ×é£¬0~2
 L_AlarmMin_Sub:
 	lda		Alarm_MinAddr,x
 	beq		AlarmMin_SubOverflow
@@ -923,8 +923,8 @@ AlarmMin_Sub_Exit:
 	rts
 
 
-; é—¹é’Ÿæ—¶å¢åŠ 
-; Xé—¹é’Ÿç»„ï¼Œ0~2
+; ÄÖÖÓÊ±Ôö¼Ó
+; XÄÖÖÓ×é£¬0~2
 L_AlarmHour_Add:
 	lda		Alarm_HourAddr,x
 	cmp		#23
@@ -942,8 +942,8 @@ AlarmHour_Add_Exit:
 	jsr		F_AlarmHour_Set
 	rts
 
-; é—¹é’Ÿæ—¶å‡å°‘
-; Xé—¹é’Ÿç»„ï¼Œ0~2
+; ÄÖÖÓÊ±¼õÉÙ
+; XÄÖÖÓ×é£¬0~2
 L_AlarmHour_Sub:
 	lda		Alarm_HourAddr,x
 	beq		AlarmHour_SubOverflow
@@ -963,22 +963,22 @@ AlarmHour_Sub_Exit:
 
 
 
-; å¤©æ•°æ˜¯å¦æº¢å‡ºçš„åˆ¤æ–­
+; ÌìÊıÊÇ·ñÒç³öµÄÅĞ¶Ï
 L_DayOverflow_Juge:
 	jsr		F_Is_Leap_Year
-	bbs0	Calendar_Flag,L_LeapYear_Handle		; å¹³å¹´é—°å¹´çš„è¡¨åˆ†å¼€æŸ¥
-	ldx		R_Date_Month						; æŸ¥å¹³å¹´æ¯æœˆä»½å¤©æ•°è¡¨
+	bbs0	Calendar_Flag,L_LeapYear_Handle		; Æ½ÄêÈòÄêµÄ±í·Ö¿ª²é
+	ldx		R_Date_Month						; ²éÆ½ÄêÃ¿ÔÂ·İÌìÊı±í
 	dex
 	lda		L_Table_Month_Common,x
 	sta		P_Temp
 	bra		Day_Overflow_Juge
 L_LeapYear_Handle:
-	ldx		R_Date_Month						; æŸ¥é—°å¹´æ¯æœˆä»½å¤©æ•°è¡¨
+	ldx		R_Date_Month						; ²éÈòÄêÃ¿ÔÂ·İÌìÊı±í
 	dex
 	lda		L_Table_Month_Leap,x
 	sta		P_Temp
 Day_Overflow_Juge:
-	lda		P_Temp								; å½“å‰æ—¥æœŸå’Œå¤©æ•°è¡¨çš„æ—¥æœŸå¯¹æ¯”
+	lda		P_Temp								; µ±Ç°ÈÕÆÚºÍÌìÊı±íµÄÈÕÆÚ¶Ô±È
 	cmp		R_Date_Day
 	bcs		DateDay_NoOverflow
 	lda		P_Temp
@@ -986,22 +986,22 @@ Day_Overflow_Juge:
 DateDay_NoOverflow:
 	rts
 
-; å¤©æ•°æ˜¯å¦æº¢å‡ºçš„åˆ¤æ–­
+; ÌìÊıÊÇ·ñÒç³öµÄÅĞ¶Ï
 L_DayOverflow_To_1:
 	jsr		F_Is_Leap_Year
-	bbs0	Calendar_Flag,L_LeapYear_Handle2	; å¹³å¹´é—°å¹´çš„è¡¨åˆ†å¼€æŸ¥
-	ldx		R_Date_Month						; æŸ¥å¹³å¹´æ¯æœˆä»½å¤©æ•°è¡¨
+	bbs0	Calendar_Flag,L_LeapYear_Handle2	; Æ½ÄêÈòÄêµÄ±í·Ö¿ª²é
+	ldx		R_Date_Month						; ²éÆ½ÄêÃ¿ÔÂ·İÌìÊı±í
 	dex
 	lda		L_Table_Month_Common,x
 	sta		P_Temp
 	bra		Day_Overflow_Juge2
 L_LeapYear_Handle2:
-	ldx		R_Date_Month						; æŸ¥é—°å¹´æ¯æœˆä»½å¤©æ•°è¡¨
+	ldx		R_Date_Month						; ²éÈòÄêÃ¿ÔÂ·İÌìÊı±í
 	dex
 	lda		L_Table_Month_Leap,x
 	sta		P_Temp
 Day_Overflow_Juge2:
-	lda		P_Temp								; å½“å‰æ—¥æœŸå’Œå¤©æ•°è¡¨çš„æ—¥æœŸå¯¹æ¯”
+	lda		P_Temp								; µ±Ç°ÈÕÆÚºÍÌìÊı±íµÄÈÕÆÚ¶Ô±È
 	cmp		R_Date_Day
 	bcs		DateDay_NoOverflow2
 	lda		#1

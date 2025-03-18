@@ -2,16 +2,16 @@
 ;***************************************
 ; RAM Address
 ;***************************************
-RamStarAddr		EQU		1800H											;RAMçš„å¼€å§‹åœ°å€
-LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr			;LED RAMçš„åœ°å€
-LED_RamBKAddr	EQU		RamStarAddr+LED_Addr_BK-Page0RamStarAddr		;LED RAMçš„åœ°å€
-Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr		;äº‹ä»¶ç›¸å…³æ•°æ®çš„åœ°å€
-Alarm_MinAddr	EQU		RamStarAddr+Alarm_Min_Addr-Page0RamStarAddr		;é—¹é’Ÿç»„åˆ†é’Ÿæ•°æ®åœ°å€
-Alarm_HourAddr	EQU		RamStarAddr+Alarm_Hour_Addr-Page0RamStarAddr	;é—¹é’Ÿç»„å°æ—¶æ•°æ®åœ°å€
+RamStarAddr		EQU		1800H											;RAMµÄ¿ªÊ¼µØÖ·
+LED_RamAddr		EQU		RamStarAddr+LED_Addr-Page0RamStarAddr			;LED RAMµÄµØÖ·
+LED_RamBKAddr	EQU		RamStarAddr+LED_Addr_BK-Page0RamStarAddr		;LED RAMµÄµØÖ·
+Time_Addr		EQU		RamStarAddr+Time_Str_Addr-Page0RamStarAddr		;ÊÂ¼şÏà¹ØÊı¾İµÄµØÖ·
+Alarm_MinAddr	EQU		RamStarAddr+Alarm_Min_Addr-Page0RamStarAddr		;ÄÖÖÓ×é·ÖÖÓÊı¾İµØÖ·
+Alarm_HourAddr	EQU		RamStarAddr+Alarm_Hour_Addr-Page0RamStarAddr	;ÄÖÖÓ×éĞ¡Ê±Êı¾İµØÖ·
 ;***************************************
 ;Time_Addr		EUQ		B0H
 ;***************************************
-.PAGE0     ;page 0çš„å†…å­˜å¸ƒå±€
+.PAGE0     ;page 0µÄÄÚ´æ²¼¾Ö
 ;***************************************
 ;---------------------------------------------------------------------
 	ORG	0080H
@@ -40,83 +40,83 @@ AlarmLoud_Counter		DS		1
 COM_Counter				DS		1
 
 Calendar_Flag			DS		1
-;bit0 = 1 é—°å¹´
-;bit1 = 1 å¢æ—¥æœŸ
+;bit0 = 1 ÈòÄê
+;bit1 = 1 ÔöÈÕÆÚ
 
 Clock_Flag				DS		1
-;bit0 = 1 12hæ¨¡å¼
-;bit1 = 1 é—¹é’Ÿè§¦å‘
-;bit2 = 1 å“é—¹æ¨¡å¼
-;bit3 = 1 è´ªç¡æ¨¡å¼
-;bit4 = 1 å“é—¹é˜»å¡æ ‡å¿—ï¼Œé˜²æ­¢çŸ­æ—¶é—´å†…å…³é—­å“é—¹ç»§ç»­è¿›é—¹é’Ÿè§¦å‘
-;bit5	  ä¸Šæ¬¡çš„å“é—¹æ¨¡å¼ï¼Œåˆ¤æ–­æ˜¯å“é—¹ç»“æŸè¿˜æ˜¯æœªå“é—¹
-;bit6 = 1 è´ªç¡æŒ‰é”®è§¦å‘å¯¼è‡´çš„å“é—¹ç»“æŸ
-;bit7 = 1 è¿”å›æ—¶æ˜¾æ¨¡å¼1Sè®¡æ—¶
+;bit0 = 1 12hÄ£Ê½
+;bit1 = 1 ÄÖÖÓ´¥·¢
+;bit2 = 1 ÏìÄÖÄ£Ê½
+;bit3 = 1 Ì°Ë¯Ä£Ê½
+;bit4 = 1 ÏìÄÖ×èÈû±êÖ¾£¬·ÀÖ¹¶ÌÊ±¼äÄÚ¹Ø±ÕÏìÄÖ¼ÌĞø½øÄÖÖÓ´¥·¢
+;bit5	  ÉÏ´ÎµÄÏìÄÖÄ£Ê½£¬ÅĞ¶ÏÊÇÏìÄÖ½áÊø»¹ÊÇÎ´ÏìÄÖ
+;bit6 = 1 Ì°Ë¯°´¼ü´¥·¢µ¼ÖÂµÄÏìÄÖ½áÊø
+;bit7 = 1 ·µ»ØÊ±ÏÔÄ£Ê½1S¼ÆÊ±
 
 
 Timer_Flag				DS		1
-;bit0 = 1 Timer2 åŠSè®¡æ—¶
-;bit1 = 1 Timer2 1Sè®¡æ—¶
-;bit2 = 1 å¢Sæ ‡å¿—
-;bit3 = 1 å¿«åŠ æ ‡å¿—
-;bit4 = 1 Timer1 16Hzè®¡æ—¶
-;bit5 = 1 Timer2 ç†„å±1Sè®¡æ—¶
-;bit6 = 1 Timer0 16Hzæ ‡å¿—
-;bit7 = 1 Timer2 å“é“ƒ1Sè®¡æ—¶
+;bit0 = 1 Timer2 °ëS¼ÆÊ±
+;bit1 = 1 Timer2 1S¼ÆÊ±
+;bit2 = 1 ÔöS±êÖ¾
+;bit3 = 1 ¿ì¼Ó±êÖ¾
+;bit4 = 1 Timer1 16Hz¼ÆÊ±
+;bit5 = 1 Timer2 Ï¨ÆÁ1S¼ÆÊ±
+;bit6 = 1 Timer0 16Hz±êÖ¾
+;bit7 = 1 Timer2 ÏìÁå1S¼ÆÊ±
 
-Symbol_Flag				DS		1	; ç¬¦å·æ“ä½œ
-;bit0 = 1 ALMç‚¹åŠSæ ‡å¿—
-;bit1 = 1 ALMç‚¹1Sæ ‡å¿—
+Symbol_Flag				DS		1	; ·ûºÅ²Ù×÷
+;bit0 = 1 ALMµã°ëS±êÖ¾
+;bit1 = 1 ALMµã1S±êÖ¾
 
 Sys_Status_Flag			DS		1
-;bit0 = 1 æ—¶é’Ÿæ˜¾ç¤º
-;bit1 = 1 é—¹é’Ÿæ˜¾ç¤º
-;bit2 = 1 è®¾ç½®æ—¶é’Ÿ
-;bit3 = 1 è®¾ç½®é—¹é’Ÿ
+;bit0 = 1 Ê±ÖÓÏÔÊ¾
+;bit1 = 1 ÄÖÖÓÏÔÊ¾
+;bit2 = 1 ÉèÖÃÊ±ÖÓ
+;bit3 = 1 ÉèÖÃÄÖÖÓ
 
 Sys_Status_Ordinal		DS		1
-; å­æ¨¡å¼çš„åºå·
+; ×ÓÄ£Ê½µÄĞòºÅ
 
 Key_Flag				DS		1
-;bit0 = 1 æ‰«é”®æ ‡å¿—ä½
-;bit1 = 1 é¦–æ¬¡è§¦å‘
-;bit2 = 1 è½®æµæ˜¾ç¤ºæ ‡å¿—ä½
-;bit3 = 1 å±å¹•å”¤é†’äº‹ä»¶æ ‡å¿—ä½
-;bit4 = 1 æŒ‰é”®æç¤ºéŸ³æ ‡å¿—ä½
-;bit5 = 1 é•¿æŒ‰æ‰«é”®4Hzæ ‡å¿—
-;bit6 = 1 DPæ˜¾ç¤ºæ ‡å¿—ä½
-;bit7 = 1 DPæ˜¾ç¤º1Sæ ‡å¿—
+;bit0 = 1 É¨¼ü±êÖ¾Î»
+;bit1 = 1 Ê×´Î´¥·¢
+;bit2 = 1 ÂÖÁ÷ÏÔÊ¾±êÖ¾Î»
+;bit3 = 1 ÆÁÄ»»½ĞÑÊÂ¼ş±êÖ¾Î»
+;bit4 = 1 °´¼üÌáÊ¾Òô±êÖ¾Î»
+;bit5 = 1 ³¤°´É¨¼ü4Hz±êÖ¾
+;bit6 = 1 DPÏÔÊ¾±êÖ¾Î»
+;bit7 = 1 DPÏÔÊ¾1S±êÖ¾
 
-; é•¿çŸ­æŒ‰åŠŸèƒ½ä¸åŒçš„æŒ‰é”®
+; ³¤¶Ì°´¹¦ÄÜ²»Í¬µÄ°´¼ü
 SpecialKey_Flag			DS		1
-;bit0 = 1 Alarmé”®å¾…å¤„ç†				|ç‰¹æ®ŠæŒ‰é”®
-;bit1 = 1 SNZ/Backlighté”®å¾…å¤„ç†		|ç‰¹æ®ŠæŒ‰é”®
-;bit2 = 1 Modeé”®å¾…å¤„ç†				|ç‰¹æ®ŠæŒ‰é”®
-;bit3 = 1 Upé”®å¾…å¤„ç†				|ç‰¹æ®ŠæŒ‰é”®
-;bit4 = 1 Downé”®å¾…å¤„ç†				|ç‰¹æ®ŠæŒ‰é”®
+;bit0 = 1 Alarm¼ü´ı´¦Àí				|ÌØÊâ°´¼ü
+;bit1 = 1 SNZ/Backlight¼ü´ı´¦Àí		|ÌØÊâ°´¼ü
+;bit2 = 1 Mode¼ü´ı´¦Àí				|ÌØÊâ°´¼ü
+;bit3 = 1 Up¼ü´ı´¦Àí				|ÌØÊâ°´¼ü
+;bit4 = 1 Down¼ü´ı´¦Àí				|ÌØÊâ°´¼ü
 
 RFC_Flag				DS		1
-;bit0 = 1 é‡‡æ ·å¯ç”¨æ ‡å¿—ä½
-;bit1 = 1 ç¦ç”¨RFCé‡‡æ ·æ ‡å¿—ï¼Œè¿™é€šå¸¸æ˜¯å› ä¸ºTMR0ã€1è¢«å ç”¨
-;bit2 = 1 è´Ÿæ¸©åº¦
-;bit3 = 1 æ¹¿åº¦è¡¨æŸ¥è¯¢å®Œæˆæ ‡å¿—ä½
-;bit4 = 1 åæ°åº¦æ¨¡å¼
-;bit5 = 1 æ¸©æ¹¿åº¦æµ‹é‡1Sæ ‡å¿—
-;bit6 = 1 æ¸©æ¹¿åº¦æµ‹é‡å®Œæˆæ ‡å¿—
+;bit0 = 1 ²ÉÑùÆôÓÃ±êÖ¾Î»
+;bit1 = 1 ½ûÓÃRFC²ÉÑù±êÖ¾£¬ÕâÍ¨³£ÊÇÒòÎªTMR0¡¢1±»Õ¼ÓÃ
+;bit2 = 1 ¸ºÎÂ¶È
+;bit3 = 1 Êª¶È±í²éÑ¯Íê³É±êÖ¾Î»
+;bit4 = 1 »ªÊÏ¶ÈÄ£Ê½
+;bit5 = 1 ÎÂÊª¶È²âÁ¿1S±êÖ¾
+;bit6 = 1 ÎÂÊª¶È²âÁ¿Íê³É±êÖ¾
 
 Backlight_Flag			DS		1
-;bit0 = 1 DC5Væ¥å…¥æ—¶å”¤é†’
-;bit1 = 1 äº®å±1Sè®¡æ—¶
-;bit2 = 1 æ‰‹åŠ¨è¿›å…¥ç†„å±æ¨¡å¼
+;bit0 = 1 DC5V½ÓÈëÊ±»½ĞÑ
+;bit1 = 1 ÁÁÆÁ1S¼ÆÊ±
+;bit2 = 1 ÊÖ¶¯½øÈëÏ¨ÆÁÄ£Ê½
 
-Backlight_Level			DS		1	; äº®åº¦ç­‰çº§
-;0 ä½äº®
-;1 é«˜äº®
+Backlight_Level			DS		1	; ÁÁ¶ÈµÈ¼¶
+;0 µÍÁÁ
+;1 ¸ßÁÁ
 
-Alarm_Switch			DS		1	; å„ä¸ªé—¹é’Ÿå¼€å…³
-;bit0 = 1 é—¹é’Ÿ1å¼€å¯
-;bit1 = 1 é—¹é’Ÿ2å¼€å¯
-;bit2 = 1 é—¹é’Ÿ3å¼€å¯
+Alarm_Switch			DS		1	; ¸÷¸öÄÖÖÓ¿ª¹Ø
+;bit0 = 1 ÄÖÖÓ1¿ªÆô
+;bit1 = 1 ÄÖÖÓ2¿ªÆô
+;bit2 = 1 ÄÖÖÓ3¿ªÆô
 
 Triggered_AlarmGroup	DS		1
 
@@ -144,7 +144,7 @@ R_Temper_Comp			DS		1
 R_Temper_Comp_Time		DS		1
 
 Beep_Serial				DS		1
-;å“é“ƒåºåˆ—
+;ÏìÁåĞòÁĞ
 
 PA_IO_Backup			DS		1
 PC_IO_Backup			DS		1
@@ -152,28 +152,28 @@ PD_IO_Backup			DS		1
 
 ;---------------------------------------
 Time_Str_Addr			EQU		$
-R_Time_Sec				DS		1	;æ—¶é—´ç§’
-R_Time_Min				DS		1	;æ—¶é—´åˆ†
-R_Time_Hour				DS		1	;æ—¶é—´å°æ—¶
-R_Alarm_Min				DS		1	;è§¦å‘é—¹é’Ÿåˆ†
-R_Alarm_Hour			DS		1	;è§¦å‘é—¹é’Ÿå°æ—¶
-R_Date_Day				DS		1	;æ—¥æœŸï¼Œä»1å¼€å§‹
-R_Date_Month			DS		1	;æœˆä»½ï¼Œä»1å¼€å§‹
-R_Date_Year				DS		1	;å¹´ä»½ï¼Œç”±äºåªè®¡2000-2099ï¼Œæ‰€ä»¥ç”±0-99ä»£æ›¿
-R_Date_Week				DS		1	;æ˜ŸæœŸæ•°ï¼Œä»1å¼€å§‹
+R_Time_Sec				DS		1	;Ê±¼äÃë
+R_Time_Min				DS		1	;Ê±¼ä·Ö
+R_Time_Hour				DS		1	;Ê±¼äĞ¡Ê±
+R_Alarm_Min				DS		1	;´¥·¢ÄÖÖÓ·Ö
+R_Alarm_Hour			DS		1	;´¥·¢ÄÖÖÓĞ¡Ê±
+R_Date_Day				DS		1	;ÈÕÆÚ£¬´Ó1¿ªÊ¼
+R_Date_Month			DS		1	;ÔÂ·İ£¬´Ó1¿ªÊ¼
+R_Date_Year				DS		1	;Äê·İ£¬ÓÉÓÚÖ»¼Æ2000-2099£¬ËùÒÔÓÉ0-99´úÌæ
+R_Date_Week				DS		1	;ĞÇÆÚÊı£¬´Ó1¿ªÊ¼
 
 Alarm_Min_Addr			EQU		$
-R_Alarm1_Min			DS		1	;é—¹é’Ÿ1åˆ†
-R_Alarm2_Min			DS		1	;é—¹é’Ÿ2åˆ†
-R_Alarm3_Min			DS		1	;é—¹é’Ÿ3åˆ†
+R_Alarm1_Min			DS		1	;ÄÖÖÓ1·Ö
+R_Alarm2_Min			DS		1	;ÄÖÖÓ2·Ö
+R_Alarm3_Min			DS		1	;ÄÖÖÓ3·Ö
 
 Alarm_Hour_Addr			EQU		$
-R_Alarm1_Hour			DS		1	;é—¹é’Ÿ1å°æ—¶
-R_Alarm2_Hour			DS		1	;é—¹é’Ÿ2å°æ—¶
-R_Alarm3_Hour			DS		1	;é—¹é’Ÿ3å°æ—¶
+R_Alarm1_Hour			DS		1	;ÄÖÖÓ1Ğ¡Ê±
+R_Alarm2_Hour			DS		1	;ÄÖÖÓ2Ğ¡Ê±
+R_Alarm3_Hour			DS		1	;ÄÖÖÓ3Ğ¡Ê±
 
-R_Snooze_Min			DS		1	;è´ªç¡é—¹é’Ÿåˆ†é’Ÿ
-R_Snooze_Hour			DS		1	;è´ªç¡é—¹é’Ÿå°æ—¶
+R_Snooze_Min			DS		1	;Ì°Ë¯ÄÖÖÓ·ÖÖÓ
+R_Snooze_Hour			DS		1	;Ì°Ë¯ÄÖÖÓĞ¡Ê±
 CC0						DS		1
 
 ;---------------------------------------       

@@ -1,26 +1,26 @@
 F_Time_Run:
-	bbs2	Timer_Flag,L_TimeRun_Add				; æœ‰å¢Sæ ‡å¿—æ‰è¿›å¤„ç†
+	bbs2	Timer_Flag,L_TimeRun_Add				; ÓĞÔöS±êÖ¾²Å½ø´¦Àí
 	rts
 L_TimeRun_Add:
-	rmb2	Timer_Flag								; æ¸…å¢Sæ ‡å¿—
+	rmb2	Timer_Flag								; ÇåÔöS±êÖ¾
 
 	inc		R_Time_Sec
 	lda		R_Time_Sec
 	cmp		#60
-	bcc		L_Time_SecRun_Exit						; æœªå‘ç”Ÿåˆ†é’Ÿè¿›ä½
+	bcc		L_Time_SecRun_Exit						; Î´·¢Éú·ÖÖÓ½øÎ»
 	lda		#0
 	sta		R_Time_Sec
 	inc		R_Time_Min
-	jsr		CompensationTime_CHG					; æ¯æ¬¡åŠ åˆ†é’Ÿçš„æ—¶å€™éƒ½è¦å¢å‡æ¸©è¡¥æ—¶é—´
+	jsr		CompensationTime_CHG					; Ã¿´Î¼Ó·ÖÖÓµÄÊ±ºò¶¼ÒªÔö¼õÎÂ²¹Ê±¼ä
 	lda		R_Time_Min
 	cmp		#60
-	bcc		L_Time_SecRun_Exit						; æœªå‘ç”Ÿå°æ—¶è¿›ä½
+	bcc		L_Time_SecRun_Exit						; Î´·¢ÉúĞ¡Ê±½øÎ»
 	lda		#0
 	sta		R_Time_Min
 	inc		R_Time_Hour
 	lda		R_Time_Hour
 	cmp		#24
-	bcc		L_Time_SecRun_Exit						; æœªå‘ç”Ÿå¤©è¿›ä½
+	bcc		L_Time_SecRun_Exit						; Î´·¢ÉúÌì½øÎ»
 	lda		#0
 	sta		R_Time_Hour
 	jsr		F_Calendar_Add
@@ -30,7 +30,7 @@ L_Time_SecRun_Exit:
 
 
 
-; æ—¶é’Ÿæ˜¾ç¤ºæ¨¡å¼
+; Ê±ÖÓÏÔÊ¾Ä£Ê½
 F_Clock_Display:
 	bbs0	Sys_Status_Ordinal,L_DisDate_Mode
 	jsr		F_Time_Display
@@ -42,7 +42,7 @@ L_DisDate_Mode:
 
 
 
-; æ—¶é—´æ˜¾ç¤º
+; Ê±¼äÏÔÊ¾
 F_Time_Display:
 	jsr		F_DP_Display
 	bbs0	Timer_Flag,L_TimeDot_Out
@@ -52,21 +52,21 @@ L_TimeDot_Out:
 	jsr		F_Display_Time
 
 	bbs1	Timer_Flag,L_Dot_Clear
-	jsr		F_DisCol								; æ²¡1Sæ ‡å¿—äº®ç‚¹
-	rts												; åŠSè§¦å‘æ—¶æ²¡1Sæ ‡å¿—ä¸èµ°æ—¶ï¼Œç›´æ¥è¿”å›
+	jsr		F_DisCol								; Ã»1S±êÖ¾ÁÁµã
+	rts												; °ëS´¥·¢Ê±Ã»1S±êÖ¾²»×ßÊ±£¬Ö±½Ó·µ»Ø
 L_Dot_Clear:
 	rmb1	Timer_Flag
-	jsr		F_ClrCol								; æœ‰1Sæ ‡å¿—ç­Sç‚¹
+	jsr		F_ClrCol								; ÓĞ1S±êÖ¾ÃğSµã
 	rts
 
 
 
 
-; æ—¶é’Ÿè®¾ç½®æ¨¡å¼
+; Ê±ÖÓÉèÖÃÄ£Ê½
 F_Clock_Set:
 	lda		Sys_Status_Ordinal
 	bne		No_TMSwitch_Display
-	jmp		F_TimeMode_Switch						; 12/24hæ¨¡å¼åˆ‡æ¢
+	jmp		F_TimeMode_Switch						; 12/24hÄ£Ê½ÇĞ»»
 No_TMSwitch_Display:
 	cmp		#1
 	bne		No_HourSet_Display
@@ -78,18 +78,18 @@ No_HourSet_Display:
 No_MinSet_Display:
 	cmp		#3
 	bne		No_YearSet_Display
-	jsr		F_ClrCol								; æ—¥æœŸä¸æ˜¾ç¤ºCOLå’ŒPM
+	jsr		F_ClrCol								; ÈÕÆÚ²»ÏÔÊ¾COLºÍPM
 	jsr		F_ClrPM
 	jmp		F_DisYear_Set
 No_YearSet_Display:
 	cmp		#4
 	bne		No_MonthSet_Display
-	jsr		F_ClrCol								; æ—¥æœŸä¸æ˜¾ç¤ºCOLå’ŒPM
+	jsr		F_ClrCol								; ÈÕÆÚ²»ÏÔÊ¾COLºÍPM
 	jsr		F_ClrPM
 
 	jmp		F_DisMonth_Set
 No_MonthSet_Display:
-	jsr		F_ClrCol								; æ—¥æœŸä¸æ˜¾ç¤ºCOLå’ŒPM
+	jsr		F_ClrCol								; ÈÕÆÚ²»ÏÔÊ¾COLºÍPM
 	jsr		F_ClrPM
 
 	jmp		F_DisDay_Set
@@ -97,7 +97,7 @@ No_MonthSet_Display:
 
 
 
-; æ—¶é—´è®¾ç½®æ¨¡å¼åˆ‡æ¢æ˜¾ç¤º
+; Ê±¼äÉèÖÃÄ£Ê½ÇĞ»»ÏÔÊ¾
 F_TimeMode_Switch:
 	bbs0	Timer_Flag,L_TimeMode_Out
 	rts
@@ -111,7 +111,7 @@ L_TimeMode_Display:
 	jsr		L_Dis_xxHr
 	rts
 L_Mode_Clear:
-	rmb1	Timer_Flag								; æ¸…1Sæ ‡å¿—
+	rmb1	Timer_Flag								; Çå1S±êÖ¾
 	jsr		F_UnDisplay_D0_1
 	rts
 
@@ -119,40 +119,40 @@ L_Mode_Clear:
 
 
 F_DisHour_Set:
-	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Hour	; æœ‰å¿«åŠ æ—¶ä¸é—ªçƒ
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Hour	; ÓĞ¿ì¼ÓÊ±²»ÉÁË¸
 	bbs0	Timer_Flag,L_Blink_Hour
 	rts
 L_Blink_Hour:
-	rmb0	Timer_Flag								; æ¸…åŠSæ ‡å¿—
+	rmb0	Timer_Flag								; Çå°ëS±êÖ¾
 
 	jsr		F_DisCol
 
 	bbs1	Timer_Flag,L_Hour_Clear
 L_KeyTrigger_NoBlink_Hour:
-	jsr		L_DisTime_Hour							; åŠSäº®
+	jsr		L_DisTime_Hour							; °ëSÁÁ
 	jsr		L_DisTime_Min
 	rts
 L_Hour_Clear:
 	rmb1	Timer_Flag
-	jsr		F_UnDisplay_D0_1						; 1Sç­
+	jsr		F_UnDisplay_D0_1						; 1SÃğ
 	rts
 
 
 F_DisMin_Set:
-	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Min		; æœ‰å¿«åŠ æ—¶ä¸é—ªçƒ
-	bbs0	Timer_Flag,L_Blink_Min					; æ²¡æœ‰åŠSæ ‡å¿—æ—¶ä¸é—ªçƒ
+	bbs3	Timer_Flag,L_KeyTrigger_NoBlink_Min		; ÓĞ¿ì¼ÓÊ±²»ÉÁË¸
+	bbs0	Timer_Flag,L_Blink_Min					; Ã»ÓĞ°ëS±êÖ¾Ê±²»ÉÁË¸
 	rts
 L_Blink_Min:
-	rmb0	Timer_Flag								; æ¸…åŠSæ ‡å¿—
+	rmb0	Timer_Flag								; Çå°ëS±êÖ¾
 
 	jsr		F_DisCol
 
 	bbs1	Timer_Flag,L_Min_Clear
 L_KeyTrigger_NoBlink_Min:
-	jsr		L_DisTime_Min							; åŠSäº®
+	jsr		L_DisTime_Min							; °ëSÁÁ
 	jsr		L_DisTime_Hour
 	rts
 L_Min_Clear:
 	rmb1	Timer_Flag
-	jsr		F_UnDisplay_D2_3						; 1Sç­
+	jsr		F_UnDisplay_D2_3						; 1SÃğ
 	rts
