@@ -109,7 +109,7 @@ F_Timer_Init:
 	lda		#$0
 	sta		TMR2
 
-	lda		#$256-32							; 16Hz一次中断
+	lda		#256-32								; 16Hz一次中断
 	sta		TMR1
 
 	lda		IER									; 开定时器中断

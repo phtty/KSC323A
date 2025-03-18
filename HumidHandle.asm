@@ -2,6 +2,11 @@ L_Humid_Handle:
 	jsr		L_RR_Multi_512
 	jsr		L_RR_Div_RH
 	jsr		L_Search_HumidTable
+	jsr		Humidity_Compen
+	clc
+	lda		R_Humidity
+	adc		R_Humid_Comp
+	sta		R_Humidity
 
 	rts
 
@@ -410,6 +415,24 @@ RR_Multi_512_Loop:
 	rol		RFC_StanderCount_H
 	dec		P_Temp
 	bne		RR_Multi_512_Loop
+	rts
+
+
+
+
+; Êª¶È²¹³¥£¬²¹³¥Çø¼ä27%~85%
+Humidity_Compen:
+	lda		R_Humidity
+	cmp		#27
+	bcc		No_HCompensation
+	lda		R_Humidity
+	cmp		#86
+	bcs		No_HCompensation
+	rts
+
+No_HCompensation:
+	lda		#0
+	sta		R_Humid_Comp					; Çå¿Õ²¹³¥Öµ
 	rts
 
 

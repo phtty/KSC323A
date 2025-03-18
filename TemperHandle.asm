@@ -180,15 +180,14 @@ Temper_Compen:
 
 No_Compensation:
 	lda		#0
-	sta		R_Temper_Comp					; 清空补偿值和补偿时间
-	sta		R_Temper_Comp_Time
+	sta		R_Temper_Comp					; 清空补偿值
 	rts
 
 ; 通过补偿时间计算补偿值
 Compensation_Trigger:
 	ldx		#0
 ?Loop_Start:
-	lda		R_Temper_Comp_Time
+	lda		R_Comp_Time
 	sec
 	sbc		CompensationLevel_Table,x		; 当前补偿时间循环查表得出补偿等级
 	bcc		?Loop_Over
@@ -202,32 +201,34 @@ Compensation_Trigger:
 Compensation_Juge:
 	bbr0	PC_IO_Backup,LowLight_ADJ
 	sta		R_Temper_Comp
+	sta		R_Humid_Comp
 	rts
 LowLight_ADJ:
 	clc
 	ror
 	sta		R_Temper_Comp
+	sta		R_Humid_Comp
 	rts
 
 
 ; 根据高亮低亮熄屏增减补偿时间
 CompensationTime_CHG:
 	lda		#18
-	cmp		R_Temper_Comp_Time
+	cmp		R_Comp_Time
 	bcc		DecCompensation					; 补偿时间若大于最大补偿时间则直接转入补偿时间递减
 
 	bbs4	PD,DecCompensation				; 熄屏状态也转入补偿时间递减
-	lda		R_Temper_Comp_Time
+	lda		R_Comp_Time
 	cmp		#18	
 	bcs		CompensationTime_Overflow		; 补偿计时若大于等于最大补偿时间则溢出不处理
-	inc		R_Temper_Comp_Time
+	inc		R_Comp_Time
 CompensationTime_Overflow:
 	rts
 
 DecCompensation:
-	lda		R_Temper_Comp_Time
+	lda		R_Comp_Time
 	beq		CompensationTime_Overflow		; 补偿计时若等于0则溢出不处理
-	dec		R_Temper_Comp_Time
+	dec		R_Comp_Time
 	rts
 
 

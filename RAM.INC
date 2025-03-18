@@ -141,7 +141,8 @@ R_Temperature_F			DS		1
 R_Humidity				DS		1
 
 R_Temper_Comp			DS		1
-R_Temper_Comp_Time		DS		1
+R_Humid_Comp			DS		1
+R_Comp_Time				DS		1
 
 Beep_Serial				DS		1
 ;œÏ¡Â–Ú¡–
