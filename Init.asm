@@ -28,7 +28,7 @@ F_Init_SystemRam:								; 系统内存初始化
 	sta		R_Date_Day
 	lda		#01
 	sta		R_Date_Month
-	lda		#24
+	lda		#25
 	sta		R_Date_Year
 	;lda		#00
 	;sta		R_Date_Week
