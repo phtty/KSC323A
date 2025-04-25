@@ -43,10 +43,10 @@ L_Clear_Ram_Loop:
 	jsr		F_Timer_Init
 	jsr		F_RFC_Init
 
+	rmb4	IER										; 关闭按键中断避免上电过程被打扰
 	cli												; 开总中断
 
 ; 上电处理
-	rmb4	IER										;  关闭按键中断避免上电过程被打扰
 	lda		#1
 	sta		Backlight_Level
 	smb0	PC										; 初始亮度设置为高亮
@@ -55,6 +55,8 @@ L_Clear_Ram_Loop:
 	jsr		F_Test_Mode								; 上电显示部分
 
 	jsr		F_RFC_MeasureStart						; 上电温湿度测量
+	rmb0	Key_Flag								; 清空按键相关标志位
+	rmb1	RFC_Flag
 Wait_RFC_MeasureOver:
 	jsr		F_RFC_MeasureManage
 	bbs0	RFC_Flag,Wait_RFC_MeasureOver
@@ -79,7 +81,9 @@ Loop_BeepTest:										; 响铃两声
 	lda		#0
 	sta		Sys_Status_Ordinal
 
-	smb4	IER										;  上电显示完成，重新开启按键中断
+	jsr		F_KeyMatrix_Reset
+	rmb4	IFR									; 复位标志位,避免中断开启时直接进入中断服务
+	smb4	IER									; 按键处理结束，重新开启PA口中断
 
 	bra		Global_Run
 

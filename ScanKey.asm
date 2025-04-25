@@ -76,7 +76,7 @@ No_KeyATrigger:
 	jmp		L_KeyMTrigger						; M键触发
 
 L_KeyExit:
-	rmb1	TMRC								; 关闭快加16Hz计时的定时器
+	rmb1	TMRC								; 关闭快加计时的定时器
 	rmb0	Key_Flag							; 清相关标志位
 	rmb3	Timer_Flag
 	lda		#0									; 清理相关变量
